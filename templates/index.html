@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<title>Monitor Protheus</title>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-900">
+
+<div class="mx-auto max-w-7xl p-6">
+    <div class="mb-6 rounded-3xl bg-slate-900 px-6 py-5 text-white shadow-xl">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <p class="text-sm uppercase tracking-[0.3em] text-slate-300">Monitor Protheus</p>
+                <h1 class="text-3xl font-bold">Controle seguro de serviços e usuários</h1>
+                <p class="mt-2 text-sm text-slate-300">Acesso liberado apenas para usuários autenticados e previamente cadastrados.</p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 sm:items-center">
+                <button onclick="toggleSecurityPanel()" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
+                    Segurança e Usuários
+                </button>
+                <button id="logsButton" onclick="toggleLogs()" class="relative rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-400">
+                    Logs
+                    <span id="badge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
+                </button>
+                <button onclick="logout()" class="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">Sair</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="rounded-3xl bg-white p-5 shadow-sm">
+        <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-xl font-semibold">Serviços monitorados</h2>
+                <p class="text-sm text-slate-500">Somente usuários autenticados conseguem consultar status e executar ações.</p>
+            </div>
+
+            <select id="envFilter" class="rounded-xl border border-slate-200 px-3 py-2 text-sm"></select>
+        </div>
+
+        <div id="tabs" class="mb-4 flex flex-wrap gap-2"></div>
+        <div id="content"></div>
+    </section>
+</div>
+
+<div id="toast" class="hidden fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
+
+<div id="securityModal" class="hidden fixed inset-0 z-50 bg-slate-950/50">
+    <div class="flex min-h-screen">
+        <button class="hidden flex-1 md:block" onclick="toggleSecurityPanel()"></button>
+        <aside class="h-screen w-full max-w-xl overflow-y-auto bg-white shadow-2xl">
+            <div class="sticky top-0 border-b border-slate-200 bg-white px-6 py-5">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Painel lateral</p>
+                        <h2 class="text-2xl font-bold text-slate-900">Segurança e gerenciamento</h2>
+                        <p class="mt-1 text-sm text-slate-500">Sessão atual e manutenção de usuários em um único painel.</p>
+                    </div>
+                    <button onclick="toggleSecurityPanel()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
+                </div>
+            </div>
+
+            <div class="space-y-6 p-6">
+                <section class="rounded-3xl bg-slate-50 p-5">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">Segurança</h3>
+                        <p class="text-sm text-slate-500">Dados do usuário autenticado nesta sessão.</p>
+                    </div>
+
+                    <div class="space-y-3 text-sm">
+                        <div class="rounded-2xl bg-white p-4 shadow-sm">
+                            <div class="text-slate-500">Usuário autenticado</div>
+                            <div class="font-semibold text-slate-900">{{ user.username }}</div>
+                        </div>
+                        <div class="rounded-2xl bg-white p-4 shadow-sm">
+                            <div class="text-slate-500">Permissão atual</div>
+                            <div class="font-semibold text-slate-900">{{ user.role }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rounded-3xl bg-slate-50 p-5">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">Gerenciamento de usuários</h3>
+                        <p class="text-sm text-slate-500">Área exclusiva para administradores cadastrados.</p>
+                    </div>
+
+                    {% if user.role == "admin" %}
+                    <form id="userForm" class="space-y-3">
+                        <input id="newUsername" placeholder="Novo usuário" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <input id="newPassword" type="password" placeholder="Senha inicial" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <select id="newRole" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                            <option value="operator">Operador</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        <button type="submit" class="w-full rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700">Cadastrar usuário</button>
+                    </form>
+
+                    <div id="usersList" class="mt-5 space-y-3"></div>
+                    {% else %}
+                    <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
+                        Seu perfil não possui permissão para administrar cadastros.
+                    </div>
+                    {% endif %}
+                </section>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="logModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+    <div class="max-h-[80vh] w-full max-w-3xl rounded-3xl bg-white p-5 shadow-2xl">
+        <div class="mb-4 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold">Eventos registrados</h2>
+                <p class="text-sm text-slate-500">Histórico das ações executadas na aplicação.</p>
+            </div>
+            <button onclick="toggleLogs()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
+        </div>
+        <div id="logContent" class="max-h-[60vh] space-y-3 overflow-y-auto"></div>
+    </div>
+</div>
+
+<script>
+const currentUser = {{ user|tojson }};
+let environmentsData = [];
+let activeTab = 0;
+let lastRead = localStorage.getItem("lastRead") || null;
+let allLogs = [];
+
+function getColor(status) {
+    if (status === "RUNNING") return "text-emerald-600";
+    if (status === "STOPPED") return "text-rose-600";
+    if (status === "NOT FOUND") return "text-slate-400";
+    return "text-amber-600";
+}
+
+function showToast(message, type = "error") {
+    const toast = document.getElementById("toast");
+    toast.className = `fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg ${type === "success" ? "bg-emerald-600" : "bg-rose-600"}`;
+    toast.textContent = message;
+    toast.classList.remove("hidden");
+    setTimeout(() => toast.classList.add("hidden"), 4000);
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+function toggleSecurityPanel() {
+    document.getElementById("securityModal").classList.toggle("hidden");
+}
+
+async function apiFetch(url, options = {}) {
+    const response = await fetch(url, options);
+
+    if (response.status === 401) {
+        window.location.href = "/login";
+        return null;
+    }
+
+    const data = await response.json();
+    return { response, data };
+}
+
+async function loadServices() {
+    const statusResult = await apiFetch("/status");
+    if (!statusResult) return;
+
+    environmentsData = statusResult.data;
+
+    const filter = document.getElementById("envFilter");
+    const currentValue = filter.value;
+    filter.innerHTML = '<option value="">Todos os ambientes</option>';
+
+    environmentsData.forEach((env) => {
+        filter.innerHTML += `<option value="${env.environment}">${env.environment}</option>`;
+    });
+
+    if ([...filter.options].some((option) => option.value === currentValue)) {
+        filter.value = currentValue;
+    }
+
+    const filtered = getFilteredEnvironments();
+    if (activeTab >= filtered.length) {
+        activeTab = 0;
+    }
+
+    renderTabs();
+    renderContent();
+
+    const logsResult = await apiFetch("/logs");
+    if (!logsResult) return;
+    allLogs = logsResult.data;
+    updateBadge();
+}
+
+function getFilteredEnvironments() {
+    const selected = document.getElementById("envFilter").value;
+    return selected ? environmentsData.filter((item) => item.environment === selected) : environmentsData;
+}
+
+function updateBadge() {
+    const badge = document.getElementById("badge");
+
+    if (!allLogs.length) {
+        badge.classList.add("hidden");
+        return;
+    }
+
+    if (!lastRead) {
+        badge.textContent = allLogs.length;
+        badge.classList.remove("hidden");
+        return;
+    }
+
+    const unread = allLogs.filter((log) => log.datetime > lastRead);
+    if (unread.length > 0) {
+        badge.textContent = unread.length;
+        badge.classList.remove("hidden");
+    } else {
+        badge.classList.add("hidden");
+    }
+}
+
+function renderTabs() {
+    const tabs = document.getElementById("tabs");
+    const filtered = getFilteredEnvironments();
+
+    tabs.innerHTML = "";
+    filtered.forEach((env, index) => {
+        const selectedClass = activeTab === index ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700";
+        tabs.innerHTML += `
+            <button onclick="setTab(${index})" class="rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedClass}">
+                ${env.environment}
+            </button>
+        `;
+    });
+}
+
+function setTab(index) {
+    activeTab = index;
+    renderTabs();
+    renderContent();
+}
+
+function renderContent() {
+    const content = document.getElementById("content");
+    const filtered = getFilteredEnvironments();
+
+    if (!filtered.length) {
+        content.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Nenhum ambiente disponível para o filtro selecionado.</div>';
+        return;
+    }
+
+    const env = filtered[activeTab];
+    if (!env) {
+        activeTab = 0;
+        renderTabs();
+        renderContent();
+        return;
+    }
+
+    let html = '<div class="grid gap-3">';
+
+    env.services.forEach((service) => {
+        html += `
+            <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <div class="font-semibold text-slate-900">${service.name}</div>
+                    <div class="${getColor(service.status)} text-sm font-semibold">${service.status}</div>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="sendAction('${service.name}', 'start')" class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">Start</button>
+                    <button onclick="sendAction('${service.name}', 'stop')" class="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-400">Stop</button>
+                    <button onclick="sendAction('${service.name}', 'restart')" class="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">Restart</button>
+                </div>
+            </div>
+        `;
+    });
+
+    html += "</div>";
+    content.innerHTML = html;
+}
+
+async function sendAction(service, action) {
+    const result = await apiFetch("/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ service, action })
+    });
+
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Erro ao executar a ação.");
+        return;
+    }
+
+    showToast(`Ação ${action} executada para ${service}.`, "success");
+    await loadServices();
+}
+
+async function toggleLogs() {
+    const modal = document.getElementById("logModal");
+    modal.classList.toggle("hidden");
+
+    if (modal.classList.contains("hidden")) {
+        return;
+    }
+
+    const result = await apiFetch("/logs");
+    if (!result) return;
+
+    allLogs = result.data;
+    const container = document.getElementById("logContent");
+    container.innerHTML = "";
+
+    if (!allLogs.length) {
+        container.innerHTML = '<div class="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">Nenhum evento registrado até o momento.</div>';
+        return;
+    }
+
+    allLogs.forEach((log) => {
+        container.innerHTML += `
+            <div class="rounded-2xl border border-slate-200 p-4 text-sm">
+                <div class="mb-2 font-semibold text-slate-900">${log.datetime}</div>
+                <div><span class="text-slate-500">Serviço:</span> ${escapeHtml(log.service)}</div>
+                <div><span class="text-slate-500">Ação:</span> ${escapeHtml(log.action)}</div>
+                <div><span class="text-slate-500">Resultado:</span> ${escapeHtml(log.result)}</div>
+                <div><span class="text-slate-500">Usuário:</span> ${escapeHtml(log.user)}</div>
+            </div>
+        `;
+    });
+
+    lastRead = allLogs[0].datetime;
+    localStorage.setItem("lastRead", lastRead);
+    updateBadge();
+}
+
+async function logout() {
+    const result = await apiFetch("/logout", { method: "POST" });
+    if (result && result.data.success) {
+        window.location.href = "/login";
+    }
+}
+
+async function loadUsers() {
+    if (currentUser.role !== "admin") {
+        return;
+    }
+
+    const result = await apiFetch("/users");
+    if (!result) return;
+
+    const container = document.getElementById("usersList");
+    container.innerHTML = "";
+
+    result.data.forEach((user) => {
+        const isCurrentUser = user.username === currentUser.username;
+        const checked = user.active ? "checked" : "";
+        const disabled = isCurrentUser ? "disabled" : "";
+
+        container.innerHTML += `
+            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <div class="font-semibold text-slate-900">${escapeHtml(user.username)}</div>
+                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500">${escapeHtml(user.role)}</div>
+                    </div>
+                    <label class="flex items-center gap-2 text-sm text-slate-600">
+                        <input id="active-${user.username}" type="checkbox" ${checked} ${disabled} onchange="toggleUserStatus('${user.username}', this.checked)">
+                        Ativo
+                    </label>
+                </div>
+
+                <div class="grid gap-2 md:grid-cols-[1fr_180px_180px]">
+                    <input id="pwd-${user.username}" type="password" placeholder="Nova senha" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    <select id="role-${user.username}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                        <option value="operator" ${user.role === "operator" ? "selected" : ""}>Operador</option>
+                        <option value="admin" ${user.role === "admin" ? "selected" : ""}>Administrador</option>
+                    </select>
+                    <button onclick="saveUser('${user.username}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+async function saveUser(username) {
+    const password = document.getElementById(`pwd-${username}`).value;
+    const role = document.getElementById(`role-${username}`).value;
+    const checkbox = document.getElementById(`active-${username}`);
+    const active = checkbox ? checkbox.checked : true;
+
+    const payload = { role, active };
+    if (password) {
+        payload.password = password;
+    }
+
+    const result = await apiFetch(`/users/${encodeURIComponent(username)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível atualizar o usuário.");
+        return;
+    }
+
+    showToast(`Usuário ${username} atualizado com sucesso.`, "success");
+    await loadUsers();
+}
+
+async function toggleUserStatus(username, active) {
+    const role = document.getElementById(`role-${username}`).value;
+    const password = document.getElementById(`pwd-${username}`).value;
+    const payload = { role, active };
+    if (password) {
+        payload.password = password;
+    }
+
+    const result = await apiFetch(`/users/${encodeURIComponent(username)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível atualizar o usuário.");
+        await loadUsers();
+        return;
+    }
+
+    showToast(`Status de ${username} atualizado.`, "success");
+    await loadUsers();
+}
+
+const userForm = document.getElementById("userForm");
+if (userForm) {
+    userForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const username = document.getElementById("newUsername").value.trim();
+        const password = document.getElementById("newPassword").value;
+        const role = document.getElementById("newRole").value;
+
+        const result = await apiFetch("/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, role })
+        });
+
+        if (!result) return;
+
+        if (!result.response.ok || !result.data.success) {
+            showToast(result.data.error || "Não foi possível cadastrar o usuário.");
+            return;
+        }
+
+        userForm.reset();
+        showToast(`Usuário ${username} cadastrado com sucesso.`, "success");
+        await loadUsers();
+    });
+}
+
+document.getElementById("envFilter").addEventListener("change", () => {
+    activeTab = 0;
+    renderTabs();
+    renderContent();
+});
+
+setInterval(loadServices, 5000);
+loadServices();
+loadUsers();
+</script>
+
+</body>
+</html>

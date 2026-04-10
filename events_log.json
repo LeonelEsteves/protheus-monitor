@@ -1,0 +1,30 @@
+[
+  {
+    "datetime": "2026-04-10 17:41:20",
+    "service": "TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "leonel.diniz"
+  },
+  {
+    "datetime": "2026-04-10 17:36:23",
+    "service": "TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "restart",
+    "result": "SUCCESS",
+    "user": "anon"
+  },
+  {
+    "datetime": "2026-04-10 17:31:52",
+    "service": "TOTVS-Appserver12-APEX-HML3",
+    "action": "restart",
+    "result": "SUCCESS",
+    "user": "anon"
+  },
+  {
+    "datetime": "2026-04-10 17:31:51",
+    "service": "TOTVS-Appserver12-APEX-HML3",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "anon"
+  }
+]
