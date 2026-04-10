@@ -1,0 +1,56 @@
+[
+  {
+    "id": "apex-hml3",
+    "name": "APEX-HML3",
+    "host": "127.0.0.1",
+    "services": [
+      {
+        "name": "TOTVS-Appserver12-APEX-HML3",
+        "port": ""
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML3-REST",
+        "port": ""
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML3-SCHED",
+        "port": ""
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML3-WF",
+        "port": ""
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML3-WS",
+        "port": ""
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML3-WS2",
+        "port": ""
+      }
+    ]
+  },
+  {
+    "id": "infra",
+    "name": "INFRA",
+    "host": "127.0.0.1",
+    "services": [
+      {
+        "name": "licenseVirtual",
+        "port": ""
+      },
+      {
+        "name": "TOTVSDBAccess64",
+        "port": ""
+      },
+      {
+        "name": "TOTVSDBAccess64TSS",
+        "port": ""
+      },
+      {
+        "name": "TOTVSservice",
+        "port": ""
+      }
+    ]
+  }
+]

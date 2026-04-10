@@ -13,13 +13,13 @@
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
                 <p class="text-sm uppercase tracking-[0.3em] text-slate-300">Monitor Protheus</p>
-                <h1 class="text-3xl font-bold">Controle seguro de serviços e usuários</h1>
+                <h1 class="text-3xl font-bold">Controle seguro de serviços e ambientes</h1>
                 <p class="mt-2 text-sm text-slate-300">Acesso liberado apenas para usuários autenticados e previamente cadastrados.</p>
             </div>
 
             <div class="flex flex-wrap gap-2 sm:items-center">
                 <button onclick="toggleSecurityPanel()" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
-                    Segurança e Usuários
+                    Segurança, Usuários e Ambientes
                 </button>
                 <button id="logsButton" onclick="toggleLogs()" class="relative rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-400">
                     Logs
@@ -34,7 +34,7 @@
         <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-xl font-semibold">Serviços monitorados</h2>
-                <p class="text-sm text-slate-500">Somente usuários autenticados conseguem consultar status e executar ações.</p>
+                <p class="text-sm text-slate-500">Cada ambiente cadastrado aparece aqui com o mesmo formato de abas centrais.</p>
             </div>
 
             <select id="envFilter" class="rounded-xl border border-slate-200 px-3 py-2 text-sm"></select>
@@ -50,20 +50,26 @@
 <div id="securityModal" class="hidden fixed inset-0 z-50 bg-slate-950/50">
     <div class="flex min-h-screen">
         <button class="hidden flex-1 md:block" onclick="toggleSecurityPanel()"></button>
-        <aside class="h-screen w-full max-w-xl overflow-y-auto bg-white shadow-2xl">
-            <div class="sticky top-0 border-b border-slate-200 bg-white px-6 py-5">
+        <aside class="h-screen w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
+            <div class="sticky top-0 z-10 border-b border-slate-200 bg-white px-6 py-5">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Painel lateral</p>
                         <h2 class="text-2xl font-bold text-slate-900">Segurança e gerenciamento</h2>
-                        <p class="mt-1 text-sm text-slate-500">Sessão atual e manutenção de usuários em um único painel.</p>
+                        <p class="mt-1 text-sm text-slate-500">Sessão atual, manutenção de usuários e cadastro de ambientes.</p>
                     </div>
                     <button onclick="toggleSecurityPanel()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <button onclick="setAdminTab('security')" id="tab-security" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Segurança</button>
+                    <button onclick="setAdminTab('users')" id="tab-users" class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Usuários</button>
+                    <button onclick="setAdminTab('environments')" id="tab-environments" class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Ambientes</button>
                 </div>
             </div>
 
             <div class="space-y-6 p-6">
-                <section class="rounded-3xl bg-slate-50 p-5">
+                <section id="panel-security" class="rounded-3xl bg-slate-50 p-5">
                     <div class="mb-4">
                         <h3 class="text-lg font-semibold">Segurança</h3>
                         <p class="text-sm text-slate-500">Dados do usuário autenticado nesta sessão.</p>
@@ -81,7 +87,7 @@
                     </div>
                 </section>
 
-                <section class="rounded-3xl bg-slate-50 p-5">
+                <section id="panel-users" class="hidden rounded-3xl bg-slate-50 p-5">
                     <div class="mb-4">
                         <h3 class="text-lg font-semibold">Gerenciamento de usuários</h3>
                         <p class="text-sm text-slate-500">Área exclusiva para administradores cadastrados.</p>
@@ -102,6 +108,37 @@
                     {% else %}
                     <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
                         Seu perfil não possui permissão para administrar cadastros.
+                    </div>
+                    {% endif %}
+                </section>
+
+                <section id="panel-environments" class="hidden rounded-3xl bg-slate-50 p-5">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">Cadastro de ambientes</h3>
+                        <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e porta de cada serviço.</p>
+                    </div>
+
+                    {% if user.role == "admin" %}
+                    <form id="environmentForm" class="space-y-3">
+                        <input id="environmentName" placeholder="Nome do ambiente" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <input id="environmentHost" placeholder="Endereço IP ou hostname" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <div>
+                            <div class="mb-2 flex items-center justify-between">
+                                <span class="text-sm font-medium text-slate-700">Serviços</span>
+                                <button type="button" onclick="addServiceRow()" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Adicionar serviço</button>
+                            </div>
+                            <div id="serviceRows" class="space-y-2"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-1 rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
+                            <button type="button" onclick="resetEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Limpar</button>
+                        </div>
+                    </form>
+
+                    <div id="environmentsList" class="mt-5 space-y-3"></div>
+                    {% else %}
+                    <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
+                        Seu perfil não possui permissão para administrar ambientes.
                     </div>
                     {% endif %}
                 </section>
@@ -126,7 +163,10 @@
 <script>
 const currentUser = {{ user|tojson }};
 let environmentsData = [];
+let adminEnvironments = [];
 let activeTab = 0;
+let activeAdminTab = "security";
+let editingEnvironmentId = null;
 let lastRead = localStorage.getItem("lastRead") || null;
 let allLogs = [];
 
@@ -158,6 +198,18 @@ function toggleSecurityPanel() {
     document.getElementById("securityModal").classList.toggle("hidden");
 }
 
+function setAdminTab(tabName) {
+    activeAdminTab = tabName;
+    ["security", "users", "environments"].forEach((tab) => {
+        document.getElementById(`panel-${tab}`).classList.toggle("hidden", tab !== tabName);
+        const button = document.getElementById(`tab-${tab}`);
+        button.classList.toggle("bg-slate-900", tab === tabName);
+        button.classList.toggle("text-white", tab === tabName);
+        button.classList.toggle("bg-slate-100", tab !== tabName);
+        button.classList.toggle("text-slate-700", tab !== tabName);
+    });
+}
+
 async function apiFetch(url, options = {}) {
     const response = await fetch(url, options);
 
@@ -168,6 +220,11 @@ async function apiFetch(url, options = {}) {
 
     const data = await response.json();
     return { response, data };
+}
+
+function getFilteredEnvironments() {
+    const selected = document.getElementById("envFilter").value;
+    return selected ? environmentsData.filter((item) => item.id === selected) : environmentsData;
 }
 
 async function loadServices() {
@@ -181,7 +238,7 @@ async function loadServices() {
     filter.innerHTML = '<option value="">Todos os ambientes</option>';
 
     environmentsData.forEach((env) => {
-        filter.innerHTML += `<option value="${env.environment}">${env.environment}</option>`;
+        filter.innerHTML += `<option value="${env.id}">${env.environment}</option>`;
     });
 
     if ([...filter.options].some((option) => option.value === currentValue)) {
@@ -200,11 +257,6 @@ async function loadServices() {
     if (!logsResult) return;
     allLogs = logsResult.data;
     updateBadge();
-}
-
-function getFilteredEnvironments() {
-    const selected = document.getElementById("envFilter").value;
-    return selected ? environmentsData.filter((item) => item.environment === selected) : environmentsData;
 }
 
 function updateBadge() {
@@ -239,7 +291,7 @@ function renderTabs() {
         const selectedClass = activeTab === index ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700";
         tabs.innerHTML += `
             <button onclick="setTab(${index})" class="rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedClass}">
-                ${env.environment}
+                ${escapeHtml(env.environment)}
             </button>
         `;
     });
@@ -268,20 +320,29 @@ function renderContent() {
         return;
     }
 
-    let html = '<div class="grid gap-3">';
+    let html = `
+        <div class="mb-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+            <span class="font-semibold text-slate-900">Ambiente:</span> ${escapeHtml(env.environment)}
+            <span class="mx-3 text-slate-300">|</span>
+            <span class="font-semibold text-slate-900">IP:</span> ${escapeHtml(env.host || "local")}
+        </div>
+        <div class="grid gap-3">
+    `;
 
     env.services.forEach((service) => {
+        const portLabel = service.port ? `Porta ${escapeHtml(service.port)}` : "Porta não informada";
         html += `
             <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <div class="font-semibold text-slate-900">${service.name}</div>
-                    <div class="${getColor(service.status)} text-sm font-semibold">${service.status}</div>
+                    <div class="font-semibold text-slate-900">${escapeHtml(service.name)}</div>
+                    <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">${portLabel}</div>
+                    <div class="${getColor(service.status)} mt-2 text-sm font-semibold">${escapeHtml(service.status)}</div>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="sendAction('${service.name}', 'start')" class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">Start</button>
-                    <button onclick="sendAction('${service.name}', 'stop')" class="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-400">Stop</button>
-                    <button onclick="sendAction('${service.name}', 'restart')" class="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">Restart</button>
+                    <button onclick="sendAction('${env.id}', '${jsEscape(service.name)}', 'start')" class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">Start</button>
+                    <button onclick="sendAction('${env.id}', '${jsEscape(service.name)}', 'stop')" class="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-400">Stop</button>
+                    <button onclick="sendAction('${env.id}', '${jsEscape(service.name)}', 'restart')" class="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">Restart</button>
                 </div>
             </div>
         `;
@@ -291,11 +352,15 @@ function renderContent() {
     content.innerHTML = html;
 }
 
-async function sendAction(service, action) {
+function jsEscape(value) {
+    return String(value).replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+}
+
+async function sendAction(environmentId, service, action) {
     const result = await apiFetch("/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ service, action })
+        body: JSON.stringify({ environment_id: environmentId, service, action })
     });
 
     if (!result) return;
@@ -332,7 +397,7 @@ async function toggleLogs() {
     allLogs.forEach((log) => {
         container.innerHTML += `
             <div class="rounded-2xl border border-slate-200 p-4 text-sm">
-                <div class="mb-2 font-semibold text-slate-900">${log.datetime}</div>
+                <div class="mb-2 font-semibold text-slate-900">${escapeHtml(log.datetime)}</div>
                 <div><span class="text-slate-500">Serviço:</span> ${escapeHtml(log.service)}</div>
                 <div><span class="text-slate-500">Ação:</span> ${escapeHtml(log.action)}</div>
                 <div><span class="text-slate-500">Resultado:</span> ${escapeHtml(log.result)}</div>
@@ -449,6 +514,104 @@ async function toggleUserStatus(username, active) {
     await loadUsers();
 }
 
+function addServiceRow(name = "", port = "") {
+    const container = document.getElementById("serviceRows");
+    const row = document.createElement("div");
+    row.className = "grid gap-2 rounded-2xl border border-slate-200 bg-white p-3 md:grid-cols-[1fr_160px_60px]";
+    row.innerHTML = `
+        <input value="${escapeHtml(name)}" placeholder="Nome do serviço" class="service-name rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        <input value="${escapeHtml(port)}" placeholder="Porta" class="service-port rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700">Remover</button>
+    `;
+    row.querySelector("button").addEventListener("click", () => row.remove());
+    container.appendChild(row);
+}
+
+function readEnvironmentServices() {
+    return [...document.querySelectorAll("#serviceRows > div")].map((row) => ({
+        name: row.querySelector(".service-name").value.trim(),
+        port: row.querySelector(".service-port").value.trim(),
+    })).filter((service) => service.name);
+}
+
+function resetEnvironmentForm() {
+    editingEnvironmentId = null;
+    document.getElementById("environmentForm").reset();
+    document.getElementById("serviceRows").innerHTML = "";
+    addServiceRow();
+}
+
+function fillEnvironmentForm(environment) {
+    editingEnvironmentId = environment.id;
+    document.getElementById("environmentName").value = environment.name;
+    document.getElementById("environmentHost").value = environment.host;
+    document.getElementById("serviceRows").innerHTML = "";
+    environment.services.forEach((service) => addServiceRow(service.name, service.port));
+    setAdminTab("environments");
+    toggleSecurityPanelIfNeeded();
+}
+
+function toggleSecurityPanelIfNeeded() {
+    if (document.getElementById("securityModal").classList.contains("hidden")) {
+        toggleSecurityPanel();
+    }
+}
+
+async function loadEnvironmentAdmin() {
+    if (currentUser.role !== "admin") {
+        return;
+    }
+
+    const result = await apiFetch("/environments");
+    if (!result) return;
+
+    adminEnvironments = result.data;
+    const container = document.getElementById("environmentsList");
+    container.innerHTML = "";
+
+    adminEnvironments.forEach((environment) => {
+        const servicesLabel = environment.services.map((service) => `${service.name}${service.port ? `:${service.port}` : ""}`).join(", ");
+        container.innerHTML += `
+            <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                        <div class="font-semibold text-slate-900">${escapeHtml(environment.name)}</div>
+                        <div class="mt-1 text-sm text-slate-500">IP: ${escapeHtml(environment.host)}</div>
+                        <div class="mt-2 text-sm text-slate-600">${escapeHtml(servicesLabel || "Sem serviços cadastrados")}</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editEnvironment('${environment.id}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Editar</button>
+                        <button onclick="removeEnvironment('${environment.id}')" class="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600">Excluir</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function editEnvironment(environmentId) {
+    const environment = adminEnvironments.find((item) => item.id === environmentId);
+    if (!environment) {
+        return;
+    }
+    fillEnvironmentForm(environment);
+}
+
+async function removeEnvironment(environmentId) {
+    const result = await apiFetch(`/environments/${encodeURIComponent(environmentId)}`, { method: "DELETE" });
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível excluir o ambiente.");
+        return;
+    }
+
+    showToast("Ambiente removido com sucesso.", "success");
+    await loadEnvironmentAdmin();
+    await loadServices();
+    resetEnvironmentForm();
+}
+
 const userForm = document.getElementById("userForm");
 if (userForm) {
     userForm.addEventListener("submit", async (event) => {
@@ -477,15 +640,52 @@ if (userForm) {
     });
 }
 
+const environmentForm = document.getElementById("environmentForm");
+if (environmentForm) {
+    environmentForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const payload = {
+            name: document.getElementById("environmentName").value.trim(),
+            host: document.getElementById("environmentHost").value.trim(),
+            services: readEnvironmentServices(),
+        };
+
+        const url = editingEnvironmentId ? `/environments/${encodeURIComponent(editingEnvironmentId)}` : "/environments";
+        const method = editingEnvironmentId ? "PUT" : "POST";
+
+        const result = await apiFetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!result) return;
+
+        if (!result.response.ok || !result.data.success) {
+            showToast(result.data.error || "Não foi possível salvar o ambiente.");
+            return;
+        }
+
+        showToast(`Ambiente ${payload.name} salvo com sucesso.`, "success");
+        resetEnvironmentForm();
+        await loadEnvironmentAdmin();
+        await loadServices();
+    });
+}
+
 document.getElementById("envFilter").addEventListener("change", () => {
     activeTab = 0;
     renderTabs();
     renderContent();
 });
 
+setAdminTab("security");
+resetEnvironmentForm();
 setInterval(loadServices, 5000);
 loadServices();
 loadUsers();
+loadEnvironmentAdmin();
 </script>
 
 </body>
