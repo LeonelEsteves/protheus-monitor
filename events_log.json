@@ -1,5 +1,110 @@
 [
   {
+    "datetime": "2026-04-10 20:03:00",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "restart",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:59:25",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "restart",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:58:39",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:57:49",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:52:15",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:51:42",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:50:50",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:50:29",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:50:29",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "restart",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:49:11",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "restart",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:48:42",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "restart",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:48:41",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:48:41",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:48:41",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 19:48:37",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-10 17:41:20",
     "service": "TOTVS-Appserver12-APEX-HML3-SCHED",
     "action": "stop",

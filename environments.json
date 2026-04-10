@@ -52,5 +52,16 @@
         "port": ""
       }
     ]
+  },
+  {
+    "id": "apex-hml1",
+    "name": "APEX-HML1",
+    "host": "10.10.1.68",
+    "services": [
+      {
+        "name": "TOTVS-Appserver12-APEX-HML1",
+        "port": "6001"
+      }
+    ]
   }
 ]

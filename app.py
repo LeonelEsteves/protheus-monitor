@@ -345,7 +345,33 @@ def session_info():
 @app.route("/")
 @login_required
 def index():
-    return render_template("index.html", user=current_user())
+    environments = load_environments()
+    initial_environments = []
+
+    for environment in environments:
+        initial_environments.append(
+            {
+                "id": environment["id"],
+                "environment": environment["name"],
+                "host": environment.get("host", ""),
+                "services": [
+                    {
+                        "name": service["name"],
+                        "port": service.get("port", ""),
+                        "status": "LOADING",
+                    }
+                    for service in environment.get("services", [])
+                ],
+            }
+        )
+
+    return render_template("index.html", user=current_user(), initial_environments=initial_environments)
+
+
+@app.route("/admin")
+@admin_required
+def admin_panel():
+    return render_template("admin.html", user=current_user())
 
 
 @app.route("/status")
