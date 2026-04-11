@@ -1,9 +1,16 @@
 [
   {
     "username": "admin",
-    "password_hash": "scrypt:32768:8:1$lwRYxo4dDXgHwpcQ$556ecfe8d667b0363627b2b2a08e41c8b38283f7712a23ca6495221ecc601b503e6712ca59e6724a8fc55cfe337a560354622ac603abaa9266e30a63b15f5407",
+    "password_hash": "scrypt:32768:8:1$ObGeisnz5aD3rTox$37cd840ba090a129d7eb9fb2626ee810858f0f9914ca9ee5ad96ffda1bd43e6cdaa6b930b7ac73f41796a3d9f3dad551607a5c58a9f59f175c198bffcaab76cf",
     "role": "admin",
     "active": true,
     "created_at": "2026-04-10 18:35:56"
+  },
+  {
+    "username": "leonel.diniz",
+    "password_hash": "scrypt:32768:8:1$eSKK9oAqCGwR5qag$df9cedd0851ae12a06ef5b216d56321da56c896623df15e556399a5b33af634726afd7a9e049023c4c835590f211befa4efc8e11560a48fbb7ee323a7b5bf39a",
+    "role": "operator",
+    "active": true,
+    "created_at": "2026-04-10 21:55:12"
   }
 ]

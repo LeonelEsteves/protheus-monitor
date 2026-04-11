@@ -108,14 +108,15 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 </div>
 
 <footer class="mx-auto mt-8 w-full max-w-5xl rounded-[28px] border border-white/10 bg-white/10 px-6 py-5 text-white/90 backdrop-blur">
-    <div class="flex flex-col gap-4 text-center md:grid md:grid-cols-3 md:items-center">
+    <div class="flex items-center justify-between gap-4 overflow-x-auto whitespace-nowrap">
         <div class="text-sm text-white/75 md:text-left">Desenvolvido por Leonel Diniz</div>
         <div class="text-xs uppercase tracking-[0.18em] text-white/60">Versão {{ app_version }}</div>
-        <div class="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
             <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">Flask</span>
             <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">Tailwind CSS</span>
             <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">PyWin32</span>
             <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">JSON</span>
+          
         </div>
     </div>
 </footer>
