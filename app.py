@@ -37,6 +37,7 @@ DEFAULT_ENVIRONMENTS = [
     {
         "id": "apex-hml3",
         "name": "APEX-HML3",
+        "environment_type": "homologacao",
         "host": "127.0.0.1",
         "services": [
             {"name": "TOTVS-Appserver12-APEX-HML3", "port": ""},
@@ -46,10 +47,12 @@ DEFAULT_ENVIRONMENTS = [
             {"name": "TOTVS-Appserver12-APEX-HML3-WS", "port": ""},
             {"name": "TOTVS-Appserver12-APEX-HML3-WS2", "port": ""},
         ],
+        "infra_services": [],
     },
     {
         "id": "infra",
         "name": "INFRA",
+        "environment_type": "desenvolvimento",
         "host": "127.0.0.1",
         "services": [
             {"name": "licenseVirtual", "port": ""},
@@ -57,6 +60,7 @@ DEFAULT_ENVIRONMENTS = [
             {"name": "TOTVSDBAccess64TSS", "port": ""},
             {"name": "TOTVSservice", "port": ""},
         ],
+        "infra_services": [],
     },
 ]
 
@@ -78,6 +82,30 @@ def normalize_port(value):
     return str(value or "").strip()
 
 
+def infer_environment_type(name):
+    normalized = (name or "").strip().lower()
+    if any(token in normalized for token in ["prd", "prod", "producao", "produção"]):
+        return "producao"
+    if any(token in normalized for token in ["hml", "homolog", "qa", "teste"]):
+        return "homologacao"
+    return "desenvolvimento"
+
+
+def normalize_environment_type(value, fallback_name=""):
+    normalized = (value or "").strip().lower()
+    mapping = {
+        "producao": "producao",
+        "produção": "producao",
+        "prod": "producao",
+        "homologacao": "homologacao",
+        "homologação": "homologacao",
+        "hml": "homologacao",
+        "desenvolvimento": "desenvolvimento",
+        "dev": "desenvolvimento",
+    }
+    return mapping.get(normalized, infer_environment_type(fallback_name))
+
+
 def sanitize_service(service):
     return {
         "name": (service.get("name") or "").strip(),
@@ -88,12 +116,18 @@ def sanitize_service(service):
 def sanitize_environment(environment, existing_id=None):
     services = [sanitize_service(service) for service in environment.get("services", [])]
     services = [service for service in services if service["name"]]
+    infra_services = [sanitize_service(service) for service in environment.get("infra_services", [])]
+    infra_services = [service for service in infra_services if service["name"]]
 
     return {
         "id": existing_id or slugify_environment_name(environment.get("name")),
         "name": (environment.get("name") or "").strip(),
+        "environment_type": normalize_environment_type(environment.get("environment_type"), environment.get("name")),
         "host": (environment.get("host") or "").strip(),
+        "app_url": (environment.get("app_url") or "").strip(),
+        "rest_url": (environment.get("rest_url") or "").strip(),
         "services": services,
+        "infra_services": infra_services,
     }
 
 
@@ -144,7 +178,21 @@ def load_environments():
                 "name": item.get("name"),
                 "host": item.get("host", "127.0.0.1"),
                 "services": [{"name": service_name, "port": ""} for service_name in item["services"]],
+                "infra_services": item.get("infra_services", []),
             }
+            changed = True
+
+        if "infra_services" not in item:
+            item["infra_services"] = []
+            changed = True
+        if "environment_type" not in item:
+            item["environment_type"] = infer_environment_type(item.get("name"))
+            changed = True
+        if "app_url" not in item:
+            item["app_url"] = ""
+            changed = True
+        if "rest_url" not in item:
+            item["rest_url"] = ""
             changed = True
 
         normalized.append(sanitize_environment(item, item.get("id") or slugify_environment_name(item.get("name"))))
@@ -173,6 +221,14 @@ def find_environment(environment_id):
         if environment["id"] == environment_id:
             return environment
     return None
+
+
+def build_status_service(service, host):
+    return {
+        "name": service["name"],
+        "port": service.get("port", ""),
+        "status": get_service_status_for_host(service["name"], host),
+    }
 
 
 def resolve_service_machine(host):
@@ -253,6 +309,11 @@ def save_log(service, action, result, user):
 
 def save_environment_log(environment_name, host, service, action, result, user):
     target = f"{environment_name} ({host or 'local'}) :: {service}"
+    save_log(target, action, result, user)
+
+
+def save_admin_environment_log(environment_name, action, result, user):
+    target = f"AMBIENTE :: {environment_name}"
     save_log(target, action, result, user)
 
 
@@ -353,7 +414,10 @@ def index():
             {
                 "id": environment["id"],
                 "environment": environment["name"],
+                "environment_type": environment.get("environment_type", infer_environment_type(environment["name"])),
                 "host": environment.get("host", ""),
+                "app_url": environment.get("app_url", ""),
+                "rest_url": environment.get("rest_url", ""),
                 "services": [
                     {
                         "name": service["name"],
@@ -361,6 +425,14 @@ def index():
                         "status": "LOADING",
                     }
                     for service in environment.get("services", [])
+                ],
+                "infra_services": [
+                    {
+                        "name": service["name"],
+                        "port": service.get("port", ""),
+                        "status": "LOADING",
+                    }
+                    for service in environment.get("infra_services", [])
                 ],
             }
         )
@@ -380,22 +452,19 @@ def status():
     result = []
 
     for environment in load_environments():
-        services = []
-        for service in environment["services"]:
-            services.append(
-                {
-                    "name": service["name"],
-                    "port": service.get("port", ""),
-                    "status": get_service_status_for_host(service["name"], environment.get("host")),
-                }
-            )
+        services = [build_status_service(service, environment.get("host")) for service in environment["services"]]
+        infra_services = [build_status_service(service, environment.get("host")) for service in environment.get("infra_services", [])]
 
         result.append(
             {
                 "id": environment["id"],
                 "environment": environment["name"],
+                "environment_type": environment.get("environment_type", infer_environment_type(environment["name"])),
                 "host": environment.get("host", ""),
+                "app_url": environment.get("app_url", ""),
+                "rest_url": environment.get("rest_url", ""),
                 "services": services,
+                "infra_services": infra_services,
             }
         )
 
@@ -418,7 +487,8 @@ def action():
     if not environment:
         return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
 
-    if not any(item["name"] == service for item in environment.get("services", [])):
+    all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
+    if not any(item["name"] == service for item in all_environment_services):
         return jsonify({"success": False, "error": "Serviço não cadastrado para o ambiente."}), 404
 
     machine = resolve_service_machine(environment.get("host"))
@@ -553,12 +623,13 @@ def environments():
 def create_environment():
     data = request.get_json(silent=True) or {}
     environment = sanitize_environment(data)
+    actor = current_user()
 
     if not environment["name"] or not environment["host"]:
         return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
 
-    if not environment["services"]:
-        return jsonify({"success": False, "error": "Cadastre ao menos um serviço para o ambiente."}), 400
+    if not environment["services"] and not environment.get("infra_services"):
+        return jsonify({"success": False, "error": "Cadastre ao menos um serviço ou item de infra para o ambiente."}), 400
 
     environments_data = load_environments()
     existing_ids = {item["id"] for item in environments_data}
@@ -571,6 +642,7 @@ def create_environment():
 
     environments_data.append(environment)
     save_environments(environments_data)
+    save_admin_environment_log(environment["name"], "CREATE", "SUCCESS", actor["username"])
     return jsonify({"success": True, "environment": environment}), 201
 
 
@@ -579,6 +651,7 @@ def create_environment():
 def update_environment(environment_id):
     data = request.get_json(silent=True) or {}
     environments_data = load_environments()
+    actor = current_user()
 
     for index, environment in enumerate(environments_data):
         if environment["id"] != environment_id:
@@ -587,11 +660,12 @@ def update_environment(environment_id):
         updated = sanitize_environment(data, existing_id=environment_id)
         if not updated["name"] or not updated["host"]:
             return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
-        if not updated["services"]:
-            return jsonify({"success": False, "error": "Cadastre ao menos um serviço para o ambiente."}), 400
+        if not updated["services"] and not updated.get("infra_services"):
+            return jsonify({"success": False, "error": "Cadastre ao menos um serviço ou item de infra para o ambiente."}), 400
 
         environments_data[index] = updated
         save_environments(environments_data)
+        save_admin_environment_log(updated["name"], "UPDATE", "SUCCESS", actor["username"])
         return jsonify({"success": True, "environment": updated})
 
     return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
@@ -601,12 +675,16 @@ def update_environment(environment_id):
 @admin_required
 def delete_environment(environment_id):
     environments_data = load_environments()
-    filtered = [environment for environment in environments_data if environment["id"] != environment_id]
+    actor = current_user()
+    environment = next((item for item in environments_data if item["id"] == environment_id), None)
+    filtered = [environment_item for environment_item in environments_data if environment_item["id"] != environment_id]
 
     if len(filtered) == len(environments_data):
         return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
 
     save_environments(filtered)
+    if environment:
+        save_admin_environment_log(environment["name"], "DELETE", "SUCCESS", actor["username"])
     return jsonify({"success": True})
 
 

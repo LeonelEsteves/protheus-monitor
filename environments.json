@@ -2,7 +2,10 @@
   {
     "id": "apex-hml3",
     "name": "APEX-HML3",
+    "environment_type": "desenvolvimento",
     "host": "127.0.0.1",
+    "app_url": "https://webprotheushml3.apexbrasil.com.br/webapp",
+    "rest_url": "https://api173.apexbrasil.com.br/rest",
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML3",
@@ -28,17 +31,8 @@
         "name": "TOTVS-Appserver12-APEX-HML3-WS2",
         "port": ""
       }
-    ]
-  },
-  {
-    "id": "infra",
-    "name": "INFRA",
-    "host": "127.0.0.1",
-    "services": [
-      {
-        "name": "licenseVirtual",
-        "port": ""
-      },
+    ],
+    "infra_services": [
       {
         "name": "TOTVSDBAccess64",
         "port": ""
@@ -46,21 +40,113 @@
       {
         "name": "TOTVSDBAccess64TSS",
         "port": ""
-      },
-      {
-        "name": "TOTVSservice",
-        "port": ""
       }
     ]
   },
   {
     "id": "apex-hml1",
     "name": "APEX-HML1",
+    "environment_type": "homologacao",
     "host": "10.10.1.68",
+    "app_url": "https://webprotheushml1.apexbrasil.com.br/webapp/",
+    "rest_url": "https://api68.apexbrasil.com.br/rest",
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML1",
         "port": "6001"
+      }
+    ],
+    "infra_services": []
+  },
+  {
+    "id": "apex-hml2",
+    "name": "APEX-HML2",
+    "environment_type": "homologacao",
+    "host": "10.10.1.172",
+    "app_url": "https://webprotheushml1.apexbrasil.com.br/webapp",
+    "rest_url": "https://api172.apexbrasil.com.br/rest",
+    "services": [],
+    "infra_services": [
+      {
+        "name": "dbaccess",
+        "port": ""
+      },
+      {
+        "name": "license",
+        "port": ""
+      },
+      {
+        "name": "smartview",
+        "port": ""
+      }
+    ]
+  },
+  {
+    "id": "apex-hml4",
+    "name": "APEX-HML4",
+    "environment_type": "homologacao",
+    "host": "10.10.1.176",
+    "app_url": "https://webprotheushml4.apexbrasil.com.br/webapp/",
+    "rest_url": "https://api176.apexbrasil.com.br/rest",
+    "services": [],
+    "infra_services": [
+      {
+        "name": "dbaccess",
+        "port": ""
+      },
+      {
+        "name": "license",
+        "port": ""
+      },
+      {
+        "name": "smartview",
+        "port": ""
+      }
+    ]
+  },
+  {
+    "id": "apex-hml5",
+    "name": "APEX-HML5",
+    "environment_type": "homologacao",
+    "host": "10.10.1.177",
+    "app_url": "https://webprotheushml5.apexbrasil.com.br/webapp/",
+    "rest_url": "https://api177.apexbrasil.com.br/rest",
+    "services": [],
+    "infra_services": [
+      {
+        "name": "dbaccess",
+        "port": ""
+      },
+      {
+        "name": "license",
+        "port": ""
+      },
+      {
+        "name": "smartview",
+        "port": ""
+      }
+    ]
+  },
+  {
+    "id": "apex-prd",
+    "name": "APEX-PRD",
+    "environment_type": "producao",
+    "host": "10.10.1.197",
+    "app_url": "https://webprotheus.apexbrasil.com.br/webapp/",
+    "rest_url": "https://api90.apexbrasil.com.br/rest",
+    "services": [],
+    "infra_services": [
+      {
+        "name": "dbaccess",
+        "port": ""
+      },
+      {
+        "name": "license",
+        "port": ""
+      },
+      {
+        "name": "smartview",
+        "port": ""
       }
     ]
   }

@@ -46,6 +46,14 @@
             <select id="envFilter" class="rounded-xl border border-slate-200 px-3 py-2 text-sm"></select>
         </div>
 
+        <div id="statusLoadingNotice" class="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm">
+            <div class="mt-1 h-3 w-3 animate-pulse rounded-full bg-amber-500"></div>
+            <div>
+                <div class="text-sm font-semibold">Carregando status dos serviços</div>
+                <p class="text-sm text-amber-800">A aplicação está consultando os ambientes cadastrados. Os status reais serão exibidos assim que a leitura terminar.</p>
+            </div>
+        </div>
+
         <div id="tabs" class="mb-4 flex flex-wrap gap-2"></div>
         <div id="content"></div>
     </section>
@@ -53,12 +61,26 @@
 
 <div id="toast" class="hidden fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
 
+<div id="confirmModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4">
+    <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+        <div class="mb-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Confirmação</p>
+            <h3 id="confirmModalTitle" class="mt-2 text-xl font-semibold text-slate-900">Confirmar ação</h3>
+            <p id="confirmModalMessage" class="mt-2 text-sm leading-6 text-slate-600"></p>
+        </div>
+        <div class="flex flex-wrap justify-end gap-2">
+            <button type="button" onclick="resolveConfirmModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
+            <button id="confirmModalConfirmButton" type="button" onclick="resolveConfirmModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Confirmar</button>
+        </div>
+    </div>
+</div>
+
 <div id="debugModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
     <div class="w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl">
         <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-5 py-4 text-slate-100">
             <div>
                 <h2 class="text-lg font-semibold">Debug de Execução</h2>
-                <p class="text-sm text-slate-400">Acompanhamento das ações disparadas na interface.</p>
+                <p id="debugSubtitle" class="text-sm text-slate-400">Acompanhamento das ações disparadas na interface.</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="clearDebugLog()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Limpar</button>
@@ -87,8 +109,58 @@ let environmentsData = {{ initial_environments|tojson }};
 let activeTab = 0;
 let lastRead = localStorage.getItem("lastRead") || null;
 let allLogs = [];
-let debugEntries = [];
+let debugEntriesByContext = {};
+let activeDebugContext = null;
 let runningActions = {};
+let isInitialStatusLoading = true;
+let confirmModalResolver = null;
+
+function compareEnvironmentNames(left, right) {
+    const priority = {
+        producao: 0,
+        homologacao: 1,
+        desenvolvimento: 2,
+    };
+    const typeDifference = (priority[left.environment_type] ?? 9) - (priority[right.environment_type] ?? 9);
+    if (typeDifference !== 0) {
+        return typeDifference;
+    }
+    return String(left.environment || "").localeCompare(String(right.environment || ""), "pt-BR", { sensitivity: "base" });
+}
+
+function getEnvironmentTypeMeta(environmentType) {
+    if (environmentType === "producao") {
+        return {
+            label: "Produção",
+            badgeClass: "bg-blue-200 text-blue-900 ring-1 ring-blue-300",
+            tabClass: "border-blue-300 bg-blue-100 text-blue-900",
+            headerClass: "border-blue-200 bg-blue-50",
+        };
+    }
+    if (environmentType === "homologacao") {
+        return {
+            label: "Homologação",
+            badgeClass: "bg-rose-200 text-rose-900 ring-1 ring-rose-300",
+            tabClass: "border-rose-300 bg-rose-100 text-rose-900",
+            headerClass: "border-rose-200 bg-rose-50",
+        };
+    }
+    return {
+        label: "Desenvolvimento",
+        badgeClass: "bg-violet-200 text-violet-900 ring-1 ring-violet-300",
+        tabClass: "border-violet-300 bg-violet-100 text-violet-900",
+        headerClass: "border-violet-200 bg-violet-50",
+    };
+}
+
+function updateStatusLoadingNotice() {
+    const notice = document.getElementById("statusLoadingNotice");
+    if (isInitialStatusLoading) {
+        notice.classList.remove("hidden");
+        return;
+    }
+    notice.classList.add("hidden");
+}
 
 function getColor(status) {
     if (status === "RUNNING") return "text-emerald-600";
@@ -114,6 +186,38 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
+function getConfirmButtonClass(tone) {
+    if (tone === "danger") {
+        return "rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-500";
+    }
+    if (tone === "success") {
+        return "rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500";
+    }
+    return "rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700";
+}
+
+function showConfirmModal({ title, message, confirmLabel = "Confirmar", tone = "default" }) {
+    document.getElementById("confirmModalTitle").textContent = title;
+    document.getElementById("confirmModalMessage").textContent = message;
+    const button = document.getElementById("confirmModalConfirmButton");
+    button.textContent = confirmLabel;
+    button.className = getConfirmButtonClass(tone);
+    document.getElementById("confirmModal").classList.remove("hidden");
+
+    return new Promise((resolve) => {
+        confirmModalResolver = resolve;
+    });
+}
+
+function resolveConfirmModal(confirmed) {
+    document.getElementById("confirmModal").classList.add("hidden");
+    if (confirmModalResolver) {
+        const resolver = confirmModalResolver;
+        confirmModalResolver = null;
+        resolver(confirmed);
+    }
+}
+
 function jsEscape(value) {
     return String(value).replaceAll("\\", "\\\\").replaceAll("'", "\\'");
 }
@@ -122,24 +226,55 @@ function getActionKey(environmentId, service, action) {
     return `${environmentId}::${service}::${action}`;
 }
 
+function getDebugContextKey(environmentId, service) {
+    return `${environmentId}::${service}`;
+}
+
 function toggleDebugModal() {
     document.getElementById("debugModal").classList.toggle("hidden");
 }
 
-function appendDebug(message, level = "info") {
-    const timestamp = new Date().toLocaleTimeString("pt-BR");
-    debugEntries.unshift({ timestamp, message, level });
-    if (debugEntries.length > 200) {
-        debugEntries = debugEntries.slice(0, 200);
-    }
+function openDebugModal(environmentId, environmentName, serviceName) {
+    activeDebugContext = {
+        key: getDebugContextKey(environmentId, serviceName),
+        environmentId,
+        environmentName,
+        serviceName,
+    };
+    document.getElementById("debugSubtitle").textContent = `Serviço: ${serviceName} | Ambiente: ${environmentName}`;
+    document.getElementById("debugModal").classList.remove("hidden");
     renderDebugTerminal();
+}
+
+function appendDebug(environmentId, serviceName, message, level = "info") {
+    const contextKey = getDebugContextKey(environmentId, serviceName);
+    const timestamp = new Date().toLocaleTimeString("pt-BR");
+    if (!debugEntriesByContext[contextKey]) {
+        debugEntriesByContext[contextKey] = [];
+    }
+    debugEntriesByContext[contextKey].unshift({ timestamp, message, level });
+    if (debugEntriesByContext[contextKey].length > 200) {
+        debugEntriesByContext[contextKey] = debugEntriesByContext[contextKey].slice(0, 200);
+    }
+    if (activeDebugContext && activeDebugContext.key === contextKey) {
+        renderDebugTerminal();
+    }
 }
 
 function renderDebugTerminal() {
     const terminal = document.getElementById("debugTerminal");
+    const subtitle = document.getElementById("debugSubtitle");
+
+    if (!activeDebugContext) {
+        subtitle.textContent = "Selecione o debug de um serviço específico.";
+        terminal.innerHTML = '<div class="text-slate-500">Abra o debug pelo botão do serviço que deseja acompanhar.</div>';
+        return;
+    }
+
+    const debugEntries = debugEntriesByContext[activeDebugContext.key] || [];
 
     if (!debugEntries.length) {
-        terminal.innerHTML = '<div class="text-slate-500">Nenhuma ação executada ainda.</div>';
+        terminal.innerHTML = '<div class="text-slate-500">Nenhuma ação registrada para este serviço ainda.</div>';
         return;
     }
 
@@ -150,7 +285,10 @@ function renderDebugTerminal() {
 }
 
 function clearDebugLog() {
-    debugEntries = [];
+    if (!activeDebugContext) {
+        return;
+    }
+    debugEntriesByContext[activeDebugContext.key] = [];
     renderDebugTerminal();
 }
 
@@ -172,18 +310,23 @@ async function apiFetch(url, options = {}) {
 
 function getFilteredEnvironments() {
     const selected = document.getElementById("envFilter").value;
-    return selected ? environmentsData.filter((item) => item.id === selected) : environmentsData;
+    const sortedEnvironments = [...environmentsData].sort(compareEnvironmentNames);
+    return selected ? sortedEnvironments.filter((item) => item.id === selected) : sortedEnvironments;
 }
 
 async function loadServices() {
     const statusResult = await apiFetch("/status");
     if (!statusResult) {
+        isInitialStatusLoading = false;
+        updateStatusLoadingNotice();
         renderTabs();
         renderContent();
         return;
     }
 
     environmentsData = statusResult.data;
+    isInitialStatusLoading = false;
+    updateStatusLoadingNotice();
 
     const filter = document.getElementById("envFilter");
     const currentValue = filter.value;
@@ -194,7 +337,7 @@ async function loadServices() {
     defaultOption.textContent = "Todos os ambientes";
     filter.appendChild(defaultOption);
 
-    environmentsData.forEach((env) => {
+    [...environmentsData].sort(compareEnvironmentNames).forEach((env) => {
         const option = document.createElement("option");
         option.value = env.id;
         option.textContent = env.environment;
@@ -248,7 +391,8 @@ function renderTabs() {
 
     tabs.innerHTML = "";
     filtered.forEach((env, index) => {
-        const selectedClass = activeTab === index ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700";
+        const environmentType = getEnvironmentTypeMeta(env.environment_type);
+        const selectedClass = activeTab === index ? "bg-slate-900 text-white border-slate-900" : `${environmentType.tabClass} border`;
         tabs.innerHTML += `
             <button data-tab-index="${index}" class="monitor-tab rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedClass}">
                 ${escapeHtml(env.environment)}
@@ -280,40 +424,67 @@ function renderContent() {
         return;
     }
 
+    const environmentType = getEnvironmentTypeMeta(env.environment_type);
     let html = `
-        <div class="mb-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-            <span class="font-semibold text-slate-900">Ambiente:</span> ${escapeHtml(env.environment)}
-            <span class="mx-3 text-slate-300">|</span>
-            <span class="font-semibold text-slate-900">IP:</span> ${escapeHtml(env.host || "local")}
+        <div class="mb-4 rounded-2xl border p-4 text-sm text-slate-600 ${environmentType.headerClass}">
+            <div class="mb-2 flex flex-wrap items-center gap-2">
+                <span class="font-semibold text-slate-900">Ambiente:</span> ${escapeHtml(env.environment)}
+                <span class="rounded-full px-3 py-1 text-xs font-semibold ${environmentType.badgeClass}">${environmentType.label}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <div><span class="font-semibold text-slate-900">IP:</span> ${escapeHtml(env.host || "local")}</div>
+                ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline underline-offset-2">Acessar aplicação</a>` : ""}
+                ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-cyan-700 underline underline-offset-2">Acessar serviço REST</a>` : ""}
+            </div>
         </div>
-        <div class="grid gap-3">
     `;
 
-    env.services.forEach((service) => {
-        const portLabel = service.port ? `Porta ${escapeHtml(service.port)}` : "Porta não informada";
-        const startRunning = isActionRunning(env.id, service.name, "start");
-        const stopRunning = isActionRunning(env.id, service.name, "stop");
-        const restartRunning = isActionRunning(env.id, service.name, "restart");
-        html += `
-            <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <div class="font-semibold text-slate-900">${escapeHtml(service.name)}</div>
-                    <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">${portLabel}</div>
-                    <div class="${getColor(service.status)} mt-2 text-sm font-semibold">${escapeHtml(service.status)}</div>
-                </div>
+    html += renderServiceSection(env, env.services || [], "Serviços da Aplicação");
 
-                <div class="flex flex-wrap gap-2">
-                    <button ${startRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="start" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${startRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-500 hover:bg-emerald-400"}">${startRunning ? "Iniciando..." : "Start"}</button>
-                    <button ${stopRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">${stopRunning ? "Parando..." : "Stop"}</button>
-                    <button ${restartRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">${restartRunning ? "Reiniciando..." : "Restart"}</button>
-                    <button data-debug-service-name="${escapeHtml(service.name)}" data-debug-environment-name="${escapeHtml(env.environment)}" class="service-debug-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Debug</button>
-                </div>
+    if ((env.infra_services || []).length) {
+        html += `
+            <div class="mt-6">
+                <div class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Infra</div>
             </div>
         `;
+        html += renderServiceSection(env, env.infra_services || [], "Infra");
+    }
+
+    content.innerHTML = html;
+}
+
+function renderServiceSection(env, services, sectionLabel) {
+    let html = `<div class="grid gap-3">`;
+
+    services.forEach((service) => {
+        html += renderServiceCard(env, service);
     });
 
     html += "</div>";
-    content.innerHTML = html;
+    return html;
+}
+
+function renderServiceCard(env, service) {
+    const portLabel = service.port ? `Porta ${escapeHtml(service.port)}` : "Porta não informada";
+    const startRunning = isActionRunning(env.id, service.name, "start");
+    const stopRunning = isActionRunning(env.id, service.name, "stop");
+    const restartRunning = isActionRunning(env.id, service.name, "restart");
+    return `
+        <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <div class="font-semibold text-slate-900">${escapeHtml(service.name)}</div>
+                <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">${portLabel}</div>
+                <div class="${getColor(service.status)} mt-2 text-sm font-semibold">${escapeHtml(service.status)}</div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <button ${startRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="start" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${startRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-500 hover:bg-emerald-400"}">${startRunning ? "Iniciando..." : "Start"}</button>
+                <button ${stopRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">${stopRunning ? "Parando..." : "Stop"}</button>
+                <button ${restartRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">${restartRunning ? "Reiniciando..." : "Restart"}</button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-debug-service-name="${escapeHtml(service.name)}" data-debug-environment-name="${escapeHtml(env.environment)}" class="service-debug-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Debug</button>
+            </div>
+        </div>
+    `;
 }
 
 async function sendAction(environmentId, service, action) {
@@ -322,9 +493,27 @@ async function sendAction(environmentId, service, action) {
         return;
     }
 
+    const environment = environmentsData.find((item) => item.id === environmentId);
+    const environmentName = environment ? environment.environment : environmentId;
+    const actionLabels = {
+        start: "iniciar",
+        stop: "parar",
+        restart: "reiniciar",
+    };
+    const confirmed = await showConfirmModal({
+        title: `${(actionLabels[action] || action).charAt(0).toUpperCase()}${(actionLabels[action] || action).slice(1)} serviço`,
+        message: `Você está prestes a ${actionLabels[action] || action} o serviço ${service} no ambiente ${environmentName}. Deseja continuar?`,
+        confirmLabel: `${(actionLabels[action] || action).charAt(0).toUpperCase()}${(actionLabels[action] || action).slice(1)}`,
+        tone: action === "stop" ? "danger" : "success",
+    });
+    if (!confirmed) {
+        showToast(`Ação ${action} cancelada.`);
+        return;
+    }
+
     runningActions[actionKey] = true;
     renderContent();
-    appendDebug(`Solicitação iniciada: ${action.toUpperCase()} em ${service} no ambiente ${environmentId}.`);
+    appendDebug(environmentId, service, `Solicitação iniciada: ${action.toUpperCase()} em ${service}.`);
     showToast(`Ação ${action} iniciada para ${service}.`, "success");
 
     const result = await apiFetch("/action", {
@@ -336,20 +525,20 @@ async function sendAction(environmentId, service, action) {
     if (!result) {
         delete runningActions[actionKey];
         renderContent();
-        appendDebug(`Sessão expirada durante ${action.toUpperCase()} em ${service}.`, "error");
+        appendDebug(environmentId, service, `Sessão expirada durante ${action.toUpperCase()} em ${service}.`, "error");
         return;
     }
 
     if (!result.response.ok || !result.data.success) {
         delete runningActions[actionKey];
         renderContent();
-        appendDebug(`Falha na ação ${action.toUpperCase()} em ${service}: ${result.data.error || "erro não informado"}.`, "error");
+        appendDebug(environmentId, service, `Falha na ação ${action.toUpperCase()} em ${service}: ${result.data.error || "erro não informado"}.`, "error");
         showToast(result.data.error || "Erro ao executar a ação.");
         return;
     }
 
     delete runningActions[actionKey];
-    appendDebug(`Ação concluída: ${action.toUpperCase()} em ${service} finalizada com sucesso.`, "success");
+    appendDebug(environmentId, service, `Ação concluída: ${action.toUpperCase()} em ${service} finalizada com sucesso.`, "success");
     showToast(`Ação ${action} executada para ${service}.`, "success");
     await loadServices();
 }
@@ -419,8 +608,11 @@ document.getElementById("tabs").addEventListener("click", (event) => {
 document.getElementById("content").addEventListener("click", (event) => {
     const debugButton = event.target.closest(".service-debug-btn");
     if (debugButton) {
-        appendDebug(`Debug aberto manualmente para ${debugButton.dataset.debugServiceName} no ambiente ${debugButton.dataset.debugEnvironmentName}.`);
-        document.getElementById("debugModal").classList.remove("hidden");
+        openDebugModal(
+            debugButton.dataset.environmentId,
+            debugButton.dataset.debugEnvironmentName,
+            debugButton.dataset.debugServiceName
+        );
         return;
     }
 
@@ -436,6 +628,7 @@ setInterval(loadServices, 5000);
 renderTabs();
 renderContent();
 renderDebugTerminal();
+updateStatusLoadingNotice();
 loadServices();
 </script>
 

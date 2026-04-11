@@ -65,13 +65,24 @@
                 </div>
 
                 <form id="userForm" class="grid gap-3 md:grid-cols-4">
-                    <input id="newUsername" placeholder="Novo usuário" class="rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                    <input id="newPassword" type="password" placeholder="Senha inicial" class="rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                    <select id="newRole" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                        <option value="operator">Operador</option>
-                        <option value="admin">Administrador</option>
-                    </select>
-                    <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700">Cadastrar usuário</button>
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Usuário</span>
+                        <input id="newUsername" placeholder="Novo usuário" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    </label>
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Senha inicial</span>
+                        <input id="newPassword" type="password" placeholder="Senha inicial" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    </label>
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Perfil</span>
+                        <select id="newRole" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                            <option value="operator">Operador</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </label>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700">Cadastrar usuário</button>
+                    </div>
                 </form>
 
                 <div id="usersList" class="mt-5 space-y-3"></div>
@@ -80,30 +91,18 @@
             <section id="panel-environments" class="hidden rounded-3xl bg-white p-6 shadow-sm">
                 <div class="mb-4">
                     <h2 class="text-2xl font-semibold">Cadastro de ambientes</h2>
-                    <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e porta de cada serviço.</p>
+                    <p class="text-sm text-slate-500">Veja primeiro todos os ambientes cadastrados e abra o formulário só quando precisar criar ou editar.</p>
                 </div>
 
-                <form id="environmentForm" class="space-y-3">
-                    <div class="grid gap-3 md:grid-cols-2">
-                        <input id="environmentName" placeholder="Nome do ambiente" class="rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                        <input id="environmentHost" placeholder="Endereço IP ou hostname" class="rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                    </div>
+                <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <div class="text-sm text-slate-500">Ambientes cadastrados</div>
+                    <button type="button" onclick="openNewEnvironmentForm()" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
+                        Cadastrar novo ambiente
+                    </button>
+                </div>
 
-                    <div>
-                        <div class="mb-2 flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Serviços</span>
-                            <button type="button" onclick="addServiceRow()" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Adicionar serviço</button>
-                        </div>
-                        <div id="serviceRows" class="space-y-2"></div>
-                    </div>
+                <div id="environmentsList" class="space-y-3"></div>
 
-                    <div class="flex gap-2">
-                        <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
-                        <button type="button" onclick="resetEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Limpar</button>
-                    </div>
-                </form>
-
-                <div id="environmentsList" class="mt-5 space-y-3"></div>
             </section>
         </main>
     </div>
@@ -111,11 +110,101 @@
 
 <div id="toast" class="hidden fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
 
+<div id="confirmModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4">
+    <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+        <div class="mb-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Confirmação</p>
+            <h3 id="confirmModalTitle" class="mt-2 text-xl font-semibold text-slate-900">Confirmar ação</h3>
+            <p id="confirmModalMessage" class="mt-2 text-sm leading-6 text-slate-600"></p>
+        </div>
+        <div id="confirmModalInputWrapper" class="mb-4 hidden">
+            <label for="confirmModalInput" id="confirmModalInputLabel" class="mb-1 block text-sm font-medium text-slate-700">Digite a confirmação</label>
+            <input id="confirmModalInput" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+            <p id="confirmModalInputHint" class="mt-1 text-xs text-slate-500"></p>
+        </div>
+        <div class="flex flex-wrap justify-end gap-2">
+            <button type="button" onclick="resolveConfirmModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
+            <button id="confirmModalConfirmButton" type="button" onclick="resolveConfirmModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<div id="environmentFormModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
+    <div class="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
+        <div class="sticky top-0 z-10 mb-4 flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-6 py-4">
+            <div>
+                <h3 id="environmentFormTitle" class="text-lg font-semibold text-slate-900">Novo ambiente</h3>
+                <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e porta de cada serviço.</p>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" form="environmentForm" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
+                <button type="button" onclick="closeEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
+            </div>
+        </div>
+
+        <form id="environmentForm" class="space-y-3 px-6 pb-6">
+            <div class="grid gap-3 md:grid-cols-2">
+                <label class="space-y-1 text-sm">
+                    <span class="font-medium text-slate-700">Nome do ambiente</span>
+                    <input id="environmentName" placeholder="Nome do ambiente" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                </label>
+                <label class="space-y-1 text-sm">
+                    <span class="font-medium text-slate-700">Endereço IP ou hostname</span>
+                    <input id="environmentHost" placeholder="Endereço IP ou hostname" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                </label>
+            </div>
+            <div>
+                <label for="environmentType" class="mb-1 block text-sm font-medium text-slate-700">Tipo do ambiente</label>
+                <select id="environmentType" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    <option value="producao">Produção</option>
+                    <option value="homologacao">Homologação</option>
+                    <option value="desenvolvimento">Desenvolvimento</option>
+                </select>
+            </div>
+            <div>
+                <label for="environmentAppUrl" class="mb-1 block text-sm font-medium text-slate-700">Link da aplicação principal</label>
+                <input id="environmentAppUrl" placeholder="Link de acesso da aplicação principal" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                <p class="mt-1 text-xs text-slate-500">Exemplo: `http://10.10.1.68:8080` ou `https://meu-ambiente/app`.</p>
+            </div>
+            <div>
+                <label for="environmentRestUrl" class="mb-1 block text-sm font-medium text-slate-700">Link do serviço REST</label>
+                <input id="environmentRestUrl" placeholder="Link de acesso do serviço REST" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                <p class="mt-1 text-xs text-slate-500">Exemplo: `http://10.10.1.68:8081/rest` ou outra URL do endpoint REST.</p>
+            </div>
+
+            <div>
+                <div class="mb-2 flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-700">Serviços</span>
+                    <button type="button" onclick="addServiceRow()" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Adicionar serviço</button>
+                </div>
+                <div id="serviceRows" class="space-y-2"></div>
+            </div>
+
+            <div>
+                <div class="mb-2 flex items-center justify-between">
+                    <span class="text-sm font-medium text-slate-700">Infra</span>
+                    <button type="button" onclick="addInfraRow()" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Adicionar infra</button>
+                </div>
+                <p class="mb-2 text-xs text-slate-500">Cadastre serviços de infraestrutura como `dbaccess`, `license` e `smartview`.</p>
+                <div id="infraRows" class="space-y-2"></div>
+            </div>
+
+            <div class="sticky bottom-0 z-10 flex flex-wrap gap-2 border-t border-slate-200 bg-white/95 pt-4 backdrop-blur">
+                <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
+                <button type="button" onclick="resetEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Limpar</button>
+                <button type="button" onclick="closeEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Fechar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 const currentUser = {{ user|tojson }};
 let adminEnvironments = [];
 let activeAdminTab = "security";
 let editingEnvironmentId = null;
+let confirmModalResolver = null;
+let confirmModalExpectedText = "";
 
 function showToast(message, type = "error") {
     const toast = document.getElementById("toast");
@@ -132,6 +221,100 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#39;");
+}
+
+function compareEnvironmentNames(left, right) {
+    const priority = {
+        producao: 0,
+        homologacao: 1,
+        desenvolvimento: 2,
+    };
+    const typeDifference = (priority[left.environment_type] ?? 9) - (priority[right.environment_type] ?? 9);
+    if (typeDifference !== 0) {
+        return typeDifference;
+    }
+    return String(left.name || "").localeCompare(String(right.name || ""), "pt-BR", { sensitivity: "base" });
+}
+
+function getEnvironmentTypeMeta(environmentType) {
+    if (environmentType === "producao") {
+        return {
+            label: "Produção",
+            badgeClass: "bg-blue-200 text-blue-900 ring-1 ring-blue-300",
+        };
+    }
+    if (environmentType === "homologacao") {
+        return {
+            label: "Homologação",
+            badgeClass: "bg-rose-200 text-rose-900 ring-1 ring-rose-300",
+        };
+    }
+    return {
+        label: "Desenvolvimento",
+        badgeClass: "bg-violet-200 text-violet-900 ring-1 ring-violet-300",
+    };
+}
+
+function getConfirmButtonClass(tone) {
+    if (tone === "danger") {
+        return "rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-500";
+    }
+    if (tone === "success") {
+        return "rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500";
+    }
+    return "rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700";
+}
+
+function showConfirmModal({ title, message, confirmLabel = "Confirmar", tone = "default", confirmationText = "", inputLabel = "Digite a confirmação" }) {
+    document.getElementById("confirmModalTitle").textContent = title;
+    document.getElementById("confirmModalMessage").textContent = message;
+    const button = document.getElementById("confirmModalConfirmButton");
+    button.textContent = confirmLabel;
+    button.className = getConfirmButtonClass(tone);
+    const inputWrapper = document.getElementById("confirmModalInputWrapper");
+    const input = document.getElementById("confirmModalInput");
+    const inputLabelElement = document.getElementById("confirmModalInputLabel");
+    const inputHint = document.getElementById("confirmModalInputHint");
+    confirmModalExpectedText = confirmationText;
+
+    if (confirmationText) {
+        inputWrapper.classList.remove("hidden");
+        input.value = "";
+        inputLabelElement.textContent = inputLabel;
+        inputHint.textContent = `Digite exatamente ${confirmationText} para liberar esta ação.`;
+    } else {
+        inputWrapper.classList.add("hidden");
+        input.value = "";
+        inputLabelElement.textContent = "Digite a confirmação";
+        inputHint.textContent = "";
+    }
+
+    document.getElementById("confirmModal").classList.remove("hidden");
+
+    return new Promise((resolve) => {
+        confirmModalResolver = resolve;
+        if (confirmationText) {
+            setTimeout(() => input.focus(), 0);
+        }
+    });
+}
+
+function resolveConfirmModal(confirmed) {
+    if (confirmed && confirmModalExpectedText) {
+        const typedValue = document.getElementById("confirmModalInput").value.trim();
+        if (typedValue !== confirmModalExpectedText) {
+            showToast(`Digite ${confirmModalExpectedText} para confirmar a exclusão.`);
+            return;
+        }
+    }
+
+    document.getElementById("confirmModal").classList.add("hidden");
+    confirmModalExpectedText = "";
+    if (confirmModalResolver) {
+        const resolver = confirmModalResolver;
+        confirmModalResolver = null;
+        resolver(confirmed);
+    }
 }
 
 function setAdminTab(tabName) {
@@ -191,11 +374,17 @@ async function loadUsers() {
                 </div>
 
                 <div class="grid gap-2 md:grid-cols-[1fr_180px_180px]">
-                    <input id="pwd-${user.username}" type="password" placeholder="Nova senha" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                    <select id="role-${user.username}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                        <option value="operator" ${user.role === "operator" ? "selected" : ""}>Operador</option>
-                        <option value="admin" ${user.role === "admin" ? "selected" : ""}>Administrador</option>
-                    </select>
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Nova senha</span>
+                        <input id="pwd-${user.username}" type="password" placeholder="Nova senha" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    </label>
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Perfil</span>
+                        <select id="role-${user.username}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                            <option value="operator" ${user.role === "operator" ? "selected" : ""}>Operador</option>
+                            <option value="admin" ${user.role === "admin" ? "selected" : ""}>Administrador</option>
+                        </select>
+                    </label>
                     <button onclick="saveUser('${user.username}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar</button>
                 </div>
             </div>
@@ -212,6 +401,17 @@ async function saveUser(username) {
     const payload = { role, active };
     if (password) {
         payload.password = password;
+    }
+
+    const confirmed = await showConfirmModal({
+        title: "Salvar alterações do usuário",
+        message: `Confirma a atualização do usuário ${username}? As permissões e credenciais serão aplicadas imediatamente.`,
+        confirmLabel: "Salvar alterações",
+        tone: "success",
+    });
+    if (!confirmed) {
+        showToast("Atualização cancelada.");
+        return;
     }
 
     const result = await apiFetch(`/users/${encodeURIComponent(username)}`, {
@@ -239,6 +439,20 @@ async function toggleUserStatus(username, active) {
         payload.password = password;
     }
 
+    const confirmed = await showConfirmModal({
+        title: active ? "Ativar usuário" : "Desativar usuário",
+        message: active
+            ? `Confirma a ativação do usuário ${username}?`
+            : `Confirma a desativação do usuário ${username}? O acesso dele será interrompido imediatamente.`,
+        confirmLabel: active ? "Ativar usuário" : "Desativar usuário",
+        tone: active ? "success" : "danger",
+    });
+    if (!confirmed) {
+        await loadUsers();
+        showToast("Alteração cancelada.");
+        return;
+    }
+
     const result = await apiFetch(`/users/${encodeURIComponent(username)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -258,12 +472,26 @@ async function toggleUserStatus(username, active) {
 }
 
 function addServiceRow(name = "", port = "") {
-    const container = document.getElementById("serviceRows");
+    addRow("serviceRows", "service", name, port);
+}
+
+function addInfraRow(name = "", port = "") {
+    addRow("infraRows", "infra", name, port);
+}
+
+function addRow(containerId, prefix, name = "", port = "") {
+    const container = document.getElementById(containerId);
     const row = document.createElement("div");
-    row.className = "grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_160px_80px]";
+    row.className = "grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_160px_110px]";
     row.innerHTML = `
-        <input value="${escapeHtml(name)}" placeholder="Nome do serviço" class="service-name rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        <input value="${escapeHtml(port)}" placeholder="Porta" class="service-port rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        <label class="space-y-1 text-sm">
+            <span class="font-medium text-slate-700">Nome do serviço</span>
+            <input value="${escapeHtml(name)}" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
+        <label class="space-y-1 text-sm">
+            <span class="font-medium text-slate-700">Porta</span>
+            <input value="${escapeHtml(port)}" placeholder="Porta" class="${prefix}-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
         <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700">Remover</button>
     `;
     row.querySelector("button").addEventListener("click", () => row.remove());
@@ -277,19 +505,48 @@ function readEnvironmentServices() {
     })).filter((service) => service.name);
 }
 
+function readInfraServices() {
+    return [...document.querySelectorAll("#infraRows > div")].map((row) => ({
+        name: row.querySelector(".infra-name").value.trim(),
+        port: row.querySelector(".infra-port").value.trim(),
+    })).filter((service) => service.name);
+}
+
+function openNewEnvironmentForm() {
+    resetEnvironmentForm();
+    document.getElementById("environmentFormTitle").textContent = "Novo ambiente";
+    document.getElementById("environmentFormModal").classList.remove("hidden");
+}
+
+function closeEnvironmentForm() {
+    document.getElementById("environmentFormModal").classList.add("hidden");
+}
+
 function resetEnvironmentForm() {
     editingEnvironmentId = null;
     document.getElementById("environmentForm").reset();
+    document.getElementById("environmentType").value = "homologacao";
     document.getElementById("serviceRows").innerHTML = "";
+    document.getElementById("infraRows").innerHTML = "";
     addServiceRow();
+    addInfraRow("dbaccess", "");
+    addInfraRow("license", "");
+    addInfraRow("smartview", "");
 }
 
 function fillEnvironmentForm(environment) {
     editingEnvironmentId = environment.id;
+    document.getElementById("environmentFormTitle").textContent = `Editar ambiente: ${environment.name}`;
+    document.getElementById("environmentFormModal").classList.remove("hidden");
     document.getElementById("environmentName").value = environment.name;
     document.getElementById("environmentHost").value = environment.host;
+    document.getElementById("environmentType").value = environment.environment_type || "homologacao";
+    document.getElementById("environmentAppUrl").value = environment.app_url || "";
+    document.getElementById("environmentRestUrl").value = environment.rest_url || "";
     document.getElementById("serviceRows").innerHTML = "";
+    document.getElementById("infraRows").innerHTML = "";
     environment.services.forEach((service) => addServiceRow(service.name, service.port));
+    (environment.infra_services || []).forEach((service) => addInfraRow(service.name, service.port));
     setAdminTab("environments");
 }
 
@@ -297,19 +554,33 @@ async function loadEnvironmentAdmin() {
     const result = await apiFetch("/environments");
     if (!result) return;
 
-    adminEnvironments = result.data;
+    adminEnvironments = [...result.data].sort(compareEnvironmentNames);
     const container = document.getElementById("environmentsList");
     container.innerHTML = "";
 
     adminEnvironments.forEach((environment) => {
+        const environmentType = getEnvironmentTypeMeta(environment.environment_type);
         const servicesLabel = environment.services.map((service) => `${service.name}${service.port ? `:${service.port}` : ""}`).join(", ");
+        const infraLabel = (environment.infra_services || []).map((service) => `${service.name}${service.port ? `:${service.port}` : ""}`).join(", ");
+        const appLinkLabel = environment.app_url
+            ? `<a href="${escapeHtml(environment.app_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline underline-offset-2">Abrir aplicação</a>`
+            : "Não informado";
+        const restLinkLabel = environment.rest_url
+            ? `<a href="${escapeHtml(environment.rest_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-cyan-700 underline underline-offset-2">Acessar REST</a>`
+            : "Não informado";
         container.innerHTML += `
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div>
-                        <div class="font-semibold text-slate-900">${escapeHtml(environment.name)}</div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="font-semibold text-slate-900">${escapeHtml(environment.name)}</div>
+                            <span class="rounded-full px-3 py-1 text-xs font-semibold ${environmentType.badgeClass}">${environmentType.label}</span>
+                        </div>
                         <div class="mt-1 text-sm text-slate-500">IP: ${escapeHtml(environment.host)}</div>
-                        <div class="mt-2 text-sm text-slate-600">${escapeHtml(servicesLabel || "Sem serviços cadastrados")}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Aplicação:</span> ${appLinkLabel}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">REST:</span> ${restLinkLabel}</div>
+                        <div class="mt-2 text-sm text-slate-600"><span class="font-semibold">Serviços:</span> ${escapeHtml(servicesLabel || "Sem serviços cadastrados")}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Infra:</span> ${escapeHtml(infraLabel || "Sem infra cadastrada")}</div>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="editEnvironment('${environment.id}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Editar</button>
@@ -330,6 +601,20 @@ function editEnvironment(environmentId) {
 }
 
 async function removeEnvironment(environmentId) {
+    const environment = adminEnvironments.find((item) => item.id === environmentId);
+    const confirmed = await showConfirmModal({
+        title: "Excluir ambiente",
+        message: `Você está prestes a excluir o ambiente ${environment ? environment.name : environmentId}. Esta ação remove o cadastro do monitor.`,
+        confirmLabel: "Excluir ambiente",
+        tone: "danger",
+        confirmationText: "EXCLUIR",
+        inputLabel: "Confirmação obrigatória",
+    });
+    if (!confirmed) {
+        showToast("Exclusão cancelada.");
+        return;
+    }
+
     const result = await apiFetch(`/environments/${encodeURIComponent(environmentId)}`, { method: "DELETE" });
     if (!result) return;
 
@@ -341,6 +626,7 @@ async function removeEnvironment(environmentId) {
     showToast("Ambiente removido com sucesso.", "success");
     await loadEnvironmentAdmin();
     resetEnvironmentForm();
+    closeEnvironmentForm();
 }
 
 document.getElementById("userForm").addEventListener("submit", async (event) => {
@@ -349,6 +635,17 @@ document.getElementById("userForm").addEventListener("submit", async (event) => 
     const username = document.getElementById("newUsername").value.trim();
     const password = document.getElementById("newPassword").value;
     const role = document.getElementById("newRole").value;
+
+    const confirmed = await showConfirmModal({
+        title: "Cadastrar novo usuário",
+        message: `Confirma o cadastro do usuário ${username} com perfil ${role}?`,
+        confirmLabel: "Cadastrar usuário",
+        tone: "success",
+    });
+    if (!confirmed) {
+        showToast("Cadastro cancelado.");
+        return;
+    }
 
     const result = await apiFetch("/users", {
         method: "POST",
@@ -373,9 +670,26 @@ document.getElementById("environmentForm").addEventListener("submit", async (eve
 
     const payload = {
         name: document.getElementById("environmentName").value.trim(),
+        environment_type: document.getElementById("environmentType").value,
         host: document.getElementById("environmentHost").value.trim(),
+        app_url: document.getElementById("environmentAppUrl").value.trim(),
+        rest_url: document.getElementById("environmentRestUrl").value.trim(),
         services: readEnvironmentServices(),
+        infra_services: readInfraServices(),
     };
+
+    const confirmed = await showConfirmModal({
+        title: editingEnvironmentId ? "Atualizar ambiente" : "Cadastrar ambiente",
+        message: editingEnvironmentId
+            ? `Confirma a atualização do ambiente ${payload.name}? As alterações serão refletidas no monitor principal.`
+            : `Confirma o cadastro do ambiente ${payload.name}? Ele ficará disponível na operação principal após o salvamento.`,
+        confirmLabel: editingEnvironmentId ? "Salvar alterações" : "Cadastrar ambiente",
+        tone: "success",
+    });
+    if (!confirmed) {
+        showToast("Salvamento cancelado.");
+        return;
+    }
 
     const url = editingEnvironmentId ? `/environments/${encodeURIComponent(editingEnvironmentId)}` : "/environments";
     const method = editingEnvironmentId ? "PUT" : "POST";
@@ -395,11 +709,13 @@ document.getElementById("environmentForm").addEventListener("submit", async (eve
 
     showToast(`Ambiente ${payload.name} salvo com sucesso.`, "success");
     resetEnvironmentForm();
+    closeEnvironmentForm();
     await loadEnvironmentAdmin();
 });
 
 setAdminTab("security");
 resetEnvironmentForm();
+closeEnvironmentForm();
 loadUsers();
 loadEnvironmentAdmin();
 </script>
