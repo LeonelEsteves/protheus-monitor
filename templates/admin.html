@@ -220,7 +220,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e porta de cada serviço.</p>
             </div>
             <div class="flex gap-2">
-                <button type="submit" form="environmentForm" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
+                <button type="submit" form="environmentForm" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
                 <button type="button" onclick="closeEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
             </div>
         </div>
@@ -273,7 +273,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             </div>
 
             <div class="sticky bottom-0 z-10 flex flex-wrap gap-2 border-t border-slate-200 bg-white/95 pt-4 backdrop-blur">
-                <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
+                <button type="submit" class="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
                 <button type="button" onclick="resetEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Limpar</button>
                 <button type="button" onclick="closeEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Fechar</button>
             </div>
@@ -325,15 +325,6 @@ function escapeHtml(value) {
 }
 
 function compareEnvironmentNames(left, right) {
-    const priority = {
-        producao: 0,
-        homologacao: 1,
-        desenvolvimento: 2,
-    };
-    const typeDifference = (priority[left.environment_type] ?? 9) - (priority[right.environment_type] ?? 9);
-    if (typeDifference !== 0) {
-        return typeDifference;
-    }
     return String(left.name || "").localeCompare(String(right.name || ""), "pt-BR", { sensitivity: "base" });
 }
 

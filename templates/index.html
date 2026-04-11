@@ -136,14 +136,6 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             </div>
         </div>
 
-        <div id="statusLoadingNotice" class="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm">
-            <div class="mt-1 h-3 w-3 animate-pulse rounded-full bg-amber-500"></div>
-            <div>
-                <div class="text-sm font-semibold">Carregando status dos serviços</div>
-                <p class="text-sm text-amber-800">A aplicação está consultando os ambientes cadastrados. Os status reais serão exibidos assim que a leitura terminar.</p>
-            </div>
-        </div>
-
         <div id="tabs" class="mb-4 flex flex-wrap gap-2"></div>
         <div id="content"></div>
     </section>
@@ -208,15 +200,19 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 </div>
 
 <script>
-let environmentsData = {{ initial_environments|tojson }};
+let environmentsData = {{ initial_environments|tojson }}.map((environment) => ({
+    ...environment,
+    status_loaded: false,
+    status_loading: false,
+}));
 let activeTab = 0;
 let lastRead = localStorage.getItem("lastRead") || null;
 let allLogs = [];
 let debugEntriesByContext = {};
 let activeDebugContext = null;
 let runningActions = {};
-let isInitialStatusLoading = true;
 let confirmModalResolver = null;
+let loadingEnvironmentIds = new Set();
 
 function getSavedTheme() {
     return localStorage.getItem(THEME_STORAGE_KEY) || "light";
@@ -237,15 +233,6 @@ function toggleTheme() {
 }
 
 function compareEnvironmentNames(left, right) {
-    const priority = {
-        producao: 0,
-        homologacao: 1,
-        desenvolvimento: 2,
-    };
-    const typeDifference = (priority[left.environment_type] ?? 9) - (priority[right.environment_type] ?? 9);
-    if (typeDifference !== 0) {
-        return typeDifference;
-    }
     return String(left.environment || "").localeCompare(String(right.environment || ""), "pt-BR", { sensitivity: "base" });
 }
 
@@ -272,15 +259,6 @@ function getEnvironmentTypeMeta(environmentType) {
         tabClass: "border-violet-300 bg-violet-100 text-violet-900",
         headerClass: "border-violet-200 bg-violet-50",
     };
-}
-
-function updateStatusLoadingNotice() {
-    const notice = document.getElementById("statusLoadingNotice");
-    if (isInitialStatusLoading) {
-        notice.classList.remove("hidden");
-        return;
-    }
-    notice.classList.add("hidden");
 }
 
 function getColor(status) {
@@ -435,20 +413,7 @@ function getFilteredEnvironments() {
     return selected ? sortedEnvironments.filter((item) => item.id === selected) : sortedEnvironments;
 }
 
-async function loadServices() {
-    const statusResult = await apiFetch("/status");
-    if (!statusResult) {
-        isInitialStatusLoading = false;
-        updateStatusLoadingNotice();
-        renderTabs();
-        renderContent();
-        return;
-    }
-
-    environmentsData = statusResult.data;
-    isInitialStatusLoading = false;
-    updateStatusLoadingNotice();
-
+function syncEnvironmentFilter() {
     const filter = document.getElementById("envFilter");
     const currentValue = filter.value;
     filter.innerHTML = "";
@@ -468,19 +433,85 @@ async function loadServices() {
     if ([...filter.options].some((option) => option.value === currentValue)) {
         filter.value = currentValue;
     }
+}
 
-    const filtered = getFilteredEnvironments();
-    if (activeTab >= filtered.length) {
-        activeTab = 0;
+function getEnvironmentById(environmentId) {
+    return environmentsData.find((item) => item.id === environmentId);
+}
+
+function environmentHasRegisteredServices(environment) {
+    if (!environment) {
+        return false;
+    }
+    return (environment.services || []).length > 0 || (environment.infra_services || []).length > 0;
+}
+
+async function refreshLogsBadge() {
+    const logsResult = await apiFetch("/logs");
+    if (logsResult) {
+        allLogs = logsResult.data;
+        updateBadge();
+    }
+}
+
+async function loadEnvironmentStatus(environmentId, { force = false } = {}) {
+    const environment = getEnvironmentById(environmentId);
+    if (!environment) {
+        return;
     }
 
-    renderTabs();
+    if (!environmentHasRegisteredServices(environment)) {
+        environment.status_loaded = true;
+        environment.status_loading = false;
+        renderContent();
+        return;
+    }
+
+    if (loadingEnvironmentIds.has(environmentId)) {
+        return;
+    }
+
+    if (environment.status_loaded && !force) {
+        return;
+    }
+
+    loadingEnvironmentIds.add(environmentId);
+    environment.status_loading = true;
     renderContent();
 
-    const logsResult = await apiFetch("/logs");
-    if (!logsResult) return;
-    allLogs = logsResult.data;
-    updateBadge();
+    try {
+        const statusResult = await apiFetch(`/status?environment_id=${encodeURIComponent(environmentId)}`);
+        if (!statusResult) {
+            return;
+        }
+
+        if (!statusResult.response.ok) {
+            showToast(statusResult.data.error || "Não foi possível carregar o ambiente.");
+            return;
+        }
+
+        const updatedEnvironment = statusResult.data;
+        const targetIndex = environmentsData.findIndex((item) => item.id === environmentId);
+        if (targetIndex >= 0) {
+            environmentsData[targetIndex] = {
+                ...environmentsData[targetIndex],
+                ...updatedEnvironment,
+                status_loaded: true,
+                status_loading: false,
+            };
+        }
+
+        renderTabs();
+        renderContent();
+        await refreshLogsBadge();
+    } finally {
+        loadingEnvironmentIds.delete(environmentId);
+        const currentEnvironment = getEnvironmentById(environmentId);
+        if (currentEnvironment) {
+            currentEnvironment.status_loading = false;
+        }
+        renderContent();
+    }
 }
 
 function updateBadge() {
@@ -526,6 +557,10 @@ function setTab(index) {
     activeTab = index;
     renderTabs();
     renderContent();
+    const activeEnvironment = getFilteredEnvironments()[activeTab];
+    if (activeEnvironment) {
+        loadEnvironmentStatus(activeEnvironment.id);
+    }
 }
 
 function renderContent() {
@@ -559,6 +594,24 @@ function renderContent() {
             </div>
         </div>
     `;
+
+    if (env.status_loading) {
+        html += `
+            <div class="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm">
+                <div class="mt-1 h-3 w-3 animate-pulse rounded-full bg-amber-500"></div>
+                <div>
+                    <div class="text-sm font-semibold">Carregando ${escapeHtml(env.environment)}</div>
+                    <p class="text-sm text-amber-800">Os serviços deste ambiente estão sendo consultados agora.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    if (!environmentHasRegisteredServices(env)) {
+        html += '<div class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Nenhum serviço cadastrado para este ambiente.</div>';
+        content.innerHTML = html;
+        return;
+    }
 
     html += renderServiceSection(env, env.services || [], "Serviços da Aplicação");
 
@@ -661,7 +714,7 @@ async function sendAction(environmentId, service, action) {
     delete runningActions[actionKey];
     appendDebug(environmentId, service, `Ação concluída: ${action.toUpperCase()} em ${service} finalizada com sucesso.`, "success");
     showToast(`Ação ${action} executada para ${service}.`, "success");
-    await loadServices();
+    await loadEnvironmentStatus(environmentId, { force: true });
 }
 
 async function toggleLogs() {
@@ -712,6 +765,10 @@ document.getElementById("envFilter").addEventListener("change", () => {
     activeTab = 0;
     renderTabs();
     renderContent();
+    const activeEnvironment = getFilteredEnvironments()[activeTab];
+    if (activeEnvironment) {
+        loadEnvironmentStatus(activeEnvironment.id);
+    }
 });
 
 document.getElementById("tabs").addEventListener("click", (event) => {
@@ -748,12 +805,21 @@ document.getElementById("content").addEventListener("click", (event) => {
 document.getElementById("themeToggle").addEventListener("click", toggleTheme);
 applyTheme(getSavedTheme());
 
-setInterval(loadServices, 5000);
+setInterval(() => {
+    const activeEnvironment = getFilteredEnvironments()[activeTab];
+    if (activeEnvironment) {
+        loadEnvironmentStatus(activeEnvironment.id, { force: true });
+    }
+}, 5000);
+syncEnvironmentFilter();
 renderTabs();
 renderContent();
 renderDebugTerminal();
-updateStatusLoadingNotice();
-loadServices();
+const initialEnvironment = getFilteredEnvironments()[activeTab];
+if (initialEnvironment) {
+    loadEnvironmentStatus(initialEnvironment.id);
+}
+refreshLogsBadge();
 </script>
 
 </body>

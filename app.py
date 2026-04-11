@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import wraps
 import json
@@ -230,6 +231,32 @@ def build_status_service(service, host):
         "name": service["name"],
         "port": service.get("port", ""),
         "status": get_service_status_for_host(service["name"], host),
+    }
+
+
+def build_environment_status(environment):
+    host = environment.get("host")
+    services = environment.get("services", [])
+    infra_services = environment.get("infra_services", [])
+    all_services = [("services", service) for service in services] + [("infra_services", service) for service in infra_services]
+
+    max_workers = min(max(len(all_services), 1), 12)
+    built_services = {"services": [], "infra_services": []}
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [(service_type, executor.submit(build_status_service, service, host)) for service_type, service in all_services]
+        for service_type, future in futures:
+            built_services[service_type].append(future.result())
+
+    return {
+        "id": environment["id"],
+        "environment": environment["name"],
+        "environment_type": environment.get("environment_type", infer_environment_type(environment["name"])),
+        "host": host or "",
+        "app_url": environment.get("app_url", ""),
+        "rest_url": environment.get("rest_url", ""),
+        "services": built_services["services"],
+        "infra_services": built_services["infra_services"],
     }
 
 
@@ -480,24 +507,18 @@ def admin_panel():
 @app.route("/status")
 @login_required
 def status():
-    result = []
+    environment_id = request.args.get("environment_id", "").strip()
+    if environment_id:
+        environment = find_environment(environment_id)
+        if not environment:
+            return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+        return jsonify(build_environment_status(environment))
 
-    for environment in load_environments():
-        services = [build_status_service(service, environment.get("host")) for service in environment["services"]]
-        infra_services = [build_status_service(service, environment.get("host")) for service in environment.get("infra_services", [])]
+    environments = load_environments()
+    max_workers = min(max(len(environments), 1), 8)
 
-        result.append(
-            {
-                "id": environment["id"],
-                "environment": environment["name"],
-                "environment_type": environment.get("environment_type", infer_environment_type(environment["name"])),
-                "host": environment.get("host", ""),
-                "app_url": environment.get("app_url", ""),
-                "rest_url": environment.get("rest_url", ""),
-                "services": services,
-                "infra_services": infra_services,
-            }
-        )
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        result = list(executor.map(build_environment_status, environments))
 
     return jsonify(result)
 
