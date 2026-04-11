@@ -596,7 +596,7 @@ function renderContent() {
         </div>
     `;
 
-    if (env.status_loading) {
+    /*if (env.status_loading) {
         html += `
             <div class="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm">
                 <div class="mt-1 h-3 w-3 animate-pulse rounded-full bg-amber-500"></div>
@@ -606,7 +606,7 @@ function renderContent() {
                 </div>
             </div>
         `;
-    }
+    }*/
 
     if (!environmentHasRegisteredServices(env)) {
         html += '<div class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Nenhum serviço cadastrado para este ambiente.</div>';
