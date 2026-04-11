@@ -3,10 +3,95 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+window.tailwind = window.tailwind || {};
+window.tailwind.config = { darkMode: "class" };
+const THEME_STORAGE_KEY = "monitor-theme";
+if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
+    document.documentElement.classList.add("dark");
+}
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <title>Monitor Protheus</title>
+<style>
+    .dark body {
+        background:
+            radial-gradient(circle at top, rgba(37, 99, 235, 0.18), transparent 34%),
+            linear-gradient(180deg, #0f172a 0%, #020617 100%);
+        color: #e2e8f0;
+    }
+
+    .dark .surface-panel {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(10, 15, 28, 0.96));
+        color: #e2e8f0;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.42);
+    }
+
+    .dark #content .rounded-2xl,
+    .dark #logContent .rounded-2xl,
+    .dark #logModal > div,
+    .dark #confirmModal > div {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(9, 14, 26, 0.94));
+        border-color: rgba(148, 163, 184, 0.14);
+        color: #e2e8f0;
+    }
+
+    .dark .rounded-3xl.bg-slate-900 {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.92));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .dark #content .text-slate-900,
+    .dark #logContent .text-slate-900,
+    .dark .surface-panel .text-slate-900,
+    .dark #confirmModalTitle {
+        color: #f8fafc !important;
+    }
+
+    .dark .text-slate-500,
+    .dark .text-slate-600,
+    .dark .text-slate-400 {
+        color: #94a3b8 !important;
+    }
+
+    .dark select,
+    .dark input {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #334155;
+        color: #f8fafc;
+    }
+
+    .dark select:focus,
+    .dark input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+        outline: none;
+    }
+
+    .dark #statusLoadingNotice {
+        background: rgba(59, 130, 246, 0.12);
+        border-color: rgba(96, 165, 250, 0.24);
+        color: #dbeafe;
+    }
+
+    .dark #statusLoadingNotice .text-amber-800,
+    .dark #statusLoadingNotice .text-amber-900 {
+        color: #dbeafe !important;
+    }
+
+    .dark .monitor-tab.bg-slate-900 {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border-color: rgba(96, 165, 250, 0.2);
+    }
+
+    .dark #debugModal > div {
+        border-color: rgba(71, 85, 105, 0.7);
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.55);
+    }
+</style>
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-900">
+<body class="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300">
 
 <div class="mx-auto max-w-7xl p-6">
     <div class="mb-6 rounded-3xl bg-slate-900 px-6 py-5 text-white shadow-xl">
@@ -23,27 +108,32 @@
                     <span class="text-slate-300">| {{ user.role }}</span>
                 </div>
                 {% if user.role == "admin" %}
-                <a href="/admin" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
+                <a href="/admin" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
                     Painel Administrativo
                 </a>
                 {% endif %}
-                <button id="logsButton" onclick="toggleLogs()" class="relative rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-400">
+                <button id="logsButton" onclick="toggleLogs()" class="relative inline-flex h-10 items-center rounded-xl bg-blue-500 px-4 text-sm font-semibold text-white transition hover:bg-blue-400">
                     Logs
                     <span id="badge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
                 </button>
-                <button onclick="logout()" class="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">Sair</button>
+                <button onclick="logout()" class="inline-flex h-10 items-center rounded-xl border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10">Sair</button>
             </div>
         </div>
     </div>
 
-    <section class="rounded-3xl bg-white p-5 shadow-sm">
+    <section class="surface-panel rounded-3xl bg-white p-5 shadow-sm">
         <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
                 <h2 class="text-xl font-semibold">Serviços monitorados</h2>
                 <p class="text-sm text-slate-500">Cada ambiente cadastrado aparece aqui com o mesmo formato de abas centrais.</p>
             </div>
 
-            <select id="envFilter" class="rounded-xl border border-slate-200 px-3 py-2 text-sm"></select>
+            <div class="flex flex-wrap gap-2">
+                <button id="themeToggle" type="button" class="inline-flex h-10 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+                    Tema escuro
+                </button>
+                <select id="envFilter" class="h-10 rounded-xl border border-slate-200 px-3 text-sm"></select>
+            </div>
         </div>
 
         <div id="statusLoadingNotice" class="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm">
@@ -57,6 +147,19 @@
         <div id="tabs" class="mb-4 flex flex-wrap gap-2"></div>
         <div id="content"></div>
     </section>
+
+    <footer class="surface-panel mt-6 rounded-3xl bg-white px-6 py-5 shadow-sm">
+        <div class="flex flex-col gap-4 text-center md:grid md:grid-cols-3 md:items-center">
+            <div class="text-sm text-slate-500 dark:text-slate-400 md:text-left">Desenvolvido por Leonel Diniz</div>
+            <div class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Versão {{ app_version }}</div>
+            <div class="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300 md:justify-end">
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Flask</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Tailwind CSS</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">PyWin32</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">JSON</span>
+            </div>
+        </div>
+    </footer>
 </div>
 
 <div id="toast" class="hidden fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
@@ -114,6 +217,24 @@ let activeDebugContext = null;
 let runningActions = {};
 let isInitialStatusLoading = true;
 let confirmModalResolver = null;
+
+function getSavedTheme() {
+    return localStorage.getItem(THEME_STORAGE_KEY) || "light";
+}
+
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    const button = document.getElementById("themeToggle");
+    if (button) {
+        button.textContent = theme === "dark" ? "Tema claro" : "Tema escuro";
+    }
+}
+
+function toggleTheme() {
+    const nextTheme = getSavedTheme() === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    applyTheme(nextTheme);
+}
 
 function compareEnvironmentNames(left, right) {
     const priority = {
@@ -623,6 +744,9 @@ document.getElementById("content").addEventListener("click", (event) => {
 
     sendAction(button.dataset.environmentId, button.dataset.serviceName, button.dataset.actionType);
 });
+
+document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+applyTheme(getSavedTheme());
 
 setInterval(loadServices, 5000);
 renderTabs();

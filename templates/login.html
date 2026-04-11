@@ -3,13 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+window.tailwind = window.tailwind || {};
+window.tailwind.config = { darkMode: "class" };
+const THEME_STORAGE_KEY = "monitor-theme";
+if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
+    document.documentElement.classList.add("dark");
+}
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <title>Login | Monitor Protheus</title>
+<style>
+    .dark body {
+        background:
+            radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 34%),
+            linear-gradient(180deg, #0f172a 0%, #020617 100%);
+        color: #e2e8f0;
+    }
+
+    .dark .login-shell {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(9, 14, 26, 0.88));
+        border-color: rgba(148, 163, 184, 0.14);
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
+    }
+
+    .dark .login-side {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(12, 18, 32, 0.92));
+    }
+
+    .dark .login-panel {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.97), rgba(9, 14, 26, 0.97));
+        color: #e2e8f0;
+    }
+
+    .dark .login-panel p,
+    .dark .login-panel label {
+        color: #cbd5e1;
+    }
+
+    .dark .login-panel input {
+        background: #0f172a;
+        border-color: #334155;
+        color: #f8fafc;
+    }
+
+    .dark .login-panel input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.26);
+    }
+
+    .dark .login-tip {
+        background: rgba(59, 130, 246, 0.14);
+        color: #dbeafe;
+    }
+</style>
 </head>
-<body class="min-h-screen bg-[radial-gradient(circle_at_top,_#1e293b,_#020617_60%)] text-white">
-<div class="flex min-h-screen items-center justify-center p-6">
-    <div class="grid w-full max-w-5xl overflow-hidden rounded-[32px] bg-white/10 shadow-2xl backdrop-blur md:grid-cols-[1.2fr_0.8fr]">
-        <section class="hidden bg-slate-900/60 p-10 md:block">
+<body class="min-h-screen bg-[radial-gradient(circle_at_top,_#1e293b,_#020617_60%)] text-white transition-colors duration-300">
+<div class="flex min-h-screen flex-col justify-between p-6">
+<div class="flex flex-1 items-center justify-center">
+    <div class="login-shell relative grid w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/10 bg-white/10 shadow-2xl backdrop-blur md:grid-cols-[1.2fr_0.8fr]">
+        <button id="themeToggle" type="button" class="absolute right-4 top-4 z-10 inline-flex h-10 items-center rounded-2xl border border-white/15 bg-white/10 px-4 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
+            Tema escuro
+        </button>
+        <section class="login-side hidden bg-slate-900/60 p-10 md:block">
             <p class="text-sm uppercase tracking-[0.35em] text-slate-300">Monitor Protheus</p>
             <h1 class="mt-6 text-4xl font-bold leading-tight">Acesso restrito para operação e administração do ambiente</h1>
             <p class="mt-4 max-w-md text-sm text-slate-300">
@@ -23,7 +79,7 @@
             </div>
         </section>
 
-        <section class="bg-white p-8 text-slate-900 md:p-10">
+        <section class="login-panel bg-white p-8 text-slate-900 md:p-10">
             <div class="mx-auto max-w-sm">
                 <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Entrar</p>
                 <h2 class="mt-4 text-3xl font-bold">Autenticação</h2>
@@ -43,7 +99,7 @@
                     <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white transition hover:bg-slate-700">Acessar aplicação</button>
                 </form>
 
-                <div class="mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
+                <div class="login-tip mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
                     Se este for o primeiro acesso, use o administrador inicial configurado no servidor e troque a senha após criar os usuários definitivos.
                 </div>
             </div>
@@ -51,15 +107,50 @@
     </div>
 </div>
 
+<footer class="mx-auto mt-8 w-full max-w-5xl rounded-[28px] border border-white/10 bg-white/10 px-6 py-5 text-white/90 backdrop-blur">
+    <div class="flex flex-col gap-4 text-center md:grid md:grid-cols-3 md:items-center">
+        <div class="text-sm text-white/75 md:text-left">Desenvolvido por Leonel Diniz</div>
+        <div class="text-xs uppercase tracking-[0.18em] text-white/60">Versão {{ app_version }}</div>
+        <div class="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
+            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">Flask</span>
+            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">Tailwind CSS</span>
+            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">PyWin32</span>
+            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">JSON</span>
+        </div>
+    </div>
+</footer>
+</div>
+
 <div id="toast" class="hidden fixed right-5 top-5 rounded-xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
 
 <script>
+function getSavedTheme() {
+    return localStorage.getItem(THEME_STORAGE_KEY) || "light";
+}
+
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    const button = document.getElementById("themeToggle");
+    if (button) {
+        button.textContent = theme === "dark" ? "Tema claro" : "Tema escuro";
+    }
+}
+
+function toggleTheme() {
+    const nextTheme = getSavedTheme() === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    applyTheme(nextTheme);
+}
+
 function showToast(message) {
     const toast = document.getElementById("toast");
     toast.textContent = message;
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 4000);
 }
+
+document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+applyTheme(getSavedTheme());
 
 document.getElementById("loginForm").addEventListener("submit", async (event) => {
     event.preventDefault();

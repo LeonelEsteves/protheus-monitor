@@ -3,10 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+window.tailwind = window.tailwind || {};
+window.tailwind.config = { darkMode: "class" };
+const THEME_STORAGE_KEY = "monitor-theme";
+if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
+    document.documentElement.classList.add("dark");
+}
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <title>Painel Administrativo | Monitor Protheus</title>
+<style>
+    .dark body {
+        background:
+            radial-gradient(circle at top, rgba(37, 99, 235, 0.16), transparent 34%),
+            linear-gradient(180deg, #0f172a 0%, #020617 100%);
+        color: #e2e8f0;
+    }
+
+    .dark .surface-panel,
+    .dark .surface-sidebar,
+    .dark #environmentFormModal > div,
+    .dark #confirmModal > div {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(9, 14, 26, 0.96));
+        color: #e2e8f0;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.42);
+    }
+
+    .dark .surface-panel .rounded-2xl,
+    .dark #environmentsList .rounded-2xl,
+    .dark #usersList .rounded-2xl,
+    .dark #environmentFormModal .bg-slate-50 {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(10, 15, 28, 0.9)) !important;
+        border-color: rgba(148, 163, 184, 0.14) !important;
+        color: #e2e8f0;
+    }
+
+    .dark .rounded-3xl.bg-slate-900 {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.92));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .dark .text-slate-500,
+    .dark .text-slate-600,
+    .dark .text-slate-700,
+    .dark .text-slate-400 {
+        color: #94a3b8 !important;
+    }
+
+    .dark .text-slate-900,
+    .dark #confirmModalTitle,
+    .dark #environmentFormTitle {
+        color: #f8fafc !important;
+    }
+
+    .dark input,
+    .dark select {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #334155;
+        color: #f8fafc;
+    }
+
+    .dark input:focus,
+    .dark select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+        outline: none;
+    }
+</style>
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-900">
+<body class="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300">
 
 <div class="mx-auto max-w-7xl p-6">
     <div class="mb-6 rounded-3xl bg-slate-900 px-6 py-5 text-white shadow-xl">
@@ -22,16 +89,19 @@
                     <span class="font-semibold">{{ user.username }}</span>
                     <span class="text-slate-300">| {{ user.role }}</span>
                 </div>
-                <a href="/" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
+                <button id="themeToggle" type="button" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
+                    Tema escuro
+                </button>
+                <a href="/" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
                     Voltar ao Monitor
                 </a>
-                <button onclick="logout()" class="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">Sair</button>
+                <button onclick="logout()" class="inline-flex h-10 items-center rounded-xl border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10">Sair</button>
             </div>
         </div>
     </div>
 
     <div class="grid gap-6 xl:grid-cols-[280px_1fr]">
-        <aside class="rounded-3xl bg-white p-5 shadow-sm">
+        <aside class="surface-sidebar rounded-3xl bg-white p-5 shadow-sm">
             <div class="space-y-2">
                 <button onclick="setAdminTab('security')" id="tab-security" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-left text-sm font-semibold text-white">Segurança</button>
                 <button onclick="setAdminTab('users')" id="tab-users" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-left text-sm font-semibold text-slate-700">Usuários</button>
@@ -40,7 +110,7 @@
         </aside>
 
         <main class="space-y-6">
-            <section id="panel-security" class="rounded-3xl bg-white p-6 shadow-sm">
+            <section id="panel-security" class="surface-panel rounded-3xl bg-white p-6 shadow-sm">
                 <div class="mb-4">
                     <h2 class="text-2xl font-semibold">Segurança</h2>
                     <p class="text-sm text-slate-500">Dados do administrador autenticado nesta sessão.</p>
@@ -58,7 +128,7 @@
                 </div>
             </section>
 
-            <section id="panel-users" class="hidden rounded-3xl bg-white p-6 shadow-sm">
+            <section id="panel-users" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
                 <div class="mb-4">
                     <h2 class="text-2xl font-semibold">Gerenciamento de usuários</h2>
                     <p class="text-sm text-slate-500">Crie usuários, altere perfis, redefina senhas e controle acessos.</p>
@@ -88,7 +158,7 @@
                 <div id="usersList" class="mt-5 space-y-3"></div>
             </section>
 
-            <section id="panel-environments" class="hidden rounded-3xl bg-white p-6 shadow-sm">
+            <section id="panel-environments" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
                 <div class="mb-4">
                     <h2 class="text-2xl font-semibold">Cadastro de ambientes</h2>
                     <p class="text-sm text-slate-500">Veja primeiro todos os ambientes cadastrados e abra o formulário só quando precisar criar ou editar.</p>
@@ -106,6 +176,19 @@
             </section>
         </main>
     </div>
+
+    <footer class="surface-panel mt-6 rounded-3xl bg-white px-6 py-5 shadow-sm">
+        <div class="flex flex-col gap-4 text-center md:grid md:grid-cols-3 md:items-center">
+            <div class="text-sm text-slate-500 dark:text-slate-400 md:text-left">Desenvolvido por Leonel Diniz</div>
+            <div class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Versão {{ app_version }}</div>
+            <div class="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300 md:justify-end">
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Flask</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Tailwind CSS</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">PyWin32</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">JSON</span>
+            </div>
+        </div>
+    </footer>
 </div>
 
 <div id="toast" class="hidden fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
@@ -205,6 +288,24 @@ let activeAdminTab = "security";
 let editingEnvironmentId = null;
 let confirmModalResolver = null;
 let confirmModalExpectedText = "";
+
+function getSavedTheme() {
+    return localStorage.getItem(THEME_STORAGE_KEY) || "light";
+}
+
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    const button = document.getElementById("themeToggle");
+    if (button) {
+        button.textContent = theme === "dark" ? "Tema claro" : "Tema escuro";
+    }
+}
+
+function toggleTheme() {
+    const nextTheme = getSavedTheme() === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    applyTheme(nextTheme);
+}
 
 function showToast(message, type = "error") {
     const toast = document.getElementById("toast");
@@ -716,6 +817,8 @@ document.getElementById("environmentForm").addEventListener("submit", async (eve
 setAdminTab("security");
 resetEnvironmentForm();
 closeEnvironmentForm();
+document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+applyTheme(getSavedTheme());
 loadUsers();
 loadEnvironmentAdmin();
 </script>

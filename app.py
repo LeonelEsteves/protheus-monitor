@@ -4,6 +4,7 @@ import json
 import os
 import re
 import smtplib
+import subprocess
 
 from email.mime.text import MIMEText
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
@@ -28,6 +29,7 @@ SMTP_SERVER = "smtp.office365.com"
 SMTP_PORT = 587
 SMTP_USER = ""
 SMTP_PASS = ""
+GIT_SAFE_DIRECTORY = os.path.abspath(os.getcwd()).replace("\\", "/")
 
 DEFAULT_ADMIN_USERNAME = os.getenv("PROTHEUS_ADMIN_USER", "admin")
 DEFAULT_ADMIN_PASSWORD = os.getenv("PROTHEUS_ADMIN_PASSWORD", "admin123")
@@ -317,6 +319,30 @@ def save_admin_environment_log(environment_name, action, result, user):
     save_log(target, action, result, user)
 
 
+def run_git_command(args):
+    try:
+        completed = subprocess.run(
+            ["git", "-c", f"safe.directory={GIT_SAFE_DIRECTORY}", *args],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=os.getcwd(),
+        )
+        return completed.stdout.strip()
+    except Exception:
+        return ""
+
+
+def get_app_version():
+    commit = run_git_command(["rev-parse", "--short", "HEAD"])
+    if not commit:
+        return "versao-local"
+
+    dirty = bool(run_git_command(["status", "--short"]))
+    branch = run_git_command(["rev-parse", "--abbrev-ref", "HEAD"]) or "branch-local"
+    return f"{branch}@{commit}{'-dirty' if dirty else ''}"
+
+
 def send_teams(message):
     if not TEAMS_WEBHOOK:
         return
@@ -353,6 +379,11 @@ def serialize_user(user):
         "active": user.get("active", True),
         "created_at": user.get("created_at"),
     }
+
+
+@app.context_processor
+def inject_app_version():
+    return {"app_version": get_app_version()}
 
 
 @app.before_request
