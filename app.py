@@ -1456,12 +1456,13 @@ def action():
         return jsonify({"success": False, "error": "Ação inválida."}), 400
 
     if (
-        action_type == "stop"
+        action_type in {"stop", "restart"}
         and user.get("role") != "admin"
         and (environment.get("environment_type") or infer_environment_type(environment.get("name"))) == "producao"
         and is_license_service(service, resolved_service.get("display_name"))
     ):
-        return jsonify({"success": False, "error": "Somente administrador pode parar o serviço de license em produção."}), 403
+        action_label = "parar" if action_type == "stop" else "reiniciar"
+        return jsonify({"success": False, "error": f"Somente administrador pode {action_label} o serviço de license em produção."}), 403
 
     if async_requested:
         job_id = uuid.uuid4().hex

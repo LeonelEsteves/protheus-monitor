@@ -12,5 +12,19 @@
     "role": "technical",
     "active": true,
     "created_at": "2026-04-13 16:27:18"
+  },
+  {
+    "username": "operador",
+    "password_hash": "scrypt:32768:8:1$hpdXSXrs9HDg7AWo$6e3666afec2eccd76aab7c0fb3008da57a6c32304b7d4b3ba84207ef618a7002143cb2b41412a842b1ef04833a367d18b7c3e0549370abafd5eee689a9f0477b",
+    "role": "operator",
+    "active": true,
+    "created_at": "2026-04-13 19:18:07"
+  },
+  {
+    "username": "tecnico",
+    "password_hash": "scrypt:32768:8:1$UDizgvtAwKQu9avo$5b624bf1848ce311f93bfa4ebbc45c510f8b9ca5a6e99ba8c093b12636595268c36bda921542c5799a3f251711be7eab1787aa6770bbc664d78301964af8844e",
+    "role": "technical",
+    "active": true,
+    "created_at": "2026-04-13 19:18:16"
   }
 ]
