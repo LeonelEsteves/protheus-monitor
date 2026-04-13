@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from collections import deque
 from datetime import datetime
 from functools import wraps
 import json
@@ -722,6 +723,163 @@ def resolve_service_machine(host):
     return host
 
 
+def find_service_in_environment(environment, service_name, service_ip=""):
+    all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
+    if service_ip:
+        return next(
+            (
+                item
+                for item in all_environment_services
+                if item.get("name") == service_name and (item.get("service_ip") or "").strip() == service_ip
+            ),
+            None,
+        )
+    return next((item for item in all_environment_services if item.get("name") == service_name), None)
+
+
+def read_local_console_log_tail(log_path, max_lines=300):
+    if not os.path.exists(log_path):
+        return {"success": False, "error": "Arquivo de log não encontrado para o serviço.", "exists": False}
+
+    stats = os.stat(log_path)
+    with open(log_path, "r", encoding="utf-8", errors="replace") as file:
+        content = "".join(deque(file, maxlen=max_lines))
+
+    return {
+        "success": True,
+        "exists": True,
+        "size": int(stats.st_size),
+        "last_write_utc": datetime.utcfromtimestamp(stats.st_mtime).isoformat() + "Z",
+        "content": content,
+    }
+
+
+def local_path_to_unc(host, path_value):
+    if not host or not path_value:
+        return ""
+    text = str(path_value).strip()
+    # Converte "C:\pasta\arquivo.log" em "\\host\C$\pasta\arquivo.log"
+    match = re.match(r"^([a-zA-Z]):\\(.*)$", text)
+    if not match:
+        return ""
+    drive = match.group(1).upper()
+    suffix = match.group(2).replace("/", "\\")
+    return f"\\\\{host}\\{drive}$\\{suffix}"
+
+
+def read_unc_console_log_tail(unc_path, max_lines=300):
+    if not unc_path:
+        return {"success": False, "error": "Caminho UNC inválido."}
+    if not os.path.exists(unc_path):
+        return {"success": False, "error": "Arquivo UNC não encontrado.", "exists": False}
+
+    stats = os.stat(unc_path)
+    with open(unc_path, "r", encoding="utf-8", errors="replace") as file:
+        content = "".join(deque(file, maxlen=max_lines))
+
+    return {
+        "success": True,
+        "exists": True,
+        "size": int(stats.st_size),
+        "last_write_utc": datetime.utcfromtimestamp(stats.st_mtime).isoformat() + "Z",
+        "content": content,
+    }
+
+
+def read_remote_console_log_tail(host, log_path, max_lines=300):
+    if not is_valid_remote_host(host):
+        return {"success": False, "error": "Host remoto inválido para leitura do log."}
+
+    candidate_hosts = [host]
+    if is_ipv4_address(host):
+        resolved_hostname = resolve_hostname_for_ip(host)
+        if resolved_hostname and resolved_hostname not in candidate_hosts:
+            candidate_hosts.insert(0, resolved_hostname)
+
+    errors = []
+    for current_host in candidate_hosts:
+        host_literal = current_host.replace("'", "''")
+        path_literal = log_path.replace("'", "''")
+        script = rf"""
+$ErrorActionPreference = 'Stop'
+$hostName = '{host_literal}'
+$logPath = '{path_literal}'
+$tail = {int(max_lines)}
+
+try {{
+    $result = Invoke-Command -ComputerName $hostName -ScriptBlock {{
+        param($logPath, $tail)
+        if (-not (Test-Path -LiteralPath $logPath)) {{
+            return [PSCustomObject]@{{
+                success = $false
+                exists = $false
+                error = 'Arquivo de log não encontrado para o serviço.'
+            }}
+        }}
+
+        $item = Get-Item -LiteralPath $logPath -ErrorAction Stop
+        $lines = Get-Content -LiteralPath $logPath -Tail $tail -ErrorAction Stop
+        $text = ($lines -join "`n")
+        return [PSCustomObject]@{{
+            success = $true
+            exists = $true
+            size = [int64]$item.Length
+            last_write_utc = $item.LastWriteTimeUtc.ToString('o')
+            content = $text
+        }}
+    }} -ArgumentList $logPath, $tail
+
+    $result | ConvertTo-Json -Depth 6
+}} catch {{
+    [PSCustomObject]@{{
+        success = $false
+        error = $_.Exception.Message
+    }} | ConvertTo-Json -Depth 6
+}}
+"""
+
+        code, stdout, stderr = run_powershell(script)
+        if code != 0:
+            errors.append(f"[{current_host}] {(stderr or stdout or 'Falha ao ler log remoto.').strip()}")
+            continue
+
+        raw = (stdout or "").strip()
+        if not raw:
+            errors.append(f"[{current_host}] Sem retorno na leitura do log remoto.")
+            continue
+
+        try:
+            data = json.loads(raw)
+        except Exception:
+            errors.append(f"[{current_host}] Retorno inválido na leitura do log remoto.")
+            continue
+
+        if isinstance(data, list):
+            data = data[0] if data else {}
+        if not isinstance(data, dict):
+            errors.append(f"[{current_host}] Formato inesperado na leitura do log remoto.")
+            continue
+
+        if data.get("success"):
+            return data
+
+        errors.append(f"[{current_host}] {data.get('error', 'Falha ao ler log remoto via WinRM.')}")
+
+    # Fallback sem WinRM: tentativa via SMB/UNC para evitar exigir autenticação explícita.
+    for current_host in candidate_hosts:
+        unc_path = local_path_to_unc(current_host, log_path)
+        if not unc_path:
+            continue
+        unc_result = read_unc_console_log_tail(unc_path, max_lines=max_lines)
+        if unc_result.get("success"):
+            unc_result["transport"] = "SMB"
+            return unc_result
+        if unc_result.get("error"):
+            errors.append(f"[{current_host}] {unc_result.get('error')}")
+
+    return {"success": False, "error": "Falha ao ler log remoto.", "details": "\n".join(errors[:8])}
+
+
 def current_user():
     username = session.get("username")
     if not username:
@@ -1030,17 +1188,7 @@ def action():
     if not any(item["name"] == service for item in all_environment_services):
         return jsonify({"success": False, "error": "Serviço não cadastrado para o ambiente."}), 404
 
-    if service_ip:
-        resolved_service = next(
-            (
-                item
-                for item in all_environment_services
-                if item.get("name") == service and (item.get("service_ip") or "").strip() == service_ip
-            ),
-            None,
-        )
-    else:
-        resolved_service = next((item for item in all_environment_services if item.get("name") == service), None)
+    resolved_service = find_service_in_environment(environment, service, service_ip=service_ip)
 
     if not resolved_service:
         return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
@@ -1069,6 +1217,59 @@ def action():
         send_teams(msg)
         send_email(msg)
         return jsonify({"success": False, "error": str(exc), "service_ip": resolved_host}), 500
+
+
+@app.route("/service-console-log", methods=["POST"])
+@login_required
+def service_console_log():
+    data = request.get_json(silent=True) or {}
+    environment_id = (data.get("environment_id") or "").strip()
+    service_name = (data.get("service") or "").strip()
+    service_ip = (data.get("service_ip") or "").strip()
+    last_signature = (data.get("last_signature") or "").strip()
+    max_lines = int(data.get("max_lines") or 300)
+
+    if not environment_id or not service_name:
+        return jsonify({"success": False, "error": "Ambiente e serviço são obrigatórios."}), 400
+
+    user = current_user()
+    environment = find_environment(environment_id)
+    if not environment:
+        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+    if not can_user_access_environment(user, environment):
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
+
+    resolved_service = find_service_in_environment(environment, service_name, service_ip=service_ip)
+    if not resolved_service:
+        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
+
+    log_path = (resolved_service.get("console_log_file") or "").strip()
+    if not log_path:
+        return jsonify({"success": False, "error": "Console log file não cadastrado para este serviço."}), 400
+
+    resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
+    if resolve_service_machine(resolved_host) is None:
+        read_result = read_local_console_log_tail(log_path, max_lines=max_lines)
+    else:
+        read_result = read_remote_console_log_tail(resolved_host, log_path, max_lines=max_lines)
+
+    if not read_result.get("success"):
+        return jsonify({"success": False, "error": read_result.get("error", "Falha ao ler log do serviço."), "details": read_result.get("details")}), 400
+
+    signature = f"{read_result.get('size','0')}::{read_result.get('last_write_utc','')}"
+    changed = signature != last_signature
+
+    return jsonify(
+        {
+            "success": True,
+            "changed": changed,
+            "signature": signature,
+            "service_ip": resolved_host,
+            "content": read_result.get("content", "") if changed else "",
+            "size": read_result.get("size", 0),
+            "last_write_utc": read_result.get("last_write_utc", ""),
+        }
+    )
 
 
 @app.route("/logs")

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo/gamb-logo.png') }}">
 <script>
 window.tailwind = window.tailwind || {};
 window.tailwind.config = { darkMode: "class" };
@@ -66,7 +67,13 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             Tema escuro
         </button>
         <section class="login-side hidden bg-slate-900/60 p-10 md:block">
-            <p class="text-sm uppercase tracking-[0.35em] text-slate-300">Monitor Protheus</p>
+            <div class="flex items-center gap-3">
+                <img src="{{ url_for('static', filename='logo/gamb-logo.png') }}" alt="Logo GAMB" class="h-20 w-20 rounded-full border border-white/15 bg-white/5 p-1 object-cover">
+                <div>
+                    <p class="text-sm uppercase tracking-[0.35em] text-slate-300">GAMB</p>
+                    <p class="mt-1 text-sm font-semibold text-slate-200">GAMB - Gerenciador de Ambientes</p>
+                </div>
+            </div>
             <h1 class="mt-6 text-4xl font-bold leading-tight">Acesso restrito para operação e administração do ambiente</h1>
             <!--p class="mt-4 max-w-md text-sm text-slate-300">
                 Apenas usuários previamente cadastrados podem entrar, consultar status dos serviços e executar ações na aplicação.

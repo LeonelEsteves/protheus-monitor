@@ -1,5 +1,19 @@
 [
   {
+    "datetime": "2026-04-13 14:18:26",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 14:18:06",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-13 12:35:14",
     "service": "AMBIENTE :: APEX-PRD",
     "action": "UPDATE",

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo/gamb-logo.png') }}">
 <script>
 window.tailwind = window.tailwind || {};
 window.tailwind.config = { darkMode: "class" };
@@ -97,7 +98,10 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     <div class="mb-6 rounded-3xl bg-slate-900 px-6 py-5 text-white shadow-xl">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <p class="text-sm uppercase tracking-[0.3em] text-slate-300">Monitor Protheus</p>
+                <div class="flex items-center gap-3">
+                    <img src="{{ url_for('static', filename='logo/gamb-logo.png') }}" alt="Logo GAMB" class="h-12 w-12 rounded-full border border-white/15 bg-white/10 p-1 object-cover">
+                    <p class="text-sm uppercase tracking-[0.3em] text-slate-300">GAMB</p>
+                </div>
                 <h1 class="text-3xl font-bold">Operação de serviços e ambientes</h1>
                 <p class="mt-2 text-sm text-slate-300">Tela principal focada no monitoramento e nas ações operacionais.</p>
             </div>
@@ -187,6 +191,24 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     </div>
 </div>
 
+<div id="serviceLogModal" class="hidden fixed inset-0 z-[55] flex items-center justify-center bg-slate-950/70 p-4">
+    <div class="w-full max-w-6xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-5 py-4 text-slate-100">
+            <div>
+                <h2 class="text-lg font-semibold">Console Log</h2>
+                <p id="serviceLogSubtitle" class="text-sm text-slate-400">Selecione um serviço para acompanhar o log.</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="refreshActiveServiceLog(true)" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Atualizar</button>
+                <button onclick="clearServiceLogScreen()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Limpar</button>
+                <button onclick="closeServiceLogModal()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Fechar</button>
+            </div>
+        </div>
+        <div id="serviceLogMeta" class="border-b border-slate-800 bg-slate-900/60 px-5 py-2 text-xs text-slate-400">Aguardando leitura...</div>
+        <pre id="serviceLogTerminal" class="h-[55vh] overflow-y-auto bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300 whitespace-pre-wrap"></pre>
+    </div>
+</div>
+
 <div id="logModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
     <div class="max-h-[80vh] w-full max-w-3xl rounded-3xl bg-white p-5 shadow-2xl">
         <div class="mb-4 flex items-center justify-between">
@@ -214,6 +236,10 @@ let activeDebugContext = null;
 let runningActions = {};
 let confirmModalResolver = null;
 let loadingEnvironmentIds = new Set();
+let activeServiceLogContext = null;
+let activeServiceLogSignature = "";
+let serviceLogPollingTimer = null;
+let serviceLogRequestInFlight = false;
 
 function getSavedTheme() {
     return localStorage.getItem(THEME_STORAGE_KEY) || "light";
@@ -391,6 +417,89 @@ function clearDebugLog() {
     }
     debugEntriesByContext[activeDebugContext.key] = [];
     renderDebugTerminal();
+}
+
+function openServiceLogModal(environmentId, environmentName, serviceName, displayName, serviceIp, logPath) {
+    activeServiceLogContext = {
+        environmentId,
+        environmentName,
+        serviceName,
+        displayName,
+        serviceIp: serviceIp || "",
+        logPath: logPath || "",
+    };
+    activeServiceLogSignature = "";
+    document.getElementById("serviceLogSubtitle").textContent = `Serviço: ${displayName || serviceName} | IP: ${serviceIp || "não informado"} | Ambiente: ${environmentName}`;
+    document.getElementById("serviceLogMeta").textContent = `Arquivo: ${logPath || "não informado"}`;
+    document.getElementById("serviceLogTerminal").textContent = "Carregando log do serviço...";
+    document.getElementById("serviceLogModal").classList.remove("hidden");
+    refreshActiveServiceLog(true);
+    if (serviceLogPollingTimer) {
+        clearInterval(serviceLogPollingTimer);
+    }
+    serviceLogPollingTimer = setInterval(() => refreshActiveServiceLog(false), 3000);
+}
+
+function closeServiceLogModal() {
+    document.getElementById("serviceLogModal").classList.add("hidden");
+    if (serviceLogPollingTimer) {
+        clearInterval(serviceLogPollingTimer);
+        serviceLogPollingTimer = null;
+    }
+    activeServiceLogContext = null;
+    activeServiceLogSignature = "";
+}
+
+function clearServiceLogScreen() {
+    document.getElementById("serviceLogTerminal").textContent = "";
+}
+
+async function refreshActiveServiceLog(force) {
+    if (!activeServiceLogContext || serviceLogRequestInFlight) {
+        return;
+    }
+    serviceLogRequestInFlight = true;
+    try {
+        const result = await apiFetch("/service-console-log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                environment_id: activeServiceLogContext.environmentId,
+                service: activeServiceLogContext.serviceName,
+                service_ip: activeServiceLogContext.serviceIp,
+                last_signature: force ? "" : activeServiceLogSignature,
+                max_lines: 300,
+            }),
+        });
+
+        if (!result) {
+            closeServiceLogModal();
+            return;
+        }
+
+        if (!result.response.ok || !result.data.success) {
+            document.getElementById("serviceLogMeta").textContent = `Falha: ${result.data.error || "erro ao ler log"}`;
+            if (result.data.details) {
+                document.getElementById("serviceLogTerminal").textContent = String(result.data.details);
+            }
+            return;
+        }
+
+        const timestamp = new Date().toLocaleTimeString("pt-BR");
+        document.getElementById("serviceLogMeta").textContent =
+            `IP: ${result.data.service_ip || activeServiceLogContext.serviceIp || "não informado"} | ` +
+            `Última gravação (UTC): ${result.data.last_write_utc || "-"} | ` +
+            `Tamanho: ${result.data.size || 0} bytes | Atualizado às ${timestamp}`;
+
+        if (result.data.changed || force) {
+            activeServiceLogSignature = result.data.signature || "";
+            document.getElementById("serviceLogTerminal").textContent = result.data.content || "";
+            const terminal = document.getElementById("serviceLogTerminal");
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+    } finally {
+        serviceLogRequestInFlight = false;
+    }
 }
 
 function isActionRunning(environmentId, service, action, serviceIp = "") {
@@ -679,6 +788,7 @@ function renderServiceCard(env, service) {
                 <button ${stopRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">${stopRunning ? "Parando..." : "Stop"}</button>
                 <button ${restartRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">${restartRunning ? "Reiniciando..." : "Restart"}</button>
                 <button data-environment-id="${escapeHtml(env.id)}" data-debug-service-name="${escapeHtml(service.name)}" data-debug-service-ip="${escapeHtml(serviceIp)}" data-debug-environment-name="${escapeHtml(env.environment)}" class="service-debug-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Debug</button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-600">Console Log</button>
             </div>
         </div>
     `;
@@ -814,6 +924,19 @@ document.getElementById("content").addEventListener("click", (event) => {
             debugButton.dataset.debugEnvironmentName,
             debugButton.dataset.debugServiceName,
             debugButton.dataset.debugServiceIp || ""
+        );
+        return;
+    }
+
+    const serviceLogButton = event.target.closest(".service-log-btn");
+    if (serviceLogButton) {
+        openServiceLogModal(
+            serviceLogButton.dataset.environmentId,
+            serviceLogButton.dataset.logEnvironmentName,
+            serviceLogButton.dataset.logServiceName,
+            serviceLogButton.dataset.logDisplayName,
+            serviceLogButton.dataset.logServiceIp || "",
+            serviceLogButton.dataset.logFile || ""
         );
         return;
     }

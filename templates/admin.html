@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo/gamb-logo.png') }}">
 <script>
 window.tailwind = window.tailwind || {};
 window.tailwind.config = { darkMode: "class" };
@@ -26,7 +27,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     .dark #environmentFormModal > div,
     .dark #confirmModal > div,
     .dark #autoDiscoverModal > div,
-    .dark #hostPromptModal > div {
+    .dark #hostPromptModal > div,
+    .dark #userEditModal > div {
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(9, 14, 26, 0.96));
         color: #e2e8f0;
         border: 1px solid rgba(148, 163, 184, 0.14);
@@ -36,7 +38,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     .dark .surface-panel .rounded-2xl,
     .dark #environmentsList .rounded-2xl,
     .dark #usersList .rounded-2xl,
-    .dark #environmentFormModal .bg-slate-50 {
+    .dark #environmentFormModal .bg-slate-50,
+    .dark #userEditModal .bg-slate-50 {
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(10, 15, 28, 0.9)) !important;
         border-color: rgba(148, 163, 184, 0.14) !important;
         color: #e2e8f0;
@@ -58,7 +61,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     .dark #confirmModalTitle,
     .dark #environmentFormTitle,
     .dark #autoDiscoverTitle,
-    .dark #hostPromptTitle {
+    .dark #hostPromptTitle,
+    .dark #userEditTitle {
         color: #f8fafc !important;
     }
 
@@ -89,7 +93,10 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     <div class="mb-6 rounded-3xl bg-slate-900 px-6 py-5 text-white shadow-xl">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <p class="text-sm uppercase tracking-[0.3em] text-slate-300">Painel Administrativo</p>
+                <div class="flex items-center gap-3">
+                    <img src="{{ url_for('static', filename='logo/gamb-logo.png') }}" alt="Logo GAMB" class="h-12 w-12 rounded-full border border-white/15 bg-white/10 p-1 object-cover">
+                    <p class="text-sm uppercase tracking-[0.3em] text-slate-300">GAMB</p>
+                </div>
                 <h1 class="text-3xl font-bold">Usuários, ambientes e segurança</h1>
                 <p class="mt-2 text-sm text-slate-300">Área administrativa separada da operação principal.</p>
             </div>
@@ -165,6 +172,13 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                         <button type="submit" class="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Cadastrar usuário</button>
                     </div>
                 </form>
+
+                <div class="mt-5">
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Filtrar usuário</span>
+                        <input id="userFilterInput" placeholder="Digite parte do nome do usuário" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    </label>
+                </div>
 
                 <div id="usersList" class="mt-5 space-y-3"></div>
             </section>
@@ -245,6 +259,44 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             <button type="button" onclick="resolveHostPromptModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
             <button type="button" onclick="resolveHostPromptModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Continuar</button>
         </div>
+    </div>
+</div>
+
+<div id="userEditModal" class="hidden fixed inset-0 z-[66] flex items-center justify-center bg-slate-950/70 p-4">
+    <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+        <div class="mb-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Usuários</p>
+            <h3 id="userEditTitle" class="mt-2 text-xl font-semibold text-slate-900">Editar usuário</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">Atualize perfil, status e senha no mesmo padrão visual das demais telas.</p>
+        </div>
+
+        <form id="userEditForm" class="space-y-3">
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">Usuário</span>
+                <input id="editUsername" readonly class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" />
+            </label>
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">Perfil</span>
+                <select id="editUserRole" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    <option value="operator">Operador</option>
+                    <option value="technical">Técnico</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </label>
+            <label class="flex items-center gap-2 text-sm text-slate-700">
+                <input id="editUserActive" type="checkbox">
+                Usuário ativo
+            </label>
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">Nova senha (opcional)</span>
+                <input id="editUserPassword" type="password" placeholder="Digite apenas se quiser alterar" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+
+            <div class="flex flex-wrap justify-end gap-2 pt-2">
+                <button type="button" onclick="toggleUserEditModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
+                <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar alterações</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -337,8 +389,10 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 <script>
 const currentUser = {{ user|tojson }};
 let adminEnvironments = [];
+let adminUsers = [];
 let activeAdminTab = "security";
 let editingEnvironmentId = null;
+let editingUserUsername = "";
 let confirmModalResolver = null;
 let confirmModalExpectedText = "";
 let hostPromptResolver = null;
@@ -736,65 +790,106 @@ async function logout() {
     }
 }
 
-async function loadUsers() {
-    const result = await apiFetch("/users");
-    if (!result) return;
+function normalizeSearchText(value) {
+    return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
 
+function getRoleLabel(role) {
+    if (role === "admin") return "Administrador";
+    if (role === "technical") return "Técnico";
+    return "Operador";
+}
+
+function renderUsersList() {
     const container = document.getElementById("usersList");
-    container.innerHTML = "";
+    const filterValue = normalizeSearchText(document.getElementById("userFilterInput")?.value || "");
+    const users = [...adminUsers]
+        .filter((user) => !filterValue || normalizeSearchText(user.username).includes(filterValue))
+        .sort((left, right) => String(left.username || "").localeCompare(String(right.username || ""), "pt-BR", { sensitivity: "base" }));
 
-    result.data.forEach((user) => {
-        const isCurrentUser = user.username === currentUser.username;
-        const checked = user.active ? "checked" : "";
-        const disabled = isCurrentUser ? "disabled" : "";
+    if (!users.length) {
+        container.innerHTML = `
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                Nenhum usuário encontrado para o filtro informado.
+            </div>
+        `;
+        return;
+    }
 
-        container.innerHTML += `
+    container.innerHTML = users.map((user) => {
+        const activeBadgeClass = user.active ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700";
+        const activeLabel = user.active ? "Ativo" : "Inativo";
+        return `
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div class="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                        <div class="font-semibold text-slate-900">${escapeHtml(user.username)}</div>
-                        <div class="text-xs uppercase tracking-[0.2em] text-slate-500">${escapeHtml(user.role)}</div>
+                <div class="grid gap-3 md:grid-cols-[1fr_220px_auto] md:items-center">
+                    <div class="min-w-0">
+                        <div class="truncate font-semibold text-slate-900">${escapeHtml(user.username)}</div>
+                        <div class="text-xs text-slate-500">Perfil: ${escapeHtml(getRoleLabel(user.role))}</div>
                     </div>
-                    <label class="flex items-center gap-2 text-sm text-slate-600">
-                        <input id="active-${user.username}" type="checkbox" ${checked} ${disabled} onchange="toggleUserStatus('${user.username}', this.checked)">
-                        Ativo
-                    </label>
-                </div>
-
-                <div class="grid gap-2 md:grid-cols-[1fr_180px_180px]">
-                    <label class="space-y-1 text-sm">
-                        <span class="font-medium text-slate-700">Nova senha</span>
-                        <input id="pwd-${user.username}" type="password" placeholder="Nova senha" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                    </label>
-                    <label class="space-y-1 text-sm">
-                        <span class="font-medium text-slate-700">Perfil</span>
-                        <select id="role-${user.username}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                            <option value="operator" ${user.role === "operator" ? "selected" : ""}>Operador</option>
-                            <option value="technical" ${user.role === "technical" ? "selected" : ""}>Técnico</option>
-                            <option value="admin" ${user.role === "admin" ? "selected" : ""}>Administrador</option>
-                        </select>
-                    </label>
-                    <button onclick="saveUser('${user.username}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar</button>
+                    <div>
+                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${activeBadgeClass}">${activeLabel}</span>
+                    </div>
+                    <div class="md:justify-self-end">
+                        <button type="button" onclick="openUserEditModal('${encodeURIComponent(user.username)}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Editar</button>
+                    </div>
                 </div>
             </div>
         `;
-    });
+    }).join("");
 }
 
-async function saveUser(username) {
-    const password = document.getElementById(`pwd-${username}`).value;
-    const role = document.getElementById(`role-${username}`).value;
-    const checkbox = document.getElementById(`active-${username}`);
-    const active = checkbox ? checkbox.checked : true;
+async function loadUsers() {
+    const result = await apiFetch("/users");
+    if (!result) return;
+    adminUsers = Array.isArray(result.data) ? result.data : [];
+    renderUsersList();
+}
 
-    const payload = { role, active };
-    if (password) {
-        payload.password = password;
+function toggleUserEditModal(forceOpen = null) {
+    const modal = document.getElementById("userEditModal");
+    if (!modal) return;
+    const shouldOpen = forceOpen === null ? modal.classList.contains("hidden") : forceOpen;
+    modal.classList.toggle("hidden", !shouldOpen);
+    if (!shouldOpen) {
+        editingUserUsername = "";
+        document.getElementById("userEditForm").reset();
     }
+}
+
+function openUserEditModal(encodedUsername) {
+    const username = decodeURIComponent(String(encodedUsername || ""));
+    const user = adminUsers.find((item) => String(item.username || "") === username);
+    if (!user) {
+        showToast("Usuário não encontrado.");
+        return;
+    }
+
+    editingUserUsername = username;
+    document.getElementById("editUsername").value = user.username || "";
+    document.getElementById("editUserRole").value = user.role || "operator";
+    const activeField = document.getElementById("editUserActive");
+    activeField.checked = Boolean(user.active);
+    activeField.disabled = user.username === currentUser.username;
+    document.getElementById("editUserPassword").value = "";
+    toggleUserEditModal(true);
+}
+
+async function saveEditedUser(event) {
+    event.preventDefault();
+    if (!editingUserUsername) return;
+
+    const role = document.getElementById("editUserRole").value;
+    const activeField = document.getElementById("editUserActive");
+    const payload = { role, active: Boolean(activeField.checked) };
+    const password = document.getElementById("editUserPassword").value;
+    if (password) payload.password = password;
 
     const confirmed = await showConfirmModal({
         title: "Salvar alterações do usuário",
-        message: `Confirma a atualização do usuário ${username}? As permissões e credenciais serão aplicadas imediatamente.`,
+        message: `Confirma a atualização do usuário ${editingUserUsername}?`,
         confirmLabel: "Salvar alterações",
         tone: "success",
     });
@@ -803,6 +898,7 @@ async function saveUser(username) {
         return;
     }
 
+    const username = editingUserUsername;
     const result = await apiFetch(`/users/${encodeURIComponent(username)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -816,50 +912,10 @@ async function saveUser(username) {
         return;
     }
 
+    toggleUserEditModal(false);
     showToast(`Usuário ${username} atualizado com sucesso.`, "success");
     await loadUsers();
 }
-
-async function toggleUserStatus(username, active) {
-    const role = document.getElementById(`role-${username}`).value;
-    const password = document.getElementById(`pwd-${username}`).value;
-    const payload = { role, active };
-    if (password) {
-        payload.password = password;
-    }
-
-    const confirmed = await showConfirmModal({
-        title: active ? "Ativar usuário" : "Desativar usuário",
-        message: active
-            ? `Confirma a ativação do usuário ${username}?`
-            : `Confirma a desativação do usuário ${username}? O acesso dele será interrompido imediatamente.`,
-        confirmLabel: active ? "Ativar usuário" : "Desativar usuário",
-        tone: active ? "success" : "danger",
-    });
-    if (!confirmed) {
-        await loadUsers();
-        showToast("Alteração cancelada.");
-        return;
-    }
-
-    const result = await apiFetch(`/users/${encodeURIComponent(username)}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    });
-
-    if (!result) return;
-
-    if (!result.response.ok || !result.data.success) {
-        showToast(result.data.error || "Não foi possível atualizar o usuário.");
-        await loadUsers();
-        return;
-    }
-
-    showToast(`Status de ${username} atualizado.`, "success");
-    await loadUsers();
-}
-
 function addServiceRow(service = {}) {
     addRow("serviceRows", "service", service);
 }
@@ -1153,6 +1209,17 @@ document.getElementById("userForm").addEventListener("submit", async (event) => 
     await loadUsers();
 });
 
+document.getElementById("userFilterInput").addEventListener("input", () => {
+    renderUsersList();
+});
+
+document.getElementById("userEditForm").addEventListener("submit", saveEditedUser);
+document.getElementById("userEditModal").addEventListener("click", (event) => {
+    if (event.target.id === "userEditModal") {
+        toggleUserEditModal(false);
+    }
+});
+
 document.getElementById("environmentForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -1216,3 +1283,4 @@ loadEnvironmentAdmin();
 
 </body>
 </html>
+
