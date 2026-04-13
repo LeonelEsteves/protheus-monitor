@@ -147,6 +147,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                         <span class="font-medium text-slate-700">Perfil</span>
                         <select id="newRole" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
                             <option value="operator">Operador</option>
+                            <option value="technical">Técnico</option>
                             <option value="admin">Administrador</option>
                         </select>
                     </label>
@@ -219,9 +220,10 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         <div class="sticky top-0 z-10 mb-4 flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-6 py-4">
             <div>
                 <h3 id="environmentFormTitle" class="text-lg font-semibold text-slate-900">Novo ambiente</h3>
-                <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e porta de cada serviço.</p>
+                <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e metadados (TCP Port, WebApp Port, IP, log e prioridade) de cada serviço.</p>
             </div>
             <div class="flex gap-2">
+                <button type="button" onclick="autoDiscoverServices()" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">Busca automática</button>
                 <button type="submit" form="environmentForm" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
                 <button type="button" onclick="closeEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
             </div>
@@ -270,7 +272,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                     <span class="text-sm font-medium text-slate-700">Infra</span>
                     <button type="button" onclick="addInfraRow()" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Adicionar infra</button>
                 </div>
-                <p class="mb-2 text-xs text-slate-500">Cadastre serviços de infraestrutura como `dbaccess`, `license` e `smartview`.</p>
+                <p class="mb-2 text-xs text-slate-500">Cadastre serviços de infraestrutura como `dbaccess`, `broker`, `license` e `webagent`.</p>
                 <div id="infraRows" class="space-y-2"></div>
             </div>
 
@@ -283,6 +285,22 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     </div>
 </div>
 
+<div id="autoDiscoverModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/70 p-4">
+    <div class="w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-5 py-4 text-slate-100">
+            <div>
+                <h2 class="text-lg font-semibold">Busca automática</h2>
+                <p id="autoDiscoverSubtitle" class="text-sm text-slate-400">Acompanhamento da descoberta de serviços e leitura do appserver.ini.</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="clearAutoDiscoverLog()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Limpar</button>
+                <button onclick="toggleAutoDiscoverModal(false)" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Fechar</button>
+            </div>
+        </div>
+        <div id="autoDiscoverTerminal" class="h-[55vh] overflow-y-auto bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300"></div>
+    </div>
+</div>
+
 <script>
 const currentUser = {{ user|tojson }};
 let adminEnvironments = [];
@@ -290,6 +308,7 @@ let activeAdminTab = "security";
 let editingEnvironmentId = null;
 let confirmModalResolver = null;
 let confirmModalExpectedText = "";
+let autoDiscoverRunning = false;
 
 function getSavedTheme() {
     return localStorage.getItem(THEME_STORAGE_KEY) || "light";
@@ -326,8 +345,199 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
+function toggleAutoDiscoverModal(forceOpen = null) {
+    const modal = document.getElementById("autoDiscoverModal");
+    if (!modal) return;
+    const shouldOpen = forceOpen === null ? modal.classList.contains("hidden") : forceOpen;
+    modal.classList.toggle("hidden", !shouldOpen);
+}
+
+function clearAutoDiscoverLog() {
+    const terminal = document.getElementById("autoDiscoverTerminal");
+    if (terminal) terminal.innerHTML = "";
+}
+
+function appendAutoDiscoverLog(message, tone = "info") {
+    const terminal = document.getElementById("autoDiscoverTerminal");
+    if (!terminal) return;
+    const time = new Date().toLocaleTimeString("pt-BR");
+    const color = tone === "error" ? "text-rose-300" : tone === "warn" ? "text-amber-300" : "text-emerald-300";
+    const line = document.createElement("div");
+    line.className = color;
+    line.textContent = `[${time}] ${message}`;
+    terminal.appendChild(line);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
 function compareEnvironmentNames(left, right) {
     return String(left.name || "").localeCompare(String(right.name || ""), "pt-BR", { sensitivity: "base" });
+}
+
+function normalizeServiceName(name) {
+    return String(name || "").trim().toLowerCase();
+}
+
+function normalizeServiceIp(ip) {
+    return String(ip || "").trim().toLowerCase();
+}
+
+function mergeDiscoveredServices(existing, discovered) {
+    const map = new Map();
+    existing.forEach((service) => {
+        const key = `${normalizeServiceName(service.name)}|${normalizeServiceIp(service.service_ip)}`;
+        if (!key) return;
+        map.set(key, { ...service });
+    });
+
+    let added = 0;
+    let updated = 0;
+    discovered.forEach((service) => {
+        const byIpKey = `${normalizeServiceName(service.name)}|${normalizeServiceIp(service.service_ip)}`;
+        const noIpKey = `${normalizeServiceName(service.name)}|`;
+        const key = byIpKey;
+        if (!key) return;
+
+        if (map.has(key)) {
+            const current = map.get(key);
+            map.set(key, { ...current, ...service, name: current.name || service.name });
+            updated += 1;
+        } else if (normalizeServiceIp(service.service_ip) && map.has(noIpKey)) {
+            const current = map.get(noIpKey);
+            map.delete(noIpKey);
+            map.set(key, { ...current, ...service, name: current.name || service.name });
+            updated += 1;
+        } else {
+            map.set(key, { ...service });
+            added += 1;
+        }
+    });
+
+    const list = [...map.values()].sort((a, b) =>
+        String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" })
+    );
+
+    return { list, added, updated };
+}
+
+async function autoDiscoverServices() {
+    if (autoDiscoverRunning) {
+        showToast("Busca automática em execução. Aguarde finalizar.");
+        toggleAutoDiscoverModal(true);
+        return;
+    }
+
+    const rawHosts = window.prompt("Informe o(s) IP(s)/host(s) do servidor onde estão os serviços (separe por vírgula):");
+    if (!rawHosts) {
+        return;
+    }
+
+    const hosts = rawHosts.split(",").map((item) => item.trim()).filter(Boolean);
+    if (!hosts.length) {
+        showToast("Informe ao menos um IP/host.");
+        return;
+    }
+
+    autoDiscoverRunning = true;
+    toggleAutoDiscoverModal(true);
+    appendAutoDiscoverLog(`Iniciando busca automática em: ${hosts.join(", ")}.`);
+    appendAutoDiscoverLog("Sem credenciais explícitas; tentando resolver hostname automaticamente quando você informar IP.", "warn");
+    appendAutoDiscoverLog("Coletando serviços já preenchidos no formulário...");
+
+    const existingServices = readEnvironmentServices();
+    const existingInfra = readInfraServices();
+
+    appendAutoDiscoverLog(`Serviços no formulário: ${existingServices.length}. Infra no formulário: ${existingInfra.length}.`);
+    appendAutoDiscoverLog("Chamando endpoint /discover-services ...");
+
+    const result = await apiFetch("/discover-services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hosts }),
+    });
+
+    if (!result) {
+        autoDiscoverRunning = false;
+        appendAutoDiscoverLog("Sessão expirada (redirecionando para login).", "warn");
+        return;
+    }
+
+    if (!result.response.ok || !result.data.success) {
+        appendAutoDiscoverLog(`Falha na busca automática (HTTP ${result.response.status}).`, "error");
+        appendAutoDiscoverLog(result.data.error || "Não foi possível executar a busca automática.", "error");
+        if (Array.isArray(result.data.steps) && result.data.steps.length) {
+            appendAutoDiscoverLog("Passos executados:", "warn");
+            result.data.steps.forEach((step) => appendAutoDiscoverLog(step, "warn"));
+        }
+        if (result.data.details) {
+            appendAutoDiscoverLog(String(result.data.details).slice(0, 1200), "warn");
+        }
+        if (Array.isArray(result.data.errors) && result.data.errors.length) {
+            result.data.errors.forEach((err) => {
+                appendAutoDiscoverLog(`[${err.server}] ${err.error}`, "warn");
+                if (err.hint) {
+                    appendAutoDiscoverLog(`Dica: ${err.hint}`, "warn");
+                }
+            });
+        }
+        showToast(result.data.error || "Não foi possível executar a busca automática.");
+        autoDiscoverRunning = false;
+        return;
+    }
+
+    const discoveredServices = result.data.services || [];
+    const discoveredInfra = result.data.infra_services || [];
+    if (Array.isArray(result.data.steps) && result.data.steps.length) {
+        appendAutoDiscoverLog("Passos executados:");
+        result.data.steps.forEach((step) => appendAutoDiscoverLog(step));
+    }
+    appendAutoDiscoverLog(`Descobertos: Serviços=${discoveredServices.length}, Infra=${discoveredInfra.length}.`);
+    const allDiscovered = [...discoveredServices, ...discoveredInfra];
+    const withTcp = allDiscovered.filter((service) => (service.tcp_port || "").trim()).length;
+    const withWebapp = allDiscovered.filter((service) => (service.webapp_port || "").trim()).length;
+    const withRest = allDiscovered.filter((service) => (service.rest_port || "").trim()).length;
+    const withConsole = allDiscovered.filter((service) => (service.console_log_file || "").trim()).length;
+    appendAutoDiscoverLog(
+        `Campos preenchidos via INI: TCP=${withTcp}, WEBAPP=${withWebapp}, REST=${withRest}, ConsoleFile=${withConsole}.`
+    );
+
+    const mergedServices = mergeDiscoveredServices(existingServices, discoveredServices);
+    const mergedInfra = mergeDiscoveredServices(existingInfra, discoveredInfra);
+    appendAutoDiscoverLog(`Merge: Serviços +${mergedServices.added}/~${mergedServices.updated}. Infra +${mergedInfra.added}/~${mergedInfra.updated}.`);
+
+    document.getElementById("serviceRows").innerHTML = "";
+    document.getElementById("infraRows").innerHTML = "";
+
+    if (mergedServices.list.length) {
+        mergedServices.list.forEach((service) => addServiceRow(service));
+    } else {
+        addServiceRow();
+    }
+
+    if (mergedInfra.list.length) {
+        mergedInfra.list.forEach((service) => addInfraRow(service));
+    } else {
+        addInfraRow({ name: "dbaccess" });
+        addInfraRow({ name: "broker" });
+        addInfraRow({ name: "license" });
+        addInfraRow({ name: "webagent" });
+    }
+
+    const summary = `Busca automática concluída (Serviços: +${mergedServices.added}/~${mergedServices.updated}; Infra: +${mergedInfra.added}/~${mergedInfra.updated}).`;
+    showToast(summary, "success");
+    appendAutoDiscoverLog(summary);
+
+    if (Array.isArray(result.data.errors) && result.data.errors.length) {
+        appendAutoDiscoverLog("Busca automática concluiu com erros em alguns hosts:", "warn");
+        result.data.errors.forEach((err) => {
+            appendAutoDiscoverLog(`[${err.server}] ${err.error}`, "warn");
+            if (err.hint) {
+                appendAutoDiscoverLog(`Dica: ${err.hint}`, "warn");
+            }
+        });
+        showToast("Busca automática concluiu com erros em alguns hosts (veja a tela de log).");
+    }
+
+    autoDiscoverRunning = false;
 }
 
 function getEnvironmentTypeMeta(environmentType) {
@@ -424,15 +634,42 @@ function setAdminTab(tabName) {
 }
 
 async function apiFetch(url, options = {}) {
-    const response = await fetch(url, options);
+    let response;
+    try {
+        response = await fetch(url, options);
+    } catch (error) {
+        return {
+            response: { ok: false, status: 0 },
+            data: { success: false, error: "Falha de rede ao chamar a API.", details: String(error || "") },
+        };
+    }
 
     if (response.status === 401) {
         window.location.href = "/login";
         return null;
     }
 
-    const data = await response.json();
-    return { response, data };
+    let data = null;
+    try {
+        data = await response.json();
+    } catch (error) {
+        let text = "";
+        try {
+            text = await response.text();
+        } catch (readError) {
+            text = "";
+        }
+        return {
+            response,
+            data: {
+                success: false,
+                error: "Resposta inválida do servidor (não-JSON).",
+                details: text ? text.slice(0, 1500) : String(error || ""),
+            },
+        };
+    }
+
+    return { response, data: data || {} };
 }
 
 async function logout() {
@@ -476,6 +713,7 @@ async function loadUsers() {
                         <span class="font-medium text-slate-700">Perfil</span>
                         <select id="role-${user.username}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
                             <option value="operator" ${user.role === "operator" ? "selected" : ""}>Operador</option>
+                            <option value="technical" ${user.role === "technical" ? "selected" : ""}>Técnico</option>
                             <option value="admin" ${user.role === "admin" ? "selected" : ""}>Administrador</option>
                         </select>
                     </label>
@@ -565,28 +803,65 @@ async function toggleUserStatus(username, active) {
     await loadUsers();
 }
 
-function addServiceRow(name = "", port = "") {
-    addRow("serviceRows", "service", name, port);
+function addServiceRow(service = {}) {
+    addRow("serviceRows", "service", service);
 }
 
-function addInfraRow(name = "", port = "") {
-    addRow("infraRows", "infra", name, port);
+function addInfraRow(service = {}) {
+    addRow("infraRows", "infra", service);
 }
 
-function addRow(containerId, prefix, name = "", port = "") {
+function addRow(containerId, prefix, service = {}) {
     const container = document.getElementById(containerId);
     const row = document.createElement("div");
-    row.className = "grid gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_160px_110px]";
+    const name = service.name || "";
+    const pathExecutable = service.path_executable || service.executable_path || service.exe_path || "";
+    const tcpPort = service.tcp_port ?? service.port ?? "";
+    const webappPort = service.webapp_port || "";
+    const restPort = service.rest_port || "";
+    const serviceIp = service.service_ip || "";
+    const consoleLogFile = service.console_log_file || "";
+    const priority = prefix === "infra" ? "alta" : (service.priority || "media");
+
+    row.className = "grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-2 xl:grid-cols-4";
     row.innerHTML = `
-        <label class="space-y-1 text-sm">
+        <label class="space-y-1 text-sm md:col-span-2">
             <span class="font-medium text-slate-700">Nome do serviço</span>
             <input value="${escapeHtml(name)}" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
         </label>
-        <label class="space-y-1 text-sm">
-            <span class="font-medium text-slate-700">Porta</span>
-            <input value="${escapeHtml(port)}" placeholder="Porta" class="${prefix}-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
+            <span class="font-medium text-slate-700">Path Executable</span>
+            <input value="${escapeHtml(pathExecutable)}" placeholder="Caminho completo do executável do serviço" class="${prefix}-path-executable w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
         </label>
-        <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700">Remover</button>
+        <label class="space-y-1 text-sm">
+            <span class="font-medium text-slate-700">Prioridade</span>
+            <select class="${prefix}-priority w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" ${prefix === "infra" ? "disabled" : ""}>
+                <option value="baixa" ${priority === "baixa" ? "selected" : ""}>Baixa</option>
+                <option value="media" ${priority === "media" ? "selected" : ""}>Média</option>
+                <option value="alta" ${priority === "alta" ? "selected" : ""}>Alta</option>
+            </select>
+        </label>
+        <label class="space-y-1 text-sm">
+            <span class="font-medium text-slate-700">IP do serviço</span>
+            <input value="${escapeHtml(serviceIp)}" placeholder="IP do serviço" class="${prefix}-service-ip w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
+        <label class="space-y-1 text-sm">
+            <span class="font-medium text-slate-700">TCP Port</span>
+            <input value="${escapeHtml(tcpPort)}" placeholder="TCP Port" class="${prefix}-tcp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
+        <label class="space-y-1 text-sm">
+            <span class="font-medium text-slate-700">WebApp Port</span>
+            <input value="${escapeHtml(webappPort)}" placeholder="WebApp Port" class="${prefix}-webapp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
+        <label class="space-y-1 text-sm">
+            <span class="font-medium text-slate-700">Rest Port</span>
+            <input value="${escapeHtml(restPort)}" placeholder="Rest Port" class="${prefix}-rest-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
+        <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
+            <span class="font-medium text-slate-700">Console log file</span>
+            <input value="${escapeHtml(consoleLogFile)}" placeholder="Caminho do log" class="${prefix}-console-log-file w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
+        <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 md:col-span-2 xl:col-span-4">Remover</button>
     `;
     row.querySelector("button").addEventListener("click", () => row.remove());
     container.appendChild(row);
@@ -595,14 +870,26 @@ function addRow(containerId, prefix, name = "", port = "") {
 function readEnvironmentServices() {
     return [...document.querySelectorAll("#serviceRows > div")].map((row) => ({
         name: row.querySelector(".service-name").value.trim(),
-        port: row.querySelector(".service-port").value.trim(),
+        path_executable: row.querySelector(".service-path-executable").value.trim(),
+        priority: row.querySelector(".service-priority").value,
+        service_ip: row.querySelector(".service-service-ip").value.trim(),
+        tcp_port: row.querySelector(".service-tcp-port").value.trim(),
+        webapp_port: row.querySelector(".service-webapp-port").value.trim(),
+        rest_port: row.querySelector(".service-rest-port").value.trim(),
+        console_log_file: row.querySelector(".service-console-log-file").value.trim(),
     })).filter((service) => service.name);
 }
 
 function readInfraServices() {
     return [...document.querySelectorAll("#infraRows > div")].map((row) => ({
         name: row.querySelector(".infra-name").value.trim(),
-        port: row.querySelector(".infra-port").value.trim(),
+        path_executable: row.querySelector(".infra-path-executable").value.trim(),
+        priority: "alta",
+        service_ip: row.querySelector(".infra-service-ip").value.trim(),
+        tcp_port: row.querySelector(".infra-tcp-port").value.trim(),
+        webapp_port: row.querySelector(".infra-webapp-port").value.trim(),
+        rest_port: row.querySelector(".infra-rest-port").value.trim(),
+        console_log_file: row.querySelector(".infra-console-log-file").value.trim(),
     })).filter((service) => service.name);
 }
 
@@ -623,9 +910,10 @@ function resetEnvironmentForm() {
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
     addServiceRow();
-    addInfraRow("dbaccess", "");
-    addInfraRow("license", "");
-    addInfraRow("smartview", "");
+    addInfraRow({ name: "dbaccess" });
+    addInfraRow({ name: "broker" });
+    addInfraRow({ name: "license" });
+    addInfraRow({ name: "webagent" });
 }
 
 function fillEnvironmentForm(environment) {
@@ -639,8 +927,8 @@ function fillEnvironmentForm(environment) {
     document.getElementById("environmentRestUrl").value = environment.rest_url || "";
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
-    environment.services.forEach((service) => addServiceRow(service.name, service.port));
-    (environment.infra_services || []).forEach((service) => addInfraRow(service.name, service.port));
+    environment.services.forEach((service) => addServiceRow(service));
+    (environment.infra_services || []).forEach((service) => addInfraRow(service));
     setAdminTab("environments");
 }
 
@@ -654,8 +942,15 @@ async function loadEnvironmentAdmin() {
 
     adminEnvironments.forEach((environment) => {
         const environmentType = getEnvironmentTypeMeta(environment.environment_type);
-        const servicesLabel = environment.services.map((service) => `${service.name}${service.port ? `:${service.port}` : ""}`).join(", ");
-        const infraLabel = (environment.infra_services || []).map((service) => `${service.name}${service.port ? `:${service.port}` : ""}`).join(", ");
+        const formatService = (service) => {
+            const tcp = service.tcp_port ?? service.port ?? "";
+            const webapp = service.webapp_port || "";
+            const rest = service.rest_port || "";
+            const priority = service.priority || "";
+            return `${service.name}${tcp ? `:${tcp}` : ""}${webapp ? ` (web:${webapp})` : ""}${rest ? ` (rest:${rest})` : ""}${priority ? ` [${priority}]` : ""}`;
+        };
+        const servicesLabel = environment.services.map(formatService).join(", ");
+        const infraLabel = (environment.infra_services || []).map(formatService).join(", ");
         const appLinkLabel = environment.app_url
             ? `<a href="${escapeHtml(environment.app_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline underline-offset-2">Abrir aplicação</a>`
             : "Não informado";

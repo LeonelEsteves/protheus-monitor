@@ -6,6 +6,8 @@ import os
 import re
 import smtplib
 import subprocess
+import base64
+import socket
 
 from email.mime.text import MIMEText
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
@@ -43,12 +45,12 @@ DEFAULT_ENVIRONMENTS = [
         "environment_type": "homologacao",
         "host": "127.0.0.1",
         "services": [
-            {"name": "TOTVS-Appserver12-APEX-HML3", "port": ""},
-            {"name": "TOTVS-Appserver12-APEX-HML3-REST", "port": ""},
-            {"name": "TOTVS-Appserver12-APEX-HML3-SCHED", "port": ""},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WF", "port": ""},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WS", "port": ""},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WS2", "port": ""},
+            {"name": "TOTVS-Appserver12-APEX-HML3", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-REST", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-SCHED", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WF", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WS", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WS2", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
         ],
         "infra_services": [],
     },
@@ -58,14 +60,17 @@ DEFAULT_ENVIRONMENTS = [
         "environment_type": "desenvolvimento",
         "host": "127.0.0.1",
         "services": [
-            {"name": "licenseVirtual", "port": ""},
-            {"name": "TOTVSDBAccess64", "port": ""},
-            {"name": "TOTVSDBAccess64TSS", "port": ""},
-            {"name": "TOTVSservice", "port": ""},
+            {"name": "licenseVirtual", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSDBAccess64", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSDBAccess64TSS", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSservice", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
         ],
         "infra_services": [],
     },
 ]
+
+ALLOWED_ROLES = {"admin", "technical", "operator"}
+SERVICE_PRIORITIES = {"baixa", "media", "alta"}
 
 
 def normalize_username(username):
@@ -83,6 +88,20 @@ def slugify_environment_name(name):
 
 def normalize_port(value):
     return str(value or "").strip()
+
+
+def normalize_service_priority(value):
+    normalized = (value or "").strip().lower()
+    mapping = {
+        "baixa": "baixa",
+        "low": "baixa",
+        "media": "media",
+        "média": "media",
+        "medium": "media",
+        "alta": "alta",
+        "high": "alta",
+    }
+    return mapping.get(normalized, "media")
 
 
 def infer_environment_type(name):
@@ -110,9 +129,21 @@ def normalize_environment_type(value, fallback_name=""):
 
 
 def sanitize_service(service):
+    if isinstance(service, str):
+        service = {"name": service}
+    elif not isinstance(service, dict):
+        service = {}
+
+    legacy_port = service.get("port")
     return {
         "name": (service.get("name") or "").strip(),
-        "port": normalize_port(service.get("port")),
+        "path_executable": (service.get("path_executable") or service.get("executable_path") or service.get("exe_path") or "").strip(),
+        "tcp_port": normalize_port(service.get("tcp_port") or legacy_port),
+        "webapp_port": normalize_port(service.get("webapp_port")),
+        "rest_port": normalize_port(service.get("rest_port")),
+        "service_ip": (service.get("service_ip") or service.get("ip_address") or service.get("ip") or "").strip(),
+        "console_log_file": (service.get("console_log_file") or service.get("console_log") or service.get("log_file") or "").strip(),
+        "priority": normalize_service_priority(service.get("priority")),
     }
 
 
@@ -121,6 +152,8 @@ def sanitize_environment(environment, existing_id=None):
     services = [service for service in services if service["name"]]
     infra_services = [sanitize_service(service) for service in environment.get("infra_services", [])]
     infra_services = [service for service in infra_services if service["name"]]
+    for infra_service in infra_services:
+        infra_service["priority"] = "alta"
 
     return {
         "id": existing_id or slugify_environment_name(environment.get("name")),
@@ -175,15 +208,37 @@ def load_environments():
     normalized = []
     changed = False
     for item in data:
+        infra_list = item.get("infra_services", [])
+        if isinstance(infra_list, list) and infra_list and isinstance(infra_list[0], str):
+            item["infra_services"] = [{"name": service_name, "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in infra_list]
+            changed = True
+
         if isinstance(item.get("services", []), list) and item.get("services") and isinstance(item["services"][0], str):
             item = {
                 "id": item.get("id") or slugify_environment_name(item.get("name")),
                 "name": item.get("name"),
                 "host": item.get("host", "127.0.0.1"),
-                "services": [{"name": service_name, "port": ""} for service_name in item["services"]],
+                "services": [{"name": service_name, "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in item["services"]],
                 "infra_services": item.get("infra_services", []),
             }
             changed = True
+
+        for service in (item.get("services") or []) + (item.get("infra_services") or []):
+            if not isinstance(service, dict):
+                continue
+            if "port" in service:
+                changed = True
+            if (
+                "path_executable" not in service
+                or
+                "tcp_port" not in service
+                or "webapp_port" not in service
+                or "rest_port" not in service
+                or "service_ip" not in service
+                or "console_log_file" not in service
+                or "priority" not in service
+            ):
+                changed = True
 
         if "infra_services" not in item:
             item["infra_services"] = []
@@ -199,6 +254,8 @@ def load_environments():
             changed = True
 
         normalized.append(sanitize_environment(item, item.get("id") or slugify_environment_name(item.get("name"))))
+        if any((service.get("priority") or "") != "alta" for service in normalized[-1].get("infra_services", [])):
+            changed = True
 
     if changed:
         save_environments(normalized)
@@ -226,12 +283,401 @@ def find_environment(environment_id):
     return None
 
 
-def build_status_service(service, host):
+def safe_decode_bytes(raw_bytes):
+    if raw_bytes is None:
+        return ""
+    for encoding in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
+        try:
+            return raw_bytes.decode(encoding)
+        except Exception:
+            continue
+    return raw_bytes.decode("latin-1", errors="replace")
+
+
+def parse_appserver_ini(text):
+    content = (text or "").replace("\r\n", "\n")
+    if not content.strip():
+        return {}
+
+    def extract_section_value(section_name, key_name):
+        # Busca robusta por seção+chave sem depender de parser INI estrito
+        section_pattern = re.compile(
+            rf"(?ims)^\s*\[{re.escape(section_name)}\]\s*$" rf"(.*?)(?=^\s*\[.*?\]\s*$|\Z)"
+        )
+        for section_match in section_pattern.finditer(content):
+            section_body = section_match.group(1) or ""
+            value_match = re.search(
+                rf"(?im)^\s*{re.escape(key_name)}\s*=\s*([^;\r\n#]+)",
+                section_body,
+            )
+            if value_match:
+                return value_match.group(1).strip()
+        return ""
+
+    tcp_port = extract_section_value("TCP", "Port")
+    webapp_port = extract_section_value("WEBAPP", "Port")
+    rest_port = extract_section_value("httprest", "port")
+
+    console_log_file = ""
+    console_match = re.search(r"(?im)^\s*console(?:\s|_|)file\s*=\s*([^\r\n;#]+)", content)
+    if console_match:
+        console_log_file = console_match.group(1).strip()
+
     return {
-        "name": service["name"],
-        "port": service.get("port", ""),
-        "status": get_service_status_for_host(service["name"], host),
+        "tcp_port": normalize_port(tcp_port),
+        "webapp_port": normalize_port(webapp_port),
+        "rest_port": normalize_port(rest_port),
+        "console_log_file": console_log_file,
     }
+
+
+def is_valid_remote_host(value):
+    target = (value or "").strip()
+    if not target or len(target) > 253:
+        return False
+    return bool(re.fullmatch(r"[a-zA-Z0-9.-]+", target))
+
+
+def is_ipv4_address(value):
+    text = (value or "").strip()
+    if not re.fullmatch(r"\d{1,3}(\.\d{1,3}){3}", text):
+        return False
+    parts = text.split(".")
+    try:
+        return all(0 <= int(part) <= 255 for part in parts)
+    except Exception:
+        return False
+
+
+def resolve_hostname_for_ip(ip_address):
+    if not is_ipv4_address(ip_address):
+        return ""
+    try:
+        hostname, _, _ = socket.gethostbyaddr(ip_address)
+        return (hostname or "").strip()
+    except Exception:
+        return ""
+
+
+def run_powershell(script):
+    completed = subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", script],
+        capture_output=True,
+        text=True,
+    )
+    return completed.returncode, completed.stdout, completed.stderr
+
+
+def discover_services_on_hosts(hosts, credential=None):
+    normalized_hosts = [host.strip() for host in (hosts or []) if is_valid_remote_host(host)]
+    if not normalized_hosts:
+        return [], {"error": "Nenhum host válido informado."}
+
+    # Descoberta via PowerShell Remoting (Invoke-Command). Usa as credenciais do usuário que está executando o app.
+    # Se WinRM não estiver habilitado nos servidores, retornará erro.
+    targets = []
+    step_logs = []
+    for host in normalized_hosts:
+        connect = host
+        if is_ipv4_address(host):
+            resolved = resolve_hostname_for_ip(host)
+            if resolved:
+                connect = resolved
+        targets.append({"input": host, "connect": connect})
+        if connect != host:
+            step_logs.append(f"[{host}] Hostname resolvido automaticamente para {connect}.")
+        else:
+            step_logs.append(f"[{host}] Usando destino de conexão {connect}.")
+
+    targets_literal = ",".join(
+        [
+            "@{ input='" + item["input"].replace("'", "''") + "'; connect='" + item["connect"].replace("'", "''") + "' }"
+            for item in targets
+        ]
+    )
+
+    username = ""
+    password = ""
+    if isinstance(credential, dict):
+        username = str(credential.get("username") or "").strip()
+        password = str(credential.get("password") or "")
+
+    username_literal = username.replace("'", "''")
+    password_literal = password.replace("'", "''")
+    use_credential = bool(username and password)
+    use_credential_literal = "$true" if use_credential else "$false"
+    script = rf"""
+$ErrorActionPreference = 'Stop'
+$targets = @({targets_literal})
+
+$useCredential = {use_credential_literal}
+$cred = $null
+if ($useCredential) {{
+    $username = '{username_literal}'
+    $plain = '{password_literal}'
+    $secure = ConvertTo-SecureString $plain -AsPlainText -Force
+    $cred = New-Object System.Management.Automation.PSCredential($username, $secure)
+}}
+
+$results = @()
+foreach ($t in $targets) {{
+    $inputHost = $t.input
+    $connectHost = $t.connect
+    try {{
+        $invokeParams = @{{
+            ComputerName = $connectHost
+            ScriptBlock  = {{
+            # Serviços TOTVS por DisplayName OU Name (contains), excluindo desabilitados.
+            $cimServices = Get-CimInstance Win32_Service | Where-Object {{
+                $nameText = ([string]$_.Name).ToLowerInvariant()
+                $displayText = ([string]$_.DisplayName).ToLowerInvariant()
+                (([string]$_.StartMode) -notmatch '(?i)^disabled$') -and ($nameText.Contains('totvs') -or $displayText.Contains('totvs'))
+            }}
+
+            function Find-AppserverIniPath($exeDir) {{
+                if (-not $exeDir) {{ return $null }}
+
+                $roots = @($exeDir, (Split-Path -Parent $exeDir), (Split-Path -Parent (Split-Path -Parent $exeDir))) | Where-Object {{ $_ }} | Select-Object -Unique
+                foreach ($root in $roots) {{
+                    $candidate = Join-Path $root 'bin\\appserver.ini'
+                    if (Test-Path -LiteralPath $candidate) {{ return $candidate }}
+                }}
+
+                foreach ($root in $roots) {{
+                    try {{
+                        $all = Get-ChildItem -LiteralPath $root -Recurse -Filter 'appserver.ini' -File -ErrorAction SilentlyContinue
+                        $preferred = $all | Where-Object {{ $_.FullName -match '\\\\bin\\\\appserver\\.ini$' }} | Select-Object -First 1
+                        if ($preferred) {{ return $preferred.FullName }}
+                        $any = $all | Select-Object -First 1
+                        if ($any) {{ return $any.FullName }}
+                    }} catch {{
+                        # Ignorar erros de permissão/pastas inacessíveis
+                    }}
+                }}
+
+                return $null
+            }}
+
+            function Resolve-ExePathFromPathName($pathName) {{
+                if (-not $pathName) {{ return $null }}
+                if ($pathName -match '\"([^\"]+\.exe)\"') {{ return $Matches[1] }}
+                if ($pathName -match '(?i)^\s*([^\r\n]+?\.exe)\b') {{ return $Matches[1].Trim() }}
+                return $pathName
+            }}
+
+            $out = @()
+            foreach ($cim in $cimServices) {{
+                $pathName = $cim.PathName
+                $exePath = Resolve-ExePathFromPathName $pathName
+                $exeDir = Split-Path -Parent $exePath
+                $exeExists = $false
+                if ($exePath) {{
+                    try {{
+                        $exeExists = Test-Path -LiteralPath $exePath
+                    }} catch {{
+                        $exeExists = $false
+                    }}
+                }}
+
+                if (-not $exeExists) {{
+                    $out += [PSCustomObject]@{{
+                        host = $env:COMPUTERNAME
+                        service_name = $cim.Name
+                        display_name = $cim.DisplayName
+                        start_mode = $cim.StartMode
+                        path_name = $pathName
+                        exe_path = $exePath
+                        exe_dir = $exeDir
+                        exe_exists = $false
+                        skipped = $true
+                        skip_reason = 'ExecutablePathNotFound'
+                        ini_path = $null
+                        ini_base64 = $null
+                    }}
+                    continue
+                }}
+
+                $iniPath = Find-AppserverIniPath $exeDir
+                $iniB64 = $null
+                if ($iniPath) {{
+                    try {{
+                        $bytes = [System.IO.File]::ReadAllBytes($iniPath)
+                        $iniB64 = [Convert]::ToBase64String($bytes)
+                    }} catch {{
+                        $iniB64 = $null
+                    }}
+                }}
+
+                $out += [PSCustomObject]@{{
+                    host = $env:COMPUTERNAME
+                    service_name = $cim.Name
+                    display_name = $cim.DisplayName
+                    start_mode = $cim.StartMode
+                    path_name = $pathName
+                    exe_path = $exePath
+                    exe_dir = $exeDir
+                    exe_exists = $true
+                    skipped = $false
+                    skip_reason = $null
+                    ini_path = $iniPath
+                    ini_base64 = $iniB64
+                }}
+            }}
+            return $out
+            }}
+        }}
+
+        if ($useCredential -and $cred) {{
+            $invokeParams.Credential = $cred
+            $invokeParams.Authentication = 'Negotiate'
+        }}
+
+        $rows = Invoke-Command @invokeParams
+
+        foreach ($r in $rows) {{
+            $results += $r | Add-Member -NotePropertyName 'server' -NotePropertyValue $inputHost -PassThru
+            $results += $r | Add-Member -NotePropertyName 'connect_host' -NotePropertyValue $connectHost -PassThru
+        }}
+    }} catch {{
+        $results += [PSCustomObject]@{{ server = $inputHost; connect_host = $connectHost; error = $_.Exception.Message }}
+    }}
+}}
+if ($results.Count -eq 0) {{
+    Write-Output '[]'
+}} else {{
+    $results | ConvertTo-Json -Depth 6
+}}
+"""
+
+    code, stdout, stderr = run_powershell(script)
+    if code != 0:
+        step_logs.append("Execução do script de descoberta finalizada com erro no PowerShell.")
+        return [], {"error": (stderr or stdout or "Falha ao executar PowerShell.").strip(), "steps": step_logs}
+
+    raw = (stdout or "").strip()
+    if not raw:
+        # Em alguns cenários o PowerShell pode não emitir saída mesmo com execução bem-sucedida.
+        # Tratamos como "nenhum serviço encontrado" para não quebrar o fluxo da busca automática.
+        step_logs.append("Execução concluída sem saída do script remoto.")
+        return [], {"errors": [], "steps": step_logs}
+
+    try:
+        data = json.loads(raw)
+    except Exception:
+        step_logs.append("Falha ao interpretar saída JSON da descoberta.")
+        return [], {"error": "Não foi possível interpretar o retorno da descoberta.", "details": raw[:5000], "steps": step_logs}
+
+    if isinstance(data, dict):
+        data = [data]
+
+    discovered = []
+    errors = []
+    for row in data:
+        if not isinstance(row, dict):
+            continue
+        if row.get("error"):
+            raw_error = str(row.get("error") or "")
+            hint = ""
+            if "TrustedHosts" in raw_error and "WinRM" in raw_error and "IP address" in raw_error:
+                server = (row.get("server") or "").strip()
+                hint = (
+                    "Use hostname (não IP) se possível, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
+                    f"(ex.: `Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value \"{server}\" -Concatenate -Force`) "
+                    "e garanta que o WinRM/PSRemoting esteja habilitado no destino (ex.: `Enable-PSRemoting -Force`)."
+                )
+            server = row.get("server")
+            errors.append({"server": server, "error": raw_error, "hint": hint})
+            step_logs.append(f"[{server}] Falha ao conectar/consultar: {raw_error}")
+            continue
+
+        if row.get("skipped"):
+            server = (row.get("server") or "").strip()
+            service_name = (row.get("service_name") or "").strip()
+            exe_path = (row.get("exe_path") or "").strip()
+            reason = str(row.get("skip_reason") or "Skipped").strip()
+            step_logs.append(
+                f"[{server}] Serviço ignorado ({reason}): {service_name}. Executável informado: {exe_path or '-'}."
+            )
+            continue
+
+        ini_payload = {}
+        ini_b64 = row.get("ini_base64")
+        start_mode = str(row.get("start_mode") or "").strip()
+        if start_mode.lower() == "disabled":
+            step_logs.append(
+                f"[{row.get('server')}] Serviço ignorado por startup type desabilitado: {(row.get('service_name') or '').strip()}."
+            )
+            continue
+        if ini_b64:
+            try:
+                ini_bytes = base64.b64decode(ini_b64)
+                ini_text = safe_decode_bytes(ini_bytes)
+                ini_payload = parse_appserver_ini(ini_text)
+            except Exception:
+                ini_payload = {}
+
+        server = (row.get("server") or "").strip()
+        service_name = (row.get("service_name") or "").strip()
+        ini_path = (row.get("ini_path") or "").strip()
+        exe_path = (row.get("exe_path") or "").strip()
+        exe_dir = (row.get("exe_dir") or "").strip()
+
+        step_logs.append(f"[{server}] Serviço detectado: {service_name}.")
+        if exe_path:
+            step_logs.append(f"[{server}] Executável: {exe_path}")
+        if exe_dir:
+            step_logs.append(f"[{server}] Pasta do serviço: {exe_dir}")
+        if ini_path:
+            step_logs.append(f"[{server}] appserver.ini localizado: {ini_path}")
+        else:
+            step_logs.append(f"[{server}] appserver.ini não localizado para {service_name}.")
+
+        step_logs.append(
+            f"[{server}] Campos lidos para {service_name}: TCP={ini_payload.get('tcp_port', '') or '-'}, "
+            f"WEBAPP={ini_payload.get('webapp_port', '') or '-'}, REST={ini_payload.get('rest_port', '') or '-'}, "
+            f"ConsoleFile={ini_payload.get('console_log_file', '') or '-'}."
+        )
+
+        if not exe_path:
+            step_logs.append(f"[{server}] Serviço ignorado: {service_name} sem path executable válido.")
+            continue
+
+        discovered.append(
+            {
+                "name": service_name,
+                "service_ip": server,
+                "path_executable": exe_path,
+                "tcp_port": ini_payload.get("tcp_port", ""),
+                "webapp_port": ini_payload.get("webapp_port", ""),
+                "rest_port": ini_payload.get("rest_port", ""),
+                "console_log_file": ini_payload.get("console_log_file", ""),
+                "priority": "media",
+                "_meta": {
+                    "display_name": row.get("display_name"),
+                    "path_name": row.get("path_name"),
+                    "exe_path": row.get("exe_path"),
+                    "exe_dir": row.get("exe_dir"),
+                    "ini_path": row.get("ini_path"),
+                    "host": row.get("host"),
+                },
+            }
+        )
+
+    if not discovered and not errors:
+        step_logs.append("Nenhum serviço TOTVS elegível foi encontrado nos hosts informados.")
+
+    payload = {"steps": step_logs}
+    if errors:
+        payload["errors"] = errors
+    return discovered, payload
+
+
+def build_status_service(service, host):
+    resolved_host = (service or {}).get("service_ip") or host
+    base = dict(service or {})
+    base["name"] = service["name"]
+    base["status"] = get_service_status_for_host(service["name"], resolved_host)
+    return base
 
 
 def build_environment_status(environment):
@@ -272,6 +718,16 @@ def current_user():
     if not username:
         return None
     return find_user(username)
+
+
+def can_user_access_environment(user, environment):
+    if not user or not environment:
+        return False
+    role = user.get("role", "operator")
+    environment_type = environment.get("environment_type") or infer_environment_type(environment.get("name"))
+    if role == "operator" and environment_type == "producao":
+        return False
+    return True
 
 
 def login_required(view):
@@ -464,7 +920,8 @@ def session_info():
 @app.route("/")
 @login_required
 def index():
-    environments = load_environments()
+    user = current_user()
+    environments = [environment for environment in load_environments() if can_user_access_environment(user, environment)]
     initial_environments = []
 
     for environment in environments:
@@ -479,7 +936,13 @@ def index():
                 "services": [
                     {
                         "name": service["name"],
-                        "port": service.get("port", ""),
+                        "path_executable": service.get("path_executable", ""),
+                        "tcp_port": service.get("tcp_port", ""),
+                        "webapp_port": service.get("webapp_port", ""),
+                        "rest_port": service.get("rest_port", ""),
+                        "service_ip": service.get("service_ip", ""),
+                        "console_log_file": service.get("console_log_file", ""),
+                        "priority": service.get("priority", "media"),
                         "status": "LOADING",
                     }
                     for service in environment.get("services", [])
@@ -487,7 +950,13 @@ def index():
                 "infra_services": [
                     {
                         "name": service["name"],
-                        "port": service.get("port", ""),
+                        "path_executable": service.get("path_executable", ""),
+                        "tcp_port": service.get("tcp_port", ""),
+                        "webapp_port": service.get("webapp_port", ""),
+                        "rest_port": service.get("rest_port", ""),
+                        "service_ip": service.get("service_ip", ""),
+                        "console_log_file": service.get("console_log_file", ""),
+                        "priority": service.get("priority", "media"),
                         "status": "LOADING",
                     }
                     for service in environment.get("infra_services", [])
@@ -495,7 +964,7 @@ def index():
             }
         )
 
-    return render_template("index.html", user=current_user(), initial_environments=initial_environments)
+    return render_template("index.html", user=user, initial_environments=initial_environments)
 
 
 @app.route("/admin")
@@ -507,14 +976,17 @@ def admin_panel():
 @app.route("/status")
 @login_required
 def status():
+    user = current_user()
     environment_id = request.args.get("environment_id", "").strip()
     if environment_id:
         environment = find_environment(environment_id)
         if not environment:
             return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+        if not can_user_access_environment(user, environment):
+            return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
         return jsonify(build_environment_status(environment))
 
-    environments = load_environments()
+    environments = [environment for environment in load_environments() if can_user_access_environment(user, environment)]
     max_workers = min(max(len(environments), 1), 8)
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -539,11 +1011,15 @@ def action():
     if not environment:
         return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
 
+    if not can_user_access_environment(user, environment):
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
+
     all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
     if not any(item["name"] == service for item in all_environment_services):
         return jsonify({"success": False, "error": "Serviço não cadastrado para o ambiente."}), 404
 
-    machine = resolve_service_machine(environment.get("host"))
+    resolved_service = next((item for item in all_environment_services if item.get("name") == service), None) or {}
+    machine = resolve_service_machine(resolved_service.get("service_ip") or environment.get("host"))
 
     try:
         if action_type == "start":
@@ -598,7 +1074,7 @@ def create_user():
     if not is_valid_username(username):
         return jsonify({"success": False, "error": "Usuário deve ter de 3 a 40 caracteres: letras, números, ponto, hífen ou underscore."}), 400
 
-    if role not in {"admin", "operator"}:
+    if role not in ALLOWED_ROLES:
         return jsonify({"success": False, "error": "Perfil inválido."}), 400
 
     users_data = load_users()
@@ -633,7 +1109,7 @@ def update_user(username):
         new_role = data.get("role", user.get("role", "operator"))
         new_active = bool(data["active"]) if "active" in data else user.get("active", True)
 
-        if new_role not in {"admin", "operator"}:
+        if new_role not in ALLOWED_ROLES:
             return jsonify({"success": False, "error": "Perfil inválido."}), 400
 
         if normalize_username(actor["username"]) == target_username and not new_active:
@@ -680,9 +1156,6 @@ def create_environment():
     if not environment["name"] or not environment["host"]:
         return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
 
-    if not environment["services"] and not environment.get("infra_services"):
-        return jsonify({"success": False, "error": "Cadastre ao menos um serviço ou item de infra para o ambiente."}), 400
-
     environments_data = load_environments()
     existing_ids = {item["id"] for item in environments_data}
     base_id = environment["id"]
@@ -712,8 +1185,6 @@ def update_environment(environment_id):
         updated = sanitize_environment(data, existing_id=environment_id)
         if not updated["name"] or not updated["host"]:
             return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
-        if not updated["services"] and not updated.get("infra_services"):
-            return jsonify({"success": False, "error": "Cadastre ao menos um serviço ou item de infra para o ambiente."}), 400
 
         environments_data[index] = updated
         save_environments(environments_data)
@@ -738,6 +1209,49 @@ def delete_environment(environment_id):
     if environment:
         save_admin_environment_log(environment["name"], "DELETE", "SUCCESS", actor["username"])
     return jsonify({"success": True})
+
+
+@app.route("/discover-services", methods=["POST"])
+@admin_required
+def discover_services():
+    try:
+        data = request.get_json(silent=True) or {}
+        hosts = data.get("hosts") or []
+        actor = current_user()
+
+        if isinstance(hosts, str):
+            hosts = [item.strip() for item in hosts.split(",") if item.strip()]
+
+        discovered, extra = discover_services_on_hosts(hosts, credential=None)
+        if not discovered and extra.get("error"):
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": extra.get("error"),
+                        "details": extra.get("details"),
+                        "errors": extra.get("errors"),
+                    }
+                ),
+                400,
+            )
+
+        infra_keywords = {"dbaccess", "broker", "license", "webagent"}
+        infra = []
+        services = []
+        for item in discovered:
+            name = (item.get("name") or "").lower()
+            if not (item.get("path_executable") or "").strip():
+                continue
+            if any(keyword in name for keyword in infra_keywords):
+                infra.append(item)
+            else:
+                services.append(item)
+
+        save_log("DISCOVER", "AUTO_DISCOVER", "SUCCESS", actor["username"])
+        return jsonify({"success": True, "services": services, "infra_services": infra, **extra})
+    except Exception as exc:
+        return jsonify({"success": False, "error": "Erro inesperado na busca automática.", "details": str(exc)}), 500
 
 
 if __name__ == "__main__":

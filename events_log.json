@@ -1,5 +1,495 @@
 [
   {
+    "datetime": "2026-04-13 12:02:38",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 12:02:23",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 12:01:28",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:59:42",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:59:35",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:59:08",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:58:36",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:58:24",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:42:09",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:42:05",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:41:53",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:41:40",
+    "service": "AMBIENTE :: APEX-HML4",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:41:37",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:41:21",
+    "service": "AMBIENTE :: APEX-HML4",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:41:05",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:41:02",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:40:47",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:40:33",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:39:54",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:39:50",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:39:42",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:38:57",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:38:53",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:35:08",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:35:05",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:34:05",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:33:41",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:31:41",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:31:06",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:30:58",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:27:17",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:26:52",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:22:02",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:21:04",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:15:48",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:13:43",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:08:53",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:08:03",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:06:11",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 11:00:07",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:59:49",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:59:32",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:59:10",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:58:43",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:57:06",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:56:25",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:56:13",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:56:00",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:48:47",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:48:36",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:48:17",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:44:31",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:37:47",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:30:28",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:29:20",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:26:54",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:22:49",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:22:08",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:20:49",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:20:32",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:17:42",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:12:37",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 10:11:40",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 09:57:38",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 09:56:22",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 09:44:37",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 09:44:37",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 09:44:13",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 09:44:12",
+    "service": "APEX-HML3 (127.0.0.1) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-10 22:29:36",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-10 21:57:07",
     "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
     "action": "start",

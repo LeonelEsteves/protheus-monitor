@@ -640,7 +640,20 @@ function renderServiceSection(env, services, sectionLabel) {
 }
 
 function renderServiceCard(env, service) {
-    const portLabel = service.port ? `Porta ${escapeHtml(service.port)}` : "Porta não informada";
+    const tcpPort = service.tcp_port ?? service.port ?? "";
+    const webappPort = service.webapp_port || "";
+    const restPort = service.rest_port || "";
+    const serviceIp = service.service_ip || "";
+    const consoleLogFile = service.console_log_file || "";
+    const priority = service.priority || "";
+
+    const metaParts = [];
+    if (tcpPort) metaParts.push(`TCP ${escapeHtml(tcpPort)}`);
+    if (webappPort) metaParts.push(`WebApp ${escapeHtml(webappPort)}`);
+    if (restPort) metaParts.push(`REST ${escapeHtml(restPort)}`);
+    if (serviceIp) metaParts.push(`IP ${escapeHtml(serviceIp)}`);
+    if (priority) metaParts.push(`Prioridade ${escapeHtml(priority)}`);
+    const metaLine = metaParts.length ? metaParts.join(" • ") : "Portas não informadas";
     const startRunning = isActionRunning(env.id, service.name, "start");
     const stopRunning = isActionRunning(env.id, service.name, "stop");
     const restartRunning = isActionRunning(env.id, service.name, "restart");
@@ -648,7 +661,8 @@ function renderServiceCard(env, service) {
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
                 <div class="font-semibold text-slate-900">${escapeHtml(service.name)}</div>
-                <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">${portLabel}</div>
+                <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">${metaLine}</div>
+                ${consoleLogFile ? `<div class="mt-1 text-xs text-slate-500">Log: ${escapeHtml(consoleLogFile)}</div>` : ""}
                 <div class="${getColor(service.status)} mt-2 text-sm font-semibold">${escapeHtml(service.status)}</div>
             </div>
 

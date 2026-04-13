@@ -17,8 +17,9 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - `templates/login.html`: tela de login.
 - `users.json`: base de usuários (hash de senha + role + active).
 - `environments.json`: cadastro de ambientes e serviços (appserver/rest/etc).
-- `environments.json` (serviços): `tcp_port`, `webapp_port`, `rest_port`, `service_ip`, `console_log_file`, `priority` (`baixa`/`media`/`alta`).
+- `environments.json` (serviços): `path_executable`, `tcp_port`, `webapp_port`, `rest_port`, `service_ip`, `console_log_file`, `priority` (`baixa`/`media`/`alta`).
 - `events_log.json`: log de ações (start/stop/restart) e alertas.
+- Auto-discovery (admin): endpoint `POST /discover-services` tenta descobrir serviços via PowerShell Remoting (WinRM) e ler `bin\\appserver.ini`.
 
 ## Regras de negócio (resumo)
 
@@ -27,6 +28,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Ações disponíveis por serviço: `start`, `stop`, `restart` (via `win32serviceutil.*`).
 - Status dos ambientes é calculado por ambiente e pode ser buscado em paralelo (`ThreadPoolExecutor`).
 - Regra: `operator` não pode acessar ambientes `environment_type=producao` (index/status/action filtram/bloqueiam).
+- `service_ip` (quando informado) é usado para status/ações do serviço (sobrescreve o host do ambiente).
 
 ## Configuração / variáveis de ambiente (importante)
 
