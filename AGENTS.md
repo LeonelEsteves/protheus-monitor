@@ -17,7 +17,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - `templates/login.html`: tela de login.
 - `users.json`: base de usuários (hash de senha + role + active).
 - `environments.json`: cadastro de ambientes e serviços (appserver/rest/etc).
-- `environments.json` (serviços): `path_executable`, `tcp_port`, `webapp_port`, `rest_port`, `service_ip`, `console_log_file`, `priority` (`baixa`/`media`/`alta`).
+- `environments.json` (serviços): `display_name`, `path_executable`, `tcp_port`, `webapp_port`, `rest_port`, `service_ip`, `console_log_file`, `priority` (`baixa`/`media`/`alta`).
 - `events_log.json`: log de ações (start/stop/restart) e alertas.
 - Auto-discovery (admin): endpoint `POST /discover-services` tenta descobrir serviços via PowerShell Remoting (WinRM) e ler `bin\\appserver.ini`.
 
@@ -44,3 +44,4 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Preferir mudanças **mínimas** e consistentes com o estilo atual.
 - Não quebrar o formato de `users.json` e `environments.json` (backward compatibility).
 - Ao alterar HTML/JS, manter a UI funcional sem depender de bundlers (projeto simples).
+- Padrão visual obrigatório: novas telas, modais e componentes devem seguir o mesmo layout/estilo já adotado no projeto (mesma linguagem visual, bordas, tipografia, espaçamento e comportamento em tema claro/escuro).

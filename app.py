@@ -45,12 +45,12 @@ DEFAULT_ENVIRONMENTS = [
         "environment_type": "homologacao",
         "host": "127.0.0.1",
         "services": [
-            {"name": "TOTVS-Appserver12-APEX-HML3", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-REST", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-SCHED", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WF", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WS", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WS2", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-REST", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-SCHED", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WF", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WS", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WS2", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
         ],
         "infra_services": [],
     },
@@ -60,10 +60,10 @@ DEFAULT_ENVIRONMENTS = [
         "environment_type": "desenvolvimento",
         "host": "127.0.0.1",
         "services": [
-            {"name": "licenseVirtual", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVSDBAccess64", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVSDBAccess64TSS", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVSservice", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "licenseVirtual", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSDBAccess64", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSDBAccess64TSS", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSservice", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
         ],
         "infra_services": [],
     },
@@ -135,8 +135,14 @@ def sanitize_service(service):
         service = {}
 
     legacy_port = service.get("port")
+    name = (service.get("name") or "").strip()
+    display_name = (service.get("display_name") or service.get("displayName") or "").strip()
+    if not display_name:
+        display_name = name
+
     return {
-        "name": (service.get("name") or "").strip(),
+        "name": name,
+        "display_name": display_name,
         "path_executable": (service.get("path_executable") or service.get("executable_path") or service.get("exe_path") or "").strip(),
         "tcp_port": normalize_port(service.get("tcp_port") or legacy_port),
         "webapp_port": normalize_port(service.get("webapp_port")),
@@ -210,7 +216,7 @@ def load_environments():
     for item in data:
         infra_list = item.get("infra_services", [])
         if isinstance(infra_list, list) and infra_list and isinstance(infra_list[0], str):
-            item["infra_services"] = [{"name": service_name, "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in infra_list]
+            item["infra_services"] = [{"name": service_name, "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in infra_list]
             changed = True
 
         if isinstance(item.get("services", []), list) and item.get("services") and isinstance(item["services"][0], str):
@@ -218,7 +224,7 @@ def load_environments():
                 "id": item.get("id") or slugify_environment_name(item.get("name")),
                 "name": item.get("name"),
                 "host": item.get("host", "127.0.0.1"),
-                "services": [{"name": service_name, "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in item["services"]],
+                "services": [{"name": service_name, "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in item["services"]],
                 "infra_services": item.get("infra_services", []),
             }
             changed = True
@@ -229,6 +235,8 @@ def load_environments():
             if "port" in service:
                 changed = True
             if (
+                "display_name" not in service
+                or
                 "path_executable" not in service
                 or
                 "tcp_port" not in service
@@ -645,6 +653,7 @@ if ($results.Count -eq 0) {{
         discovered.append(
             {
                 "name": service_name,
+                "display_name": (row.get("display_name") or "").strip(),
                 "service_ip": server,
                 "path_executable": exe_path,
                 "tcp_port": ini_payload.get("tcp_port", ""),
@@ -936,6 +945,7 @@ def index():
                 "services": [
                     {
                         "name": service["name"],
+                        "display_name": service.get("display_name", ""),
                         "path_executable": service.get("path_executable", ""),
                         "tcp_port": service.get("tcp_port", ""),
                         "webapp_port": service.get("webapp_port", ""),
@@ -950,6 +960,7 @@ def index():
                 "infra_services": [
                     {
                         "name": service["name"],
+                        "display_name": service.get("display_name", ""),
                         "path_executable": service.get("path_executable", ""),
                         "tcp_port": service.get("tcp_port", ""),
                         "webapp_port": service.get("webapp_port", ""),

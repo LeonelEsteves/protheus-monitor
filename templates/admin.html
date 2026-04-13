@@ -24,7 +24,9 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     .dark .surface-panel,
     .dark .surface-sidebar,
     .dark #environmentFormModal > div,
-    .dark #confirmModal > div {
+    .dark #confirmModal > div,
+    .dark #autoDiscoverModal > div,
+    .dark #hostPromptModal > div {
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(9, 14, 26, 0.96));
         color: #e2e8f0;
         border: 1px solid rgba(148, 163, 184, 0.14);
@@ -54,8 +56,16 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 
     .dark .text-slate-900,
     .dark #confirmModalTitle,
-    .dark #environmentFormTitle {
+    .dark #environmentFormTitle,
+    .dark #autoDiscoverTitle,
+    .dark #hostPromptTitle {
         color: #f8fafc !important;
+    }
+
+    .dark #autoDiscoverTerminal {
+        background: rgba(2, 6, 23, 0.85) !important;
+        border-color: rgba(148, 163, 184, 0.2) !important;
+        color: #86efac !important;
     }
 
     .dark input,
@@ -167,9 +177,14 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 
                 <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
                     <div class="text-sm text-slate-500">Ambientes cadastrados</div>
-                    <button type="button" onclick="openNewEnvironmentForm()" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
-                        Cadastrar novo ambiente
-                    </button>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="environmentFilterSelect" class="w-64 rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                            <option value="">Todos os ambientes</option>
+                        </select>
+                        <button type="button" onclick="openNewEnvironmentForm()" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
+                            Cadastrar novo ambiente
+                        </button>
+                    </div>
                 </div>
 
                 <div id="environmentsList" class="space-y-3"></div>
@@ -211,6 +226,24 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         <div class="flex flex-wrap justify-end gap-2">
             <button type="button" onclick="resolveConfirmModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
             <button id="confirmModalConfirmButton" type="button" onclick="resolveConfirmModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<div id="hostPromptModal" class="hidden fixed inset-0 z-[65] flex items-center justify-center bg-slate-950/70 p-4">
+    <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+        <div class="mb-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Busca automática</p>
+            <h3 id="hostPromptTitle" class="mt-2 text-xl font-semibold text-slate-900">Informar IP/Host</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">Digite um ou mais IPs/hosts separados por vírgula.</p>
+        </div>
+        <div class="mb-4">
+            <label for="hostPromptInput" class="mb-1 block text-sm font-medium text-slate-700">IPs/Hosts</label>
+            <input id="hostPromptInput" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Ex.: 10.10.1.68, srv-app-01" />
+        </div>
+        <div class="flex flex-wrap justify-end gap-2">
+            <button type="button" onclick="resolveHostPromptModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
+            <button type="button" onclick="resolveHostPromptModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Continuar</button>
         </div>
     </div>
 </div>
@@ -286,18 +319,18 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 </div>
 
 <div id="autoDiscoverModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/70 p-4">
-    <div class="w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-5 py-4 text-slate-100">
+    <div class="w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
             <div>
-                <h2 class="text-lg font-semibold">Busca automática</h2>
-                <p id="autoDiscoverSubtitle" class="text-sm text-slate-400">Acompanhamento da descoberta de serviços e leitura do appserver.ini.</p>
+                <h2 id="autoDiscoverTitle" class="text-lg font-semibold text-slate-900">Busca automática</h2>
+                <p id="autoDiscoverSubtitle" class="text-sm text-slate-500">Acompanhamento da descoberta de serviços e leitura do appserver.ini.</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="clearAutoDiscoverLog()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Limpar</button>
-                <button onclick="toggleAutoDiscoverModal(false)" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Fechar</button>
+                <button onclick="clearAutoDiscoverLog()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Limpar</button>
+                <button onclick="toggleAutoDiscoverModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
             </div>
         </div>
-        <div id="autoDiscoverTerminal" class="h-[55vh] overflow-y-auto bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300"></div>
+        <div id="autoDiscoverTerminal" class="h-[55vh] overflow-y-auto border-t border-slate-200 bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300"></div>
     </div>
 </div>
 
@@ -308,7 +341,9 @@ let activeAdminTab = "security";
 let editingEnvironmentId = null;
 let confirmModalResolver = null;
 let confirmModalExpectedText = "";
+let hostPromptResolver = null;
 let autoDiscoverRunning = false;
+let environmentFilterId = "";
 
 function getSavedTheme() {
     return localStorage.getItem(THEME_STORAGE_KEY) || "light";
@@ -426,7 +461,7 @@ async function autoDiscoverServices() {
         return;
     }
 
-    const rawHosts = window.prompt("Informe o(s) IP(s)/host(s) do servidor onde estão os serviços (separe por vírgula):");
+    const rawHosts = await showHostPromptModal();
     if (!rawHosts) {
         return;
     }
@@ -618,6 +653,28 @@ function resolveConfirmModal(confirmed) {
         const resolver = confirmModalResolver;
         confirmModalResolver = null;
         resolver(confirmed);
+    }
+}
+
+function showHostPromptModal() {
+    const modal = document.getElementById("hostPromptModal");
+    const input = document.getElementById("hostPromptInput");
+    input.value = "";
+    modal.classList.remove("hidden");
+    setTimeout(() => input.focus(), 0);
+    return new Promise((resolve) => {
+        hostPromptResolver = resolve;
+    });
+}
+
+function resolveHostPromptModal(confirmed) {
+    const modal = document.getElementById("hostPromptModal");
+    const input = document.getElementById("hostPromptInput");
+    modal.classList.add("hidden");
+    if (hostPromptResolver) {
+        const resolver = hostPromptResolver;
+        hostPromptResolver = null;
+        resolver(confirmed ? input.value.trim() : "");
     }
 }
 
@@ -815,6 +872,7 @@ function addRow(containerId, prefix, service = {}) {
     const container = document.getElementById(containerId);
     const row = document.createElement("div");
     const name = service.name || "";
+    const displayName = service.display_name || service.displayName || "";
     const pathExecutable = service.path_executable || service.executable_path || service.exe_path || "";
     const tcpPort = service.tcp_port ?? service.port ?? "";
     const webappPort = service.webapp_port || "";
@@ -828,6 +886,10 @@ function addRow(containerId, prefix, service = {}) {
         <label class="space-y-1 text-sm md:col-span-2">
             <span class="font-medium text-slate-700">Nome do serviço</span>
             <input value="${escapeHtml(name)}" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+        </label>
+        <label class="space-y-1 text-sm md:col-span-2">
+            <span class="font-medium text-slate-700">Display Name</span>
+            <input value="${escapeHtml(displayName)}" placeholder="Display Name do serviço" class="${prefix}-display-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
         </label>
         <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
             <span class="font-medium text-slate-700">Path Executable</span>
@@ -863,6 +925,27 @@ function addRow(containerId, prefix, service = {}) {
         </label>
         <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 md:col-span-2 xl:col-span-4">Remover</button>
     `;
+    const nameInput = row.querySelector(`.${prefix}-name`);
+    const displayInput = row.querySelector(`.${prefix}-display-name`);
+
+    // Autopreenche Display Name pelo Nome enquanto o usuário não personalizar manualmente.
+    displayInput.dataset.autoFromName = displayInput.value.trim() ? "0" : "1";
+    if (displayInput.dataset.autoFromName === "1" && nameInput.value.trim()) {
+        displayInput.value = nameInput.value.trim();
+    }
+
+    nameInput.addEventListener("input", () => {
+        if (displayInput.dataset.autoFromName === "1") {
+            displayInput.value = nameInput.value.trim();
+        }
+    });
+
+    displayInput.addEventListener("input", () => {
+        const nameValue = nameInput.value.trim();
+        const displayValue = displayInput.value.trim();
+        displayInput.dataset.autoFromName = (!displayValue || displayValue === nameValue) ? "1" : "0";
+    });
+
     row.querySelector("button").addEventListener("click", () => row.remove());
     container.appendChild(row);
 }
@@ -870,6 +953,7 @@ function addRow(containerId, prefix, service = {}) {
 function readEnvironmentServices() {
     return [...document.querySelectorAll("#serviceRows > div")].map((row) => ({
         name: row.querySelector(".service-name").value.trim(),
+        display_name: row.querySelector(".service-display-name").value.trim(),
         path_executable: row.querySelector(".service-path-executable").value.trim(),
         priority: row.querySelector(".service-priority").value,
         service_ip: row.querySelector(".service-service-ip").value.trim(),
@@ -883,6 +967,7 @@ function readEnvironmentServices() {
 function readInfraServices() {
     return [...document.querySelectorAll("#infraRows > div")].map((row) => ({
         name: row.querySelector(".infra-name").value.trim(),
+        display_name: row.querySelector(".infra-display-name").value.trim(),
         path_executable: row.querySelector(".infra-path-executable").value.trim(),
         priority: "alta",
         service_ip: row.querySelector(".infra-service-ip").value.trim(),
@@ -937,20 +1022,34 @@ async function loadEnvironmentAdmin() {
     if (!result) return;
 
     adminEnvironments = [...result.data].sort(compareEnvironmentNames);
+    const filterSelect = document.getElementById("environmentFilterSelect");
+    const previousValue = environmentFilterId;
+    filterSelect.innerHTML = '<option value="">Todos os ambientes</option>';
+    adminEnvironments.forEach((environment) => {
+        filterSelect.innerHTML += `<option value="${escapeHtml(environment.id)}">${escapeHtml(environment.name)}</option>`;
+    });
+    filterSelect.value = previousValue && adminEnvironments.some((environment) => environment.id === previousValue)
+        ? previousValue
+        : "";
+    environmentFilterId = filterSelect.value;
+
     const container = document.getElementById("environmentsList");
     container.innerHTML = "";
 
-    adminEnvironments.forEach((environment) => {
+    const filteredEnvironments = adminEnvironments.filter((environment) =>
+        !environmentFilterId || environment.id === environmentFilterId
+    );
+
+    if (!filteredEnvironments.length) {
+        container.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">Nenhum ambiente encontrado para o filtro informado.</div>';
+        return;
+    }
+
+    filteredEnvironments.forEach((environment) => {
         const environmentType = getEnvironmentTypeMeta(environment.environment_type);
-        const formatService = (service) => {
-            const tcp = service.tcp_port ?? service.port ?? "";
-            const webapp = service.webapp_port || "";
-            const rest = service.rest_port || "";
-            const priority = service.priority || "";
-            return `${service.name}${tcp ? `:${tcp}` : ""}${webapp ? ` (web:${webapp})` : ""}${rest ? ` (rest:${rest})` : ""}${priority ? ` [${priority}]` : ""}`;
-        };
-        const servicesLabel = environment.services.map(formatService).join(", ");
-        const infraLabel = (environment.infra_services || []).map(formatService).join(", ");
+        const appServicesCount = (environment.services || []).length;
+        const infraServicesCount = (environment.infra_services || []).length;
+        const totalServicesCount = appServicesCount + infraServicesCount;
         const appLinkLabel = environment.app_url
             ? `<a href="${escapeHtml(environment.app_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline underline-offset-2">Abrir aplicação</a>`
             : "Não informado";
@@ -968,8 +1067,8 @@ async function loadEnvironmentAdmin() {
                         <div class="mt-1 text-sm text-slate-500">IP: ${escapeHtml(environment.host)}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Aplicação:</span> ${appLinkLabel}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">REST:</span> ${restLinkLabel}</div>
-                        <div class="mt-2 text-sm text-slate-600"><span class="font-semibold">Serviços:</span> ${escapeHtml(servicesLabel || "Sem serviços cadastrados")}</div>
-                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Infra:</span> ${escapeHtml(infraLabel || "Sem infra cadastrada")}</div>
+                        <div class="mt-2 text-sm text-slate-600"><span class="font-semibold">Serviços cadastrados:</span> ${totalServicesCount}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Resumo:</span> Aplicação ${appServicesCount} | Infra ${infraServicesCount}</div>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="editEnvironment('${environment.id}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Editar</button>
@@ -1106,6 +1205,10 @@ setAdminTab("security");
 resetEnvironmentForm();
 closeEnvironmentForm();
 document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+document.getElementById("environmentFilterSelect").addEventListener("change", (event) => {
+    environmentFilterId = String(event.target.value || "");
+    loadEnvironmentAdmin();
+});
 applyTheme(getSavedTheme());
 loadUsers();
 loadEnvironmentAdmin();

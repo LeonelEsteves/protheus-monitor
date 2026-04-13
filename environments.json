@@ -9,6 +9,7 @@
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML3",
+        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML3",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
         "tcp_port": "12210",
         "webapp_port": "8099",
@@ -19,6 +20,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML3-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML3 - REST",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
         "tcp_port": "13001",
         "webapp_port": "",
@@ -29,6 +31,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML3-SCHED",
+        "display_name": ".04 TOTVS | Microsiga Protheus 12 APEX-HML3 - Schedule",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched\\appserver.exe",
         "tcp_port": "12060",
         "webapp_port": "8090",
@@ -39,6 +42,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML3-WF",
+        "display_name": ".05 TOTVS | Microsiga Protheus 12 APEX-HML3 - Workflow",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
         "tcp_port": "12050",
         "webapp_port": "",
@@ -49,6 +53,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML3-WS",
+        "display_name": ".06 TOTVS | Microsiga Protheus 12 APEX-HML3 - Web Service",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
         "tcp_port": "12040",
         "webapp_port": "",
@@ -59,6 +64,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML3-WS2",
+        "display_name": ".09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws2\\appserver.exe",
         "tcp_port": "12041",
         "webapp_port": "",
@@ -71,6 +77,7 @@
     "infra_services": [
       {
         "name": "licenseVirtual",
+        "display_name": "TOTVS | License Server Virtual",
         "path_executable": "C:\\TOTVS\\TOTVSLicenseVirtual\\bin\\appserver\\appserver.exe",
         "tcp_port": "2234",
         "webapp_port": "8020",
@@ -81,6 +88,7 @@
       },
       {
         "name": "TOTVSDBAccess64",
+        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
         "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
         "tcp_port": "12210",
         "webapp_port": "8099",
@@ -91,6 +99,7 @@
       },
       {
         "name": "TOTVSDBAccess64TSS",
+        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
         "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
         "tcp_port": "12210",
         "webapp_port": "8099",
@@ -111,6 +120,7 @@
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML1",
+        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML1",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
         "tcp_port": "6001",
         "webapp_port": "4001",
@@ -121,6 +131,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
         "tcp_port": "13001",
         "webapp_port": "",
@@ -131,6 +142,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-SCHED",
+        "display_name": ".04 TOTVS | Microsiga Protheus 12 APEX-HML1 - Schedule",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched\\appserver.exe",
         "tcp_port": "12060",
         "webapp_port": "7002",
@@ -141,6 +153,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WF",
+        "display_name": ".05 TOTVS | Microsiga Protheus 12 APEX-HML1 - Workflow",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
         "tcp_port": "12050",
         "webapp_port": "",
@@ -151,6 +164,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS",
+        "display_name": ".06 TOTVS | Microsiga Protheus 12 APEX-HML1 - Web Service",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
         "tcp_port": "12040",
         "webapp_port": "",
@@ -161,6 +175,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS-TAF",
+        "display_name": ".08 TOTVS | Microsiga Protheus 12 APEX-HML1 - WS TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
         "tcp_port": "19001",
         "webapp_port": "",
@@ -171,6 +186,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS2",
+        "display_name": ".09 TOTVS | Microsiga Protheus 12 APEX-HML1 - HUB Cielo",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws2\\appserver.exe",
         "tcp_port": "12041",
         "webapp_port": "",
@@ -183,6 +199,7 @@
     "infra_services": [
       {
         "name": "TOTVS-Appserver12-P2410-HML1-BROKER",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_broker_webapp\\appserver.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -193,6 +210,7 @@
       },
       {
         "name": "TOTVS-Appserver12-P2410-HML1-BROKER_REST",
+        "display_name": ".11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_broker_rest\\appserver.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -203,6 +221,7 @@
       },
       {
         "name": "TOTVSDBAccess64",
+        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
         "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
         "tcp_port": "12210",
         "webapp_port": "8099",
@@ -213,6 +232,7 @@
       },
       {
         "name": "TOTVSDBAccess64TSS",
+        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
         "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
         "tcp_port": "12210",
         "webapp_port": "8099",
@@ -233,6 +253,7 @@
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML2",
+        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML2",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
         "tcp_port": "12210",
         "webapp_port": "8099",
@@ -243,6 +264,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-FIS",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12 APEX-HML2-FISC",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_fiscal\\appserver.exe",
         "tcp_port": "12220",
         "webapp_port": "8090",
@@ -253,6 +275,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-NGF",
+        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML2-NGF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ngf\\appserver.exe",
         "tcp_port": "12230",
         "webapp_port": "8100",
@@ -263,6 +286,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML2 - REST",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
         "tcp_port": "13001",
         "webapp_port": "8015",
@@ -273,6 +297,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-SCHED",
+        "display_name": ".04 TOTVS | Microsiga Protheus 12 APEX-HML2 - Schedule",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched\\appserver.exe",
         "tcp_port": "12060",
         "webapp_port": "7002",
@@ -283,6 +308,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-WF",
+        "display_name": ".05 TOTVS | Microsiga Protheus 12 APEX-HML2 - Workflow",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
         "tcp_port": "12050",
         "webapp_port": "",
@@ -293,6 +319,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-WS",
+        "display_name": ".06 TOTVS | Microsiga Protheus 12 APEX-HML2 - Web Service",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
         "tcp_port": "12040",
         "webapp_port": "",
@@ -303,6 +330,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-WS-TAF",
+        "display_name": ".08 TOTVS | Microsiga Protheus 12 APEX-HML2 - WS TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
         "tcp_port": "19001",
         "webapp_port": "",
@@ -313,6 +341,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML2-WS2",
+        "display_name": ".09 TOTVS | Microsiga Protheus 12 APEX-HML2 - HUB Cielo",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws2\\appserver.exe",
         "tcp_port": "12041",
         "webapp_port": "",
@@ -325,6 +354,7 @@
     "infra_services": [
       {
         "name": "TOTVSDBAccess64",
+        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
         "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
         "tcp_port": "5060",
         "webapp_port": "",
@@ -335,6 +365,7 @@
       },
       {
         "name": "TOTVSDBAccess64TSS",
+        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
         "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
         "tcp_port": "5060",
         "webapp_port": "",
@@ -355,6 +386,7 @@
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML4",
+        "display_name": "TOTVS-Appserver12-APEX-HML4",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
         "tcp_port": "6001",
         "webapp_port": "4001",
@@ -365,6 +397,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML4_SVW",
+        "display_name": "TOTVS-Appserver12-APEX-HML4_SVW",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_smartview\\appserver.exe",
         "tcp_port": "13006",
         "webapp_port": "",
@@ -375,6 +408,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML4-REST",
+        "display_name": "TOTVS-Appserver12-APEX-HML4-REST",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
         "tcp_port": "13001",
         "webapp_port": "",
@@ -385,6 +419,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML4-SCHED",
+        "display_name": "TOTVS-Appserver12-APEX-HML4-SCHED",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched\\appserver.exe",
         "tcp_port": "12060",
         "webapp_port": "7002",
@@ -395,6 +430,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML4-WF",
+        "display_name": "TOTVS-Appserver12-APEX-HML4-WF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
         "tcp_port": "12050",
         "webapp_port": "",
@@ -405,6 +441,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML4-WS",
+        "display_name": "TOTVS-Appserver12-APEX-HML4-WS",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
         "tcp_port": "12040",
         "webapp_port": "",
@@ -415,6 +452,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML4-WS-TAF",
+        "display_name": "TOTVS-Appserver12-APEX-HML4-WS-TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
         "tcp_port": "19001",
         "webapp_port": "",
@@ -427,6 +465,7 @@
     "infra_services": [
       {
         "name": "TOTVS-Appserver12-P2410-HML1-BROKER",
+        "display_name": "TOTVS-Appserver12-P2410-HML1-BROKER",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_broker_webapp\\appserver.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -437,6 +476,7 @@
       },
       {
         "name": "TOTVS-Appserver12-P2410-HML1-BROKER_REST",
+        "display_name": "TOTVS-Appserver12-P2410-HML1-BROKER_REST",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_broker_rest\\appserver.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -447,6 +487,7 @@
       },
       {
         "name": "TOTVSDBAccess64",
+        "display_name": "TOTVSDBAccess64",
         "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
         "tcp_port": "6001",
         "webapp_port": "4001",
@@ -457,6 +498,7 @@
       },
       {
         "name": "TOTVSDBAccess64TSS",
+        "display_name": "TOTVSDBAccess64TSS",
         "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
         "tcp_port": "6001",
         "webapp_port": "4001",
@@ -477,6 +519,7 @@
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML5",
+        "display_name": "TOTVS-Appserver12-APEX-HML5",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
         "tcp_port": "12210",
         "webapp_port": "8099",
@@ -487,6 +530,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML5-REST",
+        "display_name": "TOTVS-Appserver12-APEX-HML5-REST",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
         "tcp_port": "13001",
         "webapp_port": "",
@@ -497,6 +541,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML5-SCHED",
+        "display_name": "TOTVS-Appserver12-APEX-HML5-SCHED",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched\\appserver.exe",
         "tcp_port": "12060",
         "webapp_port": "8090",
@@ -507,6 +552,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML5-WF",
+        "display_name": "TOTVS-Appserver12-APEX-HML5-WF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
         "tcp_port": "12050",
         "webapp_port": "",
@@ -517,6 +563,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML5-WS",
+        "display_name": "TOTVS-Appserver12-APEX-HML5-WS",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
         "tcp_port": "12040",
         "webapp_port": "",
@@ -527,6 +574,7 @@
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML5-WS-TAF",
+        "display_name": "TOTVS-Appserver12-APEX-HML5-WS-TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
         "tcp_port": "19001",
         "webapp_port": "",
@@ -539,6 +587,7 @@
     "infra_services": [
       {
         "name": "TOTVSDBAccess64",
+        "display_name": "TOTVSDBAccess64",
         "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
         "tcp_port": "5060",
         "webapp_port": "",
@@ -549,6 +598,7 @@
       },
       {
         "name": "TOTVSDBAccess64TSS",
+        "display_name": "TOTVSDBAccess64TSS",
         "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
         "tcp_port": "5060",
         "webapp_port": "",
@@ -569,6 +619,7 @@
     "services": [
       {
         "name": "TOTVS-Appserver12-P241-PRD-REST-MASTER",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_master\\appserver.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -579,6 +630,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-BAL",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12 PRD - Balance Master",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
         "tcp_port": "12200",
         "webapp_port": "8099",
@@ -589,6 +641,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-COMPILA",
+        "display_name": ".11 TOTVS | Microsiga Protheus 12 PRD - Compila‡ao",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_cmp\\appserver.exe",
         "tcp_port": "12110",
         "webapp_port": "7001",
@@ -599,6 +652,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-PADRAO",
+        "display_name": ".12 TOTVS | Microsiga Protheus 12 PRD - Padrao",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ixb\\appserver.exe",
         "tcp_port": "12400",
         "webapp_port": "9002",
@@ -609,6 +663,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-PAYTRACK-SLV05",
+        "display_name": ".15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 05 | PAYTRACK",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv05\\appserver.exe",
         "tcp_port": "13005",
         "webapp_port": "",
@@ -619,6 +674,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-PAYTRACK-SLV06",
+        "display_name": ".15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 06 | SMART VIEW",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv06\\appserver.exe",
         "tcp_port": "13006",
         "webapp_port": "",
@@ -629,6 +685,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-REST-SLV01",
+        "display_name": ".11 TOTVS | Microsiga Protheus 12 PRD - REST Slave 01",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv01\\appserver.exe",
         "tcp_port": "13001",
         "webapp_port": "",
@@ -639,6 +696,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-REST-SLV02",
+        "display_name": ".12 TOTVS | Microsiga Protheus 12 PRD - REST Slave 02",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv02\\appserver.exe",
         "tcp_port": "13002",
         "webapp_port": "",
@@ -649,6 +707,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-REST-SLV03",
+        "display_name": ".13 TOTVS | Microsiga Protheus 12 PRD - REST Slave 03",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv03\\appserver.exe",
         "tcp_port": "13003",
         "webapp_port": "",
@@ -659,6 +718,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-REST-SLV04",
+        "display_name": ".14 TOTVS | Microsiga Protheus 12 PRD - REST Slave 04 | TAF-FULL",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv04\\appserver.exe",
         "tcp_port": "13004",
         "webapp_port": "",
@@ -669,6 +729,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-SCHED",
+        "display_name": ".21 TOTVS | Microsiga Protheus 12 PRD - Schedule",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched\\appserver.exe",
         "tcp_port": "12060",
         "webapp_port": "7002",
@@ -679,6 +740,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-SLV01",
+        "display_name": ".01 TOTVS | Microsiga Protheus 12 PRD - Slave 01",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_slv01\\appserver.exe",
         "tcp_port": "12001",
         "webapp_port": "4001",
@@ -689,6 +751,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-SLV02",
+        "display_name": ".02 TOTVS | Microsiga Protheus 12 PRD - Slave 02",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_slv02\\appserver.exe",
         "tcp_port": "12002",
         "webapp_port": "4002",
@@ -699,6 +762,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-SLV03",
+        "display_name": ".03 TOTVS | Microsiga Protheus 12 PRD - Slave 03",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_slv03\\appserver.exe",
         "tcp_port": "12003",
         "webapp_port": "4003",
@@ -709,6 +773,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-SLV04",
+        "display_name": ".04 TOTVS | Microsiga Protheus 12 PRD - Slave 04",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_slv04\\appserver.exe",
         "tcp_port": "12004",
         "webapp_port": "4004",
@@ -719,6 +784,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-SLV05",
+        "display_name": ".05 TOTVS | Microsiga Protheus 12 PRD - Slave 05",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_slv05\\appserver.exe",
         "tcp_port": "12005",
         "webapp_port": "4005",
@@ -729,6 +795,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-WF",
+        "display_name": ".23 TOTVS | Microsiga Protheus 12 PRD - Workflow",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
         "tcp_port": "12050",
         "webapp_port": "",
@@ -739,6 +806,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-WS",
+        "display_name": ".22 TOTVS | Microsiga Protheus 12 PRD - Web Service",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
         "tcp_port": "12040",
         "webapp_port": "",
@@ -749,6 +817,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-WS-TAF",
+        "display_name": ".24 TOTVS | Microsiga Protheus 12 PRD - WS TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
         "tcp_port": "19001",
         "webapp_port": "",
@@ -759,6 +828,7 @@
       },
       {
         "name": "TOTVS-Appserver12-PRD-WS2",
+        "display_name": ".25 TOTVS | Microsiga Protheus 12 PRD - HUB Cielo",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws2\\appserver.exe",
         "tcp_port": "12041",
         "webapp_port": "",
@@ -769,6 +839,7 @@
       },
       {
         "name": "TOTVSservice",
+        "display_name": "TOTVS",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_broker\\appserver.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -779,6 +850,7 @@
       },
       {
         "name": "TOTVSservice",
+        "display_name": "TOTVS",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_master\\appserver.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -791,6 +863,7 @@
     "infra_services": [
       {
         "name": "licenseVirtual",
+        "display_name": "TOTVS | License Server Virtual",
         "path_executable": "C:\\TOTVS\\TOTVSLicenseVirtual\\bin\\appserver\\appserver.exe",
         "tcp_port": "2234",
         "webapp_port": "8020",
@@ -801,6 +874,7 @@
       },
       {
         "name": "TOTVSDBAccess64",
+        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
         "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
         "tcp_port": "",
         "webapp_port": "",
@@ -811,6 +885,7 @@
       },
       {
         "name": "TOTVSDBAccess64TSS",
+        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
         "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
         "tcp_port": "",
         "webapp_port": "",
