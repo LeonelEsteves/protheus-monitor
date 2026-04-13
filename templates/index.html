@@ -116,6 +116,9 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                     Painel Administrativo
                 </a>
                 {% endif %}
+                <button id="themeToggle" type="button" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
+                    Tema escuro
+                </button>
                 <button id="logsButton" onclick="toggleLogs()" class="relative inline-flex h-10 items-center rounded-xl bg-blue-500 px-4 text-sm font-semibold text-white transition hover:bg-blue-400">
                     Logs
                     <span id="badge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
@@ -133,10 +136,44 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <button id="themeToggle" type="button" class="inline-flex h-10 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
-                    Tema escuro
-                </button>
-                <select id="envFilter" class="h-10 rounded-xl border border-slate-200 px-3 text-sm"></select>
+                <div class="relative">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m20 20-3.5-3.5"></path>
+                        </svg>
+                    </span>
+                    <input id="serviceNameFilter" type="text" placeholder="Filtrar serviço por nome" class="h-10 w-56 rounded-xl border border-slate-200 pl-10 pr-3 text-sm" />
+                </div>
+                <div class="relative">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18h6"></path>
+                            <path d="M10 14h4"></path>
+                            <path d="M11 10h2"></path>
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                        </svg>
+                    </span>
+                    <select id="serviceStatusFilter" class="h-10 rounded-xl border border-slate-200 pl-10 pr-3 text-sm">
+                        <option value="">Todos status</option>
+                        <option value="RUNNING">Running</option>
+                        <option value="STOPPED">Stopped</option>
+                        <option value="NOT FOUND">Not Found</option>
+                        <option value="STARTING">Starting</option>
+                        <option value="STOPPING">Stopping</option>
+                        <option value="UNKNOWN">Unknown</option>
+                    </select>
+                </div>
+                <div class="relative">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7h18"></path>
+                            <path d="M6 12h12"></path>
+                            <path d="M10 17h4"></path>
+                        </svg>
+                    </span>
+                    <select id="envFilter" class="h-10 rounded-xl border border-slate-200 pl-10 pr-3 text-sm"></select>
+                </div>
             </div>
         </div>
 
@@ -240,6 +277,7 @@ let activeServiceLogContext = null;
 let activeServiceLogSignature = "";
 let serviceLogPollingTimer = null;
 let serviceLogRequestInFlight = false;
+let runningBulkActions = {};
 
 function getSavedTheme() {
     return localStorage.getItem(THEME_STORAGE_KEY) || "light";
@@ -261,6 +299,29 @@ function toggleTheme() {
 
 function compareEnvironmentNames(left, right) {
     return String(left.environment || "").localeCompare(String(right.environment || ""), "pt-BR", { sensitivity: "base" });
+}
+
+function normalizeFilterText(value) {
+    return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function getServiceFilters() {
+    const nameFilter = normalizeFilterText(document.getElementById("serviceNameFilter")?.value || "");
+    const statusFilter = String(document.getElementById("serviceStatusFilter")?.value || "").trim().toUpperCase();
+    return { nameFilter, statusFilter };
+}
+
+function matchesServiceFilters(service, filters) {
+    const displayName = String(service.display_name || service.name || "");
+    const serviceName = String(service.name || "");
+    const status = String(service.status || "").trim().toUpperCase();
+    const combinedName = `${displayName} ${serviceName}`;
+    const nameOk = !filters.nameFilter || normalizeFilterText(combinedName).includes(filters.nameFilter);
+    const statusOk = !filters.statusFilter || status === filters.statusFilter;
+    return nameOk && statusOk;
 }
 
 function getEnvironmentTypeMeta(environmentType) {
@@ -506,6 +567,21 @@ function isActionRunning(environmentId, service, action, serviceIp = "") {
     return Boolean(runningActions[getActionKey(environmentId, service, action, serviceIp)]);
 }
 
+function getNormalizedPriority(priority) {
+    const value = String(priority || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (value === "alta" || value === "high") return "alta";
+    if (value === "baixa" || value === "low") return "baixa";
+    return "media";
+}
+
+function getBulkActionKey(environmentId, action) {
+    return `${environmentId}::${action}`;
+}
+
+function isBulkActionRunning(environmentId, action) {
+    return Boolean(runningBulkActions[getBulkActionKey(environmentId, action)]);
+}
+
 async function apiFetch(url, options = {}) {
     const response = await fetch(url, options);
 
@@ -655,6 +731,8 @@ function renderTabs() {
     tabs.innerHTML = "";
     filtered.forEach((env, index) => {
         const environmentType = getEnvironmentTypeMeta(env.environment_type);
+    const bulkStopRunning = isBulkActionRunning(env.id, "stop");
+    const bulkStartRunning = isBulkActionRunning(env.id, "start");
         const selectedClass = activeTab === index ? "bg-slate-900 text-white border-slate-900" : `${environmentType.tabClass} border`;
         tabs.innerHTML += `
             <button data-tab-index="${index}" class="monitor-tab rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedClass}">
@@ -677,6 +755,7 @@ function setTab(index) {
 function renderContent() {
     const content = document.getElementById("content");
     const filtered = getFilteredEnvironments();
+    const serviceFilters = getServiceFilters();
 
     if (!filtered.length) {
         content.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Nenhum ambiente disponível para o filtro selecionado.</div>';
@@ -692,6 +771,8 @@ function renderContent() {
     }
 
     const environmentType = getEnvironmentTypeMeta(env.environment_type);
+    const bulkStopRunning = isBulkActionRunning(env.id, "stop");
+    const bulkStartRunning = isBulkActionRunning(env.id, "start");
     let html = `
         <div class="mb-4 rounded-2xl border p-4 text-sm text-slate-600 ${environmentType.headerClass}">
             <div class="mb-2 flex flex-wrap items-center gap-2">
@@ -702,6 +783,10 @@ function renderContent() {
                 <div><span class="font-semibold text-slate-900">IP:</span> ${escapeHtml(env.host || "local")}</div>
                 ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline underline-offset-2">Acessar aplicação</a>` : ""}
                 ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-cyan-700 underline underline-offset-2">Acessar serviço REST</a>` : ""}
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+                <button ${bulkStartRunning ? "disabled" : ""} data-bulk-action="start" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStartRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-600 hover:bg-emerald-500"}">${bulkStartRunning ? "Iniciando lote..." : "Iniciar todos"}</button>
+                <button ${bulkStopRunning ? "disabled" : ""} data-bulk-action="stop" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStopRunning ? "cursor-wait bg-rose-300" : "bg-rose-600 hover:bg-rose-500"}">${bulkStopRunning ? "Parando lote..." : "Parar todos"}</button>
             </div>
         </div>
     `;
@@ -724,7 +809,7 @@ function renderContent() {
         return;
     }
 
-    html += renderServiceSection(env, env.services || [], "Serviços da Aplicação");
+    html += renderServiceSection(env, env.services || [], "Serviços da Aplicação", serviceFilters);
 
     if ((env.infra_services || []).length) {
         html += `
@@ -732,13 +817,13 @@ function renderContent() {
                 <div class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Infra</div>
             </div>
         `;
-        html += renderServiceSection(env, env.infra_services || [], "Infra");
+        html += renderServiceSection(env, env.infra_services || [], "Infra", serviceFilters);
     }
 
     content.innerHTML = html;
 }
 
-function renderServiceSection(env, services, sectionLabel) {
+function renderServiceSection(env, services, sectionLabel, filters = { nameFilter: "", statusFilter: "" }) {
     let html = `<div class="grid gap-3">`;
 
     const sortedServices = [...services].sort((left, right) => {
@@ -747,7 +832,12 @@ function renderServiceSection(env, services, sectionLabel) {
         return leftLabel.localeCompare(rightLabel, "pt-BR", { sensitivity: "base" });
     });
 
-    sortedServices.forEach((service) => {
+    const visibleServices = sortedServices.filter((service) => matchesServiceFilters(service, filters));
+    if (!visibleServices.length) {
+        html += `<div class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Nenhum serviço encontrado para os filtros em ${escapeHtml(sectionLabel)}.</div>`;
+    }
+
+    visibleServices.forEach((service) => {
         html += renderServiceCard(env, service);
     });
 
@@ -792,6 +882,87 @@ function renderServiceCard(env, service) {
             </div>
         </div>
     `;
+}
+
+async function triggerBulkAction(environmentId, action) {
+    const actionKey = getBulkActionKey(environmentId, action);
+    if (runningBulkActions[actionKey]) {
+        return;
+    }
+
+    const environment = getEnvironmentById(environmentId);
+    if (!environment) {
+        showToast("Ambiente não encontrado.");
+        return;
+    }
+
+    const actionLabel = action === "stop" ? "parar" : "iniciar";
+    const confirmed = await showConfirmModal({
+        title: `${actionLabel.charAt(0).toUpperCase()}${actionLabel.slice(1)} todos os serviços`,
+        message: `Tem certeza que deseja ${actionLabel} todos os serviços do ambiente ${environment.environment}?`,
+        confirmLabel: `${actionLabel.charAt(0).toUpperCase()}${actionLabel.slice(1)} todos`,
+        tone: action === "stop" ? "danger" : "success",
+    });
+    if (!confirmed) {
+        showToast("Operação em lote cancelada.");
+        return;
+    }
+
+    const services = [...(environment.services || []), ...(environment.infra_services || [])]
+        .filter((service) => String(service.name || "").trim());
+    if (!services.length) {
+        showToast("Não há serviços cadastrados neste ambiente.");
+        return;
+    }
+
+    const prioritySequence = action === "stop"
+        ? ["baixa", "media", "alta"]
+        : ["alta", "media", "baixa"];
+    const orderedServices = [];
+    prioritySequence.forEach((priority) => {
+        services.forEach((service) => {
+            if (getNormalizedPriority(service.priority) === priority) {
+                orderedServices.push(service);
+            }
+        });
+    });
+
+    runningBulkActions[actionKey] = true;
+    renderContent();
+
+    let successCount = 0;
+    let failCount = 0;
+    for (const service of orderedServices) {
+        const serviceName = service.name;
+        const serviceIp = service.service_ip || "";
+        const priority = getNormalizedPriority(service.priority);
+        appendDebug(environmentId, serviceName, `[LOTE ${action.toUpperCase()}] Prioridade ${priority}: iniciando ação em ${serviceName} [${serviceIp || "sem IP"}].`, "info", serviceIp);
+
+        const result = await apiFetch("/action", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ environment_id: environmentId, service: serviceName, service_ip: serviceIp, action }),
+        });
+
+        if (!result) {
+            delete runningBulkActions[actionKey];
+            renderContent();
+            return;
+        }
+
+        if (!result.response.ok || !result.data.success) {
+            failCount += 1;
+            appendDebug(environmentId, serviceName, `[LOTE ${action.toUpperCase()}] Falha em ${serviceName}: ${result.data.error || "erro não informado"}.`, "error", serviceIp);
+        } else {
+            successCount += 1;
+            appendDebug(environmentId, serviceName, `[LOTE ${action.toUpperCase()}] Sucesso em ${serviceName}.`, "success", serviceIp);
+        }
+    }
+
+    delete runningBulkActions[actionKey];
+    await loadEnvironmentStatus(environmentId, { force: true });
+    renderContent();
+    showToast(`Lote ${actionLabel}: ${successCount} sucesso(s), ${failCount} falha(s).`, failCount ? "error" : "success");
 }
 
 async function sendAction(environmentId, service, action, serviceIp = "") {
@@ -904,6 +1075,14 @@ document.getElementById("envFilter").addEventListener("change", () => {
     }
 });
 
+document.getElementById("serviceNameFilter").addEventListener("input", () => {
+    renderContent();
+});
+
+document.getElementById("serviceStatusFilter").addEventListener("change", () => {
+    renderContent();
+});
+
 document.getElementById("tabs").addEventListener("click", (event) => {
     const button = event.target.closest(".monitor-tab");
     if (!button) {
@@ -917,6 +1096,15 @@ document.getElementById("tabs").addEventListener("click", (event) => {
 });
 
 document.getElementById("content").addEventListener("click", (event) => {
+    const bulkButton = event.target.closest(".bulk-action-btn");
+    if (bulkButton) {
+        triggerBulkAction(
+            bulkButton.dataset.environmentId,
+            bulkButton.dataset.bulkAction
+        );
+        return;
+    }
+
     const debugButton = event.target.closest(".service-debug-btn");
     if (debugButton) {
         openDebugModal(

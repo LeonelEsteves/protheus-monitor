@@ -493,6 +493,7 @@ foreach ($t in $targets) {{
                         host = $env:COMPUTERNAME
                         service_name = $cim.Name
                         display_name = $cim.DisplayName
+                        service_state = $cim.State
                         start_mode = $cim.StartMode
                         path_name = $pathName
                         exe_path = $exePath
@@ -521,6 +522,7 @@ foreach ($t in $targets) {{
                     host = $env:COMPUTERNAME
                     service_name = $cim.Name
                     display_name = $cim.DisplayName
+                    service_state = $cim.State
                     start_mode = $cim.StartMode
                     path_name = $pathName
                     exe_path = $exePath
@@ -630,6 +632,9 @@ if ($results.Count -eq 0) {{
         ini_path = (row.get("ini_path") or "").strip()
         exe_path = (row.get("exe_path") or "").strip()
         exe_dir = (row.get("exe_dir") or "").strip()
+        service_state = (row.get("service_state") or "").strip()
+        normalized_state = service_state.upper()
+        running_label = "SIM" if normalized_state == "RUNNING" else "NÃO"
 
         step_logs.append(f"[{server}] Serviço detectado: {service_name}.")
         if exe_path:
@@ -645,6 +650,9 @@ if ($results.Count -eq 0) {{
             f"[{server}] Campos lidos para {service_name}: TCP={ini_payload.get('tcp_port', '') or '-'}, "
             f"WEBAPP={ini_payload.get('webapp_port', '') or '-'}, REST={ini_payload.get('rest_port', '') or '-'}, "
             f"ConsoleFile={ini_payload.get('console_log_file', '') or '-'}."
+        )
+        step_logs.append(
+            f"[{server}] Status atual do serviço {service_name}: {normalized_state or 'UNKNOWN'} (Rodando: {running_label})."
         )
 
         if not exe_path:
@@ -669,12 +677,21 @@ if ($results.Count -eq 0) {{
                     "exe_dir": row.get("exe_dir"),
                     "ini_path": row.get("ini_path"),
                     "host": row.get("host"),
+                    "service_state": normalized_state or service_state,
                 },
             }
         )
 
     if not discovered and not errors:
         step_logs.append("Nenhum serviço TOTVS elegível foi encontrado nos hosts informados.")
+    elif discovered:
+        step_logs.append("Resumo final de execução (serviço está rodando?):")
+        for item in discovered:
+            meta_state = str((item.get("_meta") or {}).get("service_state") or "").upper()
+            running_label = "SIM" if meta_state == "RUNNING" else "NÃO"
+            step_logs.append(
+                f"[{item.get('service_ip')}] {item.get('name')}: {meta_state or 'UNKNOWN'} (Rodando: {running_label})."
+            )
 
     payload = {"steps": step_logs}
     if errors:
@@ -686,7 +703,7 @@ def build_status_service(service, host):
     resolved_host = (service or {}).get("service_ip") or host
     base = dict(service or {})
     base["name"] = service["name"]
-    base["status"] = get_service_status_for_host(service["name"], resolved_host)
+    base["status"] = get_service_status_for_host(service["name"], resolved_host, service.get("display_name", ""))
     return base
 
 
@@ -922,20 +939,71 @@ def admin_required(view):
     return wrapped_view
 
 
-def get_service_status_for_host(service_name, host):
-    try:
-        status = win32serviceutil.QueryServiceStatus(service_name, machine=resolve_service_machine(host))[1]
-
+def get_service_status_for_host(service_name, host, display_name=""):
+    def status_label(status_code):
         mapping = {
             win32service.SERVICE_RUNNING: "RUNNING",
             win32service.SERVICE_STOPPED: "STOPPED",
             win32service.SERVICE_START_PENDING: "STARTING",
             win32service.SERVICE_STOP_PENDING: "STOPPING",
         }
+        return mapping.get(status_code, "UNKNOWN")
 
-        return mapping.get(status, "UNKNOWN")
+    def query_status_by_name(name_to_query):
+        status_code = win32serviceutil.QueryServiceStatus(name_to_query, machine=resolve_service_machine(host))[1]
+        return status_label(status_code)
+
+    def find_service_name_by_display_name(display_name):
+        if not display_name:
+            return ""
+        try:
+            scm = win32service.OpenSCManager(
+                resolve_service_machine(host),
+                None,
+                win32service.SC_MANAGER_ENUMERATE_SERVICE,
+            )
+            try:
+                items = win32service.EnumServicesStatus(
+                    scm,
+                    win32service.SERVICE_WIN32,
+                    win32service.SERVICE_STATE_ALL,
+                )
+                normalized_target = (display_name or "").strip().lower()
+                for item in items:
+                    candidate_name = item[0]
+                    candidate_display = item[1]
+                    if (candidate_display or "").strip().lower() == normalized_target:
+                        return candidate_name
+            finally:
+                win32service.CloseServiceHandle(scm)
+        except Exception:
+            return ""
+        return ""
+
+    try:
+        return query_status_by_name(service_name)
     except Exception:
-        return "NOT FOUND"
+        pass
+
+    resolved_by_display = find_service_name_by_display_name(display_name)
+    if resolved_by_display and resolved_by_display.lower() != (service_name or "").strip().lower():
+        try:
+            return query_status_by_name(resolved_by_display)
+        except Exception:
+            pass
+
+    service_name_text = (service_name or "").strip().lower()
+    display_name_text = (display_name or "").strip().lower()
+    if "license" in service_name_text or "license" in display_name_text:
+        for alias in ("licenseVirtual", "TOTVSLicenseVirtual", "license"):
+            if alias.lower() == service_name_text:
+                continue
+            try:
+                return query_status_by_name(alias)
+            except Exception:
+                continue
+
+    return "NOT FOUND"
 
 
 def save_log(service, action, result, user):
@@ -967,6 +1035,57 @@ def save_environment_log(environment_name, host, service, action, result, user):
 def save_admin_environment_log(environment_name, action, result, user):
     target = f"AMBIENTE :: {environment_name}"
     save_log(target, action, result, user)
+
+
+def _normalize_service_key(value):
+    return (value or "").strip().lower()
+
+
+def _build_service_registry_target(environment_name, section, service):
+    section_label = "Infra" if section == "infra_services" else "Aplicacao"
+    service_name = (service.get("display_name") or service.get("name") or "servico-sem-nome").strip()
+    service_ip = (service.get("service_ip") or "").strip() or "-"
+    return f"SERVICO :: {environment_name} :: {section_label} :: {service_name} :: {service_ip}"
+
+
+def _service_snapshot(environment):
+    snapshot = {}
+    if not environment:
+        return snapshot
+
+    for section in ("services", "infra_services"):
+        for raw_service in environment.get(section, []) or []:
+            service = sanitize_service(raw_service)
+            key = f"{section}|{_normalize_service_key(service.get('name'))}|{_normalize_service_key(service.get('service_ip'))}"
+            if not _normalize_service_key(service.get("name")):
+                continue
+            snapshot[key] = (section, service)
+    return snapshot
+
+
+def save_service_registry_changes_log(environment_name, before_environment, after_environment, user):
+    before = _service_snapshot(before_environment)
+    after = _service_snapshot(after_environment)
+    keys = sorted(set(before) | set(after))
+
+    for key in keys:
+        before_item = before.get(key)
+        after_item = after.get(key)
+
+        if before_item and not after_item:
+            section, service = before_item
+            save_log(_build_service_registry_target(environment_name, section, service), "SERVICE_DELETE", "SUCCESS", user)
+            continue
+
+        if after_item and not before_item:
+            section, service = after_item
+            save_log(_build_service_registry_target(environment_name, section, service), "SERVICE_CREATE", "SUCCESS", user)
+            continue
+
+        before_section, before_service = before_item
+        after_section, after_service = after_item
+        if before_section != after_section or before_service != after_service:
+            save_log(_build_service_registry_target(environment_name, after_section, after_service), "SERVICE_UPDATE", "SUCCESS", user)
 
 
 def run_git_command(args):
@@ -1368,6 +1487,30 @@ def update_user(username):
     return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
 
 
+@app.route("/users/<username>", methods=["DELETE"])
+@admin_required
+def delete_user(username):
+    target_username = normalize_username(username)
+    users_data = load_users()
+    actor = current_user()
+
+    if normalize_username(actor["username"]) == target_username:
+        return jsonify({"success": False, "error": "Você não pode excluir o próprio usuário."}), 400
+
+    deleted_user = next((item for item in users_data if normalize_username(item.get("username")) == target_username), None)
+    if not deleted_user:
+        return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
+
+    filtered_users = [item for item in users_data if normalize_username(item.get("username")) != target_username]
+    active_admins = sum(1 for item in filtered_users if item.get("role") == "admin" and item.get("active", True))
+    if active_admins == 0:
+        return jsonify({"success": False, "error": "Deve existir ao menos um administrador ativo."}), 400
+
+    save_users(filtered_users)
+    save_log(f"USUARIO :: {deleted_user.get('username')}", "DELETE", "SUCCESS", actor["username"])
+    return jsonify({"success": True})
+
+
 @app.route("/environments")
 @admin_required
 def environments():
@@ -1396,6 +1539,7 @@ def create_environment():
     environments_data.append(environment)
     save_environments(environments_data)
     save_admin_environment_log(environment["name"], "CREATE", "SUCCESS", actor["username"])
+    save_service_registry_changes_log(environment["name"], None, environment, actor["username"])
     return jsonify({"success": True, "environment": environment}), 201
 
 
@@ -1417,6 +1561,7 @@ def update_environment(environment_id):
         environments_data[index] = updated
         save_environments(environments_data)
         save_admin_environment_log(updated["name"], "UPDATE", "SUCCESS", actor["username"])
+        save_service_registry_changes_log(updated["name"], environment, updated, actor["username"])
         return jsonify({"success": True, "environment": updated})
 
     return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
@@ -1436,6 +1581,7 @@ def delete_environment(environment_id):
     save_environments(filtered)
     if environment:
         save_admin_environment_log(environment["name"], "DELETE", "SUCCESS", actor["username"])
+        save_service_registry_changes_log(environment["name"], environment, None, actor["username"])
     return jsonify({"success": True})
 
 

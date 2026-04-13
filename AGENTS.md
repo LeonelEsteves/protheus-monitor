@@ -45,3 +45,11 @@ Este repositÃ³rio Ã© um app **Flask** (Windows) para **monitorar e controlar ser
 - NÃ£o quebrar o formato de `users.json` e `environments.json` (backward compatibility).
 - Ao alterar HTML/JS, manter a UI funcional sem depender de bundlers (projeto simples).
 - PadrÃ£o visual obrigatÃ³rio: novas telas, modais e componentes devem seguir o mesmo layout/estilo jÃ¡ adotado no projeto (mesma linguagem visual, bordas, tipografia, espaÃ§amento e comportamento em tema claro/escuro).
+
+- Regra adicional: exclusao de servico no formulario deve pedir confirmacao; incluir/alterar/excluir servico precisa gerar log em events_log.json.
+- Tela de serviços monitorados deve ter filtro por nome do serviço e por status (RUNNING/STOPPED/etc.).
+- Busca automática deve registrar no log final se cada serviço está rodando (SIM/NÃO).
+- No cadastro/edição de ambiente, o formulário deve ter filtro por nome de serviço e sugestão em lista (datalist) com nomes já conhecidos.
+- Gestão de usuários: permitir edição e exclusão de usuário (com confirmação e regras de segurança, sem autoexclusão).
+- Consulta de status deve tentar fallback por Display Name e aliases para serviços de license quando o Name não resolve.
+- Monitor por ambiente deve oferecer ações em lote (Iniciar todos/Parar todos) com confirmação prévia e ordem por prioridade.

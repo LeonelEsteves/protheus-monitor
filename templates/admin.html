@@ -176,7 +176,15 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <div class="mt-5">
                     <label class="space-y-1 text-sm">
                         <span class="font-medium text-slate-700">Filtrar usuário</span>
-                        <input id="userFilterInput" placeholder="Digite parte do nome do usuário" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <path d="m20 20-3.5-3.5"></path>
+                                </svg>
+                            </span>
+                            <input id="userFilterInput" placeholder="Digite parte do nome do usuário" class="w-full rounded-xl border border-slate-200 pl-10 pr-3 py-2 text-sm" />
+                        </div>
                     </label>
                 </div>
 
@@ -192,9 +200,18 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
                     <div class="text-sm text-slate-500">Ambientes cadastrados</div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <select id="environmentFilterSelect" class="w-64 rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                            <option value="">Todos os ambientes</option>
-                        </select>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 7h18"></path>
+                                    <path d="M6 12h12"></path>
+                                    <path d="M10 17h4"></path>
+                                </svg>
+                            </span>
+                            <select id="environmentFilterSelect" class="w-64 rounded-xl border border-slate-200 pl-10 pr-3 py-2 text-sm">
+                                <option value="">Todos os ambientes</option>
+                            </select>
+                        </div>
                         <button type="button" onclick="openNewEnvironmentForm()" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
                             Cadastrar novo ambiente
                         </button>
@@ -253,7 +270,16 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         </div>
         <div class="mb-4">
             <label for="hostPromptInput" class="mb-1 block text-sm font-medium text-slate-700">IPs/Hosts</label>
-            <input id="hostPromptInput" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Ex.: 10.10.1.68, srv-app-01" />
+            <div class="relative">
+                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18"></path>
+                        <path d="M7 8h10"></path>
+                        <path d="M7 16h10"></path>
+                    </svg>
+                </span>
+                <input id="hostPromptInput" class="w-full rounded-xl border border-slate-200 pl-10 pr-3 py-2 text-sm" placeholder="Ex.: 10.10.1.68, srv-app-01" />
+            </div>
         </div>
         <div class="flex flex-wrap justify-end gap-2">
             <button type="button" onclick="resolveHostPromptModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
@@ -283,6 +309,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                     <option value="admin">Administrador</option>
                 </select>
             </label>
+            <p id="userEditConstraintHint" class="hidden text-xs text-amber-600"></p>
             <label class="flex items-center gap-2 text-sm text-slate-700">
                 <input id="editUserActive" type="checkbox">
                 Usuário ativo
@@ -293,6 +320,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             </label>
 
             <div class="flex flex-wrap justify-end gap-2 pt-2">
+                <button id="deleteUserButton" type="button" onclick="removeUser(editingUserUsername)" class="mr-auto rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50">Excluir usuário</button>
                 <button type="button" onclick="toggleUserEditModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
                 <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar alterações</button>
             </div>
@@ -344,6 +372,22 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <p class="mt-1 text-xs text-slate-500">Exemplo: `http://10.10.1.68:8081/rest` ou outra URL do endpoint REST.</p>
             </div>
 
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <label class="space-y-1 text-sm">
+                    <span class="font-medium text-slate-700">Filtrar serviço no cadastro</span>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <path d="m20 20-3.5-3.5"></path>
+                            </svg>
+                        </span>
+                        <input id="environmentServiceFilter" list="serviceNamesDatalist" placeholder="Digite parte do nome do serviço" class="w-full rounded-xl border border-slate-200 pl-10 pr-3 py-2 text-sm" />
+                    </div>
+                </label>
+                <p id="environmentServiceFilterHint" class="mt-1 text-xs text-slate-500">Mostrando todos os serviços do formulário.</p>
+            </div>
+
             <div>
                 <div class="mb-2 flex items-center justify-between">
                     <span class="text-sm font-medium text-slate-700">Serviços</span>
@@ -369,6 +413,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         </form>
     </div>
 </div>
+
+<datalist id="serviceNamesDatalist"></datalist>
 
 <div id="autoDiscoverModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/70 p-4">
     <div class="w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
@@ -398,6 +444,55 @@ let confirmModalExpectedText = "";
 let hostPromptResolver = null;
 let autoDiscoverRunning = false;
 let environmentFilterId = "";
+
+function updateEnvironmentServiceNamesDatalist() {
+    const datalist = document.getElementById("serviceNamesDatalist");
+    if (!datalist) return;
+
+    const names = new Set();
+    adminEnvironments.forEach((environment) => {
+        [...(environment.services || []), ...(environment.infra_services || [])].forEach((service) => {
+            const name = String(service.name || "").trim();
+            if (name) names.add(name);
+        });
+    });
+
+    [...document.querySelectorAll(".service-name, .infra-name")].forEach((input) => {
+        const name = String(input.value || "").trim();
+        if (name) names.add(name);
+    });
+
+    datalist.innerHTML = [...names]
+        .sort((left, right) => left.localeCompare(right, "pt-BR", { sensitivity: "base" }))
+        .map((name) => `<option value="${escapeHtml(name)}"></option>`)
+        .join("");
+}
+
+function applyEnvironmentServiceFilter() {
+    const filterValue = normalizeSearchText(document.getElementById("environmentServiceFilter")?.value || "");
+    const rows = [...document.querySelectorAll("#serviceRows > div"), ...document.querySelectorAll("#infraRows > div")];
+    let visibleCount = 0;
+
+    rows.forEach((row) => {
+        const nameInput = row.querySelector(".service-name, .infra-name");
+        const displayInput = row.querySelector(".service-display-name, .infra-display-name");
+        const name = normalizeSearchText(nameInput?.value || "");
+        const displayName = normalizeSearchText(displayInput?.value || "");
+        const show = !filterValue || name.includes(filterValue) || displayName.includes(filterValue);
+        row.classList.toggle("hidden", !show);
+        if (show) visibleCount += 1;
+    });
+
+    const hint = document.getElementById("environmentServiceFilterHint");
+    if (!hint) return;
+    if (!rows.length) {
+        hint.textContent = "Nenhum serviço no formulário.";
+    } else if (!filterValue) {
+        hint.textContent = `Mostrando todos os serviços do formulário (${visibleCount}).`;
+    } else {
+        hint.textContent = `Filtro aplicado: ${visibleCount} serviço(s) visível(is).`;
+    }
+}
 
 function getSavedTheme() {
     return localStorage.getItem(THEME_STORAGE_KEY) || "light";
@@ -760,6 +855,29 @@ async function apiFetch(url, options = {}) {
         return null;
     }
 
+    if (response.redirected && response.url && response.url.includes("/login")) {
+        window.location.href = "/login";
+        return null;
+    }
+
+    const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+    if (!contentType.includes("application/json")) {
+        let text = "";
+        try {
+            text = await response.text();
+        } catch (readError) {
+            text = "";
+        }
+        return {
+            response,
+            data: {
+                success: false,
+                error: "Resposta inválida do servidor (não-JSON).",
+                details: text ? text.slice(0, 1500) : "",
+            },
+        };
+    }
+
     let data = null;
     try {
         data = await response.json();
@@ -832,8 +950,9 @@ function renderUsersList() {
                     <div>
                         <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${activeBadgeClass}">${activeLabel}</span>
                     </div>
-                    <div class="md:justify-self-end">
+                    <div class="flex gap-2 md:justify-self-end">
                         <button type="button" onclick="openUserEditModal('${encodeURIComponent(user.username)}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Editar</button>
+                        <button type="button" ${user.username === currentUser.username ? "disabled" : ""} onclick="removeUser('${encodeURIComponent(user.username)}')" class="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50">Excluir</button>
                     </div>
                 </div>
             </div>
@@ -856,6 +975,18 @@ function toggleUserEditModal(forceOpen = null) {
     if (!shouldOpen) {
         editingUserUsername = "";
         document.getElementById("userEditForm").reset();
+        const roleField = document.getElementById("editUserRole");
+        if (roleField) roleField.disabled = false;
+        const deleteButton = document.getElementById("deleteUserButton");
+        if (deleteButton) {
+            deleteButton.disabled = false;
+            deleteButton.classList.remove("opacity-50", "cursor-not-allowed");
+        }
+        const hint = document.getElementById("userEditConstraintHint");
+        if (hint) {
+            hint.classList.add("hidden");
+            hint.textContent = "";
+        }
     }
 }
 
@@ -869,17 +1000,78 @@ function openUserEditModal(encodedUsername) {
 
     editingUserUsername = username;
     document.getElementById("editUsername").value = user.username || "";
-    document.getElementById("editUserRole").value = user.role || "operator";
+    const roleField = document.getElementById("editUserRole");
+    roleField.value = user.role || "operator";
     const activeField = document.getElementById("editUserActive");
     activeField.checked = Boolean(user.active);
-    activeField.disabled = user.username === currentUser.username;
+    const activeAdmins = adminUsers.filter((item) => item.role === "admin" && item.active).length;
+    const isSingleActiveAdmin = user.role === "admin" && user.active && activeAdmins === 1;
+    const isCurrentUser = user.username === currentUser.username;
+    roleField.disabled = isSingleActiveAdmin;
+    activeField.disabled = isCurrentUser || isSingleActiveAdmin;
+    if (isSingleActiveAdmin) {
+        roleField.value = "admin";
+        activeField.checked = true;
+    }
+    const hint = document.getElementById("userEditConstraintHint");
+    if (hint) {
+        hint.classList.toggle("hidden", !isSingleActiveAdmin);
+        hint.textContent = isSingleActiveAdmin
+            ? "Este usuário é o único administrador ativo. Cadastre/ative outro administrador para alterar perfil ou status."
+            : "";
+    }
+    const deleteButton = document.getElementById("deleteUserButton");
+    if (deleteButton) {
+        deleteButton.disabled = user.username === currentUser.username;
+        deleteButton.classList.toggle("opacity-50", user.username === currentUser.username);
+        deleteButton.classList.toggle("cursor-not-allowed", user.username === currentUser.username);
+    }
     document.getElementById("editUserPassword").value = "";
     toggleUserEditModal(true);
 }
 
+async function removeUser(encodedUsername) {
+    const username = decodeURIComponent(String(encodedUsername || ""));
+    if (!username) return;
+
+    if (username === currentUser.username) {
+        showToast("Você não pode excluir o próprio usuário.");
+        return;
+    }
+
+    const confirmed = await showConfirmModal({
+        title: "Excluir usuário",
+        message: `Confirma a exclusão do usuário ${username}? Esta ação é definitiva.`,
+        confirmLabel: "Excluir usuário",
+        tone: "danger",
+    });
+    if (!confirmed) {
+        showToast("Exclusão cancelada.");
+        return;
+    }
+
+    const result = await apiFetch(`/users/${encodeURIComponent(username)}`, { method: "DELETE" });
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível excluir o usuário.");
+        return;
+    }
+
+    if (editingUserUsername === username) {
+        toggleUserEditModal(false);
+    }
+    showToast(`Usuário ${username} excluído com sucesso.`, "success");
+    await loadUsers();
+}
+
 async function saveEditedUser(event) {
     event.preventDefault();
-    if (!editingUserUsername) return;
+    const username = (document.getElementById("editUsername").value || editingUserUsername || "").trim();
+    if (!username) {
+        showToast("Usuário inválido para atualização.");
+        return;
+    }
 
     const role = document.getElementById("editUserRole").value;
     const activeField = document.getElementById("editUserActive");
@@ -898,7 +1090,6 @@ async function saveEditedUser(event) {
         return;
     }
 
-    const username = editingUserUsername;
     const result = await apiFetch(`/users/${encodeURIComponent(username)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -908,7 +1099,19 @@ async function saveEditedUser(event) {
     if (!result) return;
 
     if (!result.response.ok || !result.data.success) {
-        showToast(result.data.error || "Não foi possível atualizar o usuário.");
+        const errorMessage = result.data.error || "Não foi possível atualizar o usuário.";
+        showToast(errorMessage);
+        if (String(errorMessage).toLowerCase().includes("não encontrado")) {
+            await loadUsers();
+        }
+        return;
+    }
+
+    if (username === currentUser.username && payload.role !== "admin") {
+        showToast("Seu perfil foi alterado. Redirecionando para a tela principal...", "success");
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 900);
         return;
     }
 
@@ -941,7 +1144,7 @@ function addRow(containerId, prefix, service = {}) {
     row.innerHTML = `
         <label class="space-y-1 text-sm md:col-span-2">
             <span class="font-medium text-slate-700">Nome do serviço</span>
-            <input value="${escapeHtml(name)}" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            <input value="${escapeHtml(name)}" list="serviceNamesDatalist" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
         </label>
         <label class="space-y-1 text-sm md:col-span-2">
             <span class="font-medium text-slate-700">Display Name</span>
@@ -994,16 +1197,37 @@ function addRow(containerId, prefix, service = {}) {
         if (displayInput.dataset.autoFromName === "1") {
             displayInput.value = nameInput.value.trim();
         }
+        updateEnvironmentServiceNamesDatalist();
+        applyEnvironmentServiceFilter();
     });
 
     displayInput.addEventListener("input", () => {
         const nameValue = nameInput.value.trim();
         const displayValue = displayInput.value.trim();
         displayInput.dataset.autoFromName = (!displayValue || displayValue === nameValue) ? "1" : "0";
+        applyEnvironmentServiceFilter();
     });
 
-    row.querySelector("button").addEventListener("click", () => row.remove());
+    row.querySelector("button").addEventListener("click", async () => {
+        const serviceName = nameInput.value.trim() || "este serviço";
+        const confirmed = await showConfirmModal({
+            title: "Excluir serviço do cadastro",
+            message: `Confirma a exclusão de ${serviceName}? A remoção só será persistida quando você salvar o ambiente.`,
+            confirmLabel: "Excluir serviço",
+            tone: "danger",
+        });
+        if (!confirmed) {
+            showToast("Exclusão de serviço cancelada.");
+            return;
+        }
+        row.remove();
+        showToast("Serviço removido do formulário.", "success");
+        updateEnvironmentServiceNamesDatalist();
+        applyEnvironmentServiceFilter();
+    });
     container.appendChild(row);
+    updateEnvironmentServiceNamesDatalist();
+    applyEnvironmentServiceFilter();
 }
 
 function readEnvironmentServices() {
@@ -1038,6 +1262,7 @@ function openNewEnvironmentForm() {
     resetEnvironmentForm();
     document.getElementById("environmentFormTitle").textContent = "Novo ambiente";
     document.getElementById("environmentFormModal").classList.remove("hidden");
+    applyEnvironmentServiceFilter();
 }
 
 function closeEnvironmentForm() {
@@ -1048,6 +1273,7 @@ function resetEnvironmentForm() {
     editingEnvironmentId = null;
     document.getElementById("environmentForm").reset();
     document.getElementById("environmentType").value = "homologacao";
+    document.getElementById("environmentServiceFilter").value = "";
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
     addServiceRow();
@@ -1055,6 +1281,8 @@ function resetEnvironmentForm() {
     addInfraRow({ name: "broker" });
     addInfraRow({ name: "license" });
     addInfraRow({ name: "webagent" });
+    updateEnvironmentServiceNamesDatalist();
+    applyEnvironmentServiceFilter();
 }
 
 function fillEnvironmentForm(environment) {
@@ -1066,10 +1294,13 @@ function fillEnvironmentForm(environment) {
     document.getElementById("environmentType").value = environment.environment_type || "homologacao";
     document.getElementById("environmentAppUrl").value = environment.app_url || "";
     document.getElementById("environmentRestUrl").value = environment.rest_url || "";
+    document.getElementById("environmentServiceFilter").value = "";
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
     environment.services.forEach((service) => addServiceRow(service));
     (environment.infra_services || []).forEach((service) => addInfraRow(service));
+    updateEnvironmentServiceNamesDatalist();
+    applyEnvironmentServiceFilter();
     setAdminTab("environments");
 }
 
@@ -1078,6 +1309,7 @@ async function loadEnvironmentAdmin() {
     if (!result) return;
 
     adminEnvironments = [...result.data].sort(compareEnvironmentNames);
+    updateEnvironmentServiceNamesDatalist();
     const filterSelect = document.getElementById("environmentFilterSelect");
     const previousValue = environmentFilterId;
     filterSelect.innerHTML = '<option value="">Todos os ambientes</option>';
@@ -1275,6 +1507,9 @@ document.getElementById("themeToggle").addEventListener("click", toggleTheme);
 document.getElementById("environmentFilterSelect").addEventListener("change", (event) => {
     environmentFilterId = String(event.target.value || "");
     loadEnvironmentAdmin();
+});
+document.getElementById("environmentServiceFilter").addEventListener("input", () => {
+    applyEnvironmentServiceFilter();
 });
 applyTheme(getSavedTheme());
 loadUsers();

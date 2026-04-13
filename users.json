@@ -7,10 +7,10 @@
     "created_at": "2026-04-10 18:35:56"
   },
   {
-    "username": "leonel.diniz",
-    "password_hash": "scrypt:32768:8:1$eSKK9oAqCGwR5qag$df9cedd0851ae12a06ef5b216d56321da56c896623df15e556399a5b33af634726afd7a9e049023c4c835590f211befa4efc8e11560a48fbb7ee323a7b5bf39a",
-    "role": "operator",
+    "username": "leonel",
+    "password_hash": "scrypt:32768:8:1$VdbJzQYdOATDClrP$43a9b4033694390525816aaf4afb47ea4573d77170eccfd6d8d94b4329e0218cf5e683f97c07acb004eb41e020d5608b32e3f072471c83a2497ad99fadf94ca9",
+    "role": "technical",
     "active": true,
-    "created_at": "2026-04-10 21:55:12"
+    "created_at": "2026-04-13 16:27:18"
   }
 ]
