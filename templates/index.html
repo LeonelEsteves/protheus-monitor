@@ -322,32 +322,33 @@ function jsEscape(value) {
     return String(value).replaceAll("\\", "\\\\").replaceAll("'", "\\'");
 }
 
-function getActionKey(environmentId, service, action) {
-    return `${environmentId}::${service}::${action}`;
+function getActionKey(environmentId, service, action, serviceIp = "") {
+    return `${environmentId}::${service}::${serviceIp || "-"}::${action}`;
 }
 
-function getDebugContextKey(environmentId, service) {
-    return `${environmentId}::${service}`;
+function getDebugContextKey(environmentId, service, serviceIp = "") {
+    return `${environmentId}::${service}::${serviceIp || "-"}`;
 }
 
 function toggleDebugModal() {
     document.getElementById("debugModal").classList.toggle("hidden");
 }
 
-function openDebugModal(environmentId, environmentName, serviceName) {
+function openDebugModal(environmentId, environmentName, serviceName, serviceIp = "") {
     activeDebugContext = {
-        key: getDebugContextKey(environmentId, serviceName),
+        key: getDebugContextKey(environmentId, serviceName, serviceIp),
         environmentId,
         environmentName,
         serviceName,
+        serviceIp,
     };
-    document.getElementById("debugSubtitle").textContent = `Serviço: ${serviceName} | Ambiente: ${environmentName}`;
+    document.getElementById("debugSubtitle").textContent = `Serviço: ${serviceName} | IP: ${serviceIp || "não informado"} | Ambiente: ${environmentName}`;
     document.getElementById("debugModal").classList.remove("hidden");
     renderDebugTerminal();
 }
 
-function appendDebug(environmentId, serviceName, message, level = "info") {
-    const contextKey = getDebugContextKey(environmentId, serviceName);
+function appendDebug(environmentId, serviceName, message, level = "info", serviceIp = "") {
+    const contextKey = getDebugContextKey(environmentId, serviceName, serviceIp);
     const timestamp = new Date().toLocaleTimeString("pt-BR");
     if (!debugEntriesByContext[contextKey]) {
         debugEntriesByContext[contextKey] = [];
@@ -392,8 +393,8 @@ function clearDebugLog() {
     renderDebugTerminal();
 }
 
-function isActionRunning(environmentId, service, action) {
-    return Boolean(runningActions[getActionKey(environmentId, service, action)]);
+function isActionRunning(environmentId, service, action, serviceIp = "") {
+    return Boolean(runningActions[getActionKey(environmentId, service, action, serviceIp)]);
 }
 
 async function apiFetch(url, options = {}) {
@@ -661,9 +662,9 @@ function renderServiceCard(env, service) {
     if (serviceIp) metaParts.push(`IP ${escapeHtml(serviceIp)}`);
     if (priority) metaParts.push(`Prioridade ${escapeHtml(priority)}`);
     const metaLine = metaParts.length ? metaParts.join(" • ") : "Portas não informadas";
-    const startRunning = isActionRunning(env.id, service.name, "start");
-    const stopRunning = isActionRunning(env.id, service.name, "stop");
-    const restartRunning = isActionRunning(env.id, service.name, "restart");
+    const startRunning = isActionRunning(env.id, service.name, "start", serviceIp);
+    const stopRunning = isActionRunning(env.id, service.name, "stop", serviceIp);
+    const restartRunning = isActionRunning(env.id, service.name, "restart", serviceIp);
     return `
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -674,17 +675,17 @@ function renderServiceCard(env, service) {
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <button ${startRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="start" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${startRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-500 hover:bg-emerald-400"}">${startRunning ? "Iniciando..." : "Start"}</button>
-                <button ${stopRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">${stopRunning ? "Parando..." : "Stop"}</button>
-                <button ${restartRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">${restartRunning ? "Reiniciando..." : "Restart"}</button>
-                <button data-environment-id="${escapeHtml(env.id)}" data-debug-service-name="${escapeHtml(service.name)}" data-debug-environment-name="${escapeHtml(env.environment)}" class="service-debug-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Debug</button>
+                <button ${startRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${startRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-500 hover:bg-emerald-400"}">${startRunning ? "Iniciando..." : "Start"}</button>
+                <button ${stopRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">${stopRunning ? "Parando..." : "Stop"}</button>
+                <button ${restartRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">${restartRunning ? "Reiniciando..." : "Restart"}</button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-debug-service-name="${escapeHtml(service.name)}" data-debug-service-ip="${escapeHtml(serviceIp)}" data-debug-environment-name="${escapeHtml(env.environment)}" class="service-debug-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Debug</button>
             </div>
         </div>
     `;
 }
 
-async function sendAction(environmentId, service, action) {
-    const actionKey = getActionKey(environmentId, service, action);
+async function sendAction(environmentId, service, action, serviceIp = "") {
+    const actionKey = getActionKey(environmentId, service, action, serviceIp);
     if (runningActions[actionKey]) {
         return;
     }
@@ -709,33 +710,33 @@ async function sendAction(environmentId, service, action) {
 
     runningActions[actionKey] = true;
     renderContent();
-    appendDebug(environmentId, service, `Solicitação iniciada: ${action.toUpperCase()} em ${service}.`);
-    showToast(`Ação ${action} iniciada para ${service}.`, "success");
+    appendDebug(environmentId, service, `Solicitação iniciada: ${action.toUpperCase()} em ${service} [${serviceIp || "sem IP"}].`, "info", serviceIp);
+    showToast(`Ação ${action} iniciada para ${service} (${serviceIp || "sem IP"}).`, "success");
 
     const result = await apiFetch("/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ environment_id: environmentId, service, action })
+        body: JSON.stringify({ environment_id: environmentId, service, service_ip: serviceIp, action })
     });
 
     if (!result) {
         delete runningActions[actionKey];
         renderContent();
-        appendDebug(environmentId, service, `Sessão expirada durante ${action.toUpperCase()} em ${service}.`, "error");
+        appendDebug(environmentId, service, `Sessão expirada durante ${action.toUpperCase()} em ${service} [${serviceIp || "sem IP"}].`, "error", serviceIp);
         return;
     }
 
     if (!result.response.ok || !result.data.success) {
         delete runningActions[actionKey];
         renderContent();
-        appendDebug(environmentId, service, `Falha na ação ${action.toUpperCase()} em ${service}: ${result.data.error || "erro não informado"}.`, "error");
+        appendDebug(environmentId, service, `Falha na ação ${action.toUpperCase()} em ${service} [${serviceIp || result.data.service_ip || "sem IP"}]: ${result.data.error || "erro não informado"}.`, "error", serviceIp);
         showToast(result.data.error || "Erro ao executar a ação.");
         return;
     }
 
     delete runningActions[actionKey];
-    appendDebug(environmentId, service, `Ação concluída: ${action.toUpperCase()} em ${service} finalizada com sucesso.`, "success");
-    showToast(`Ação ${action} executada para ${service}.`, "success");
+    appendDebug(environmentId, service, `Ação concluída: ${action.toUpperCase()} em ${service} [${result.data.service_ip || serviceIp || "sem IP"}] finalizada com sucesso.`, "success", serviceIp);
+    showToast(`Ação ${action} executada para ${service} (${result.data.service_ip || serviceIp || "sem IP"}).`, "success");
     await loadEnvironmentStatus(environmentId, { force: true });
 }
 
@@ -811,7 +812,8 @@ document.getElementById("content").addEventListener("click", (event) => {
         openDebugModal(
             debugButton.dataset.environmentId,
             debugButton.dataset.debugEnvironmentName,
-            debugButton.dataset.debugServiceName
+            debugButton.dataset.debugServiceName,
+            debugButton.dataset.debugServiceIp || ""
         );
         return;
     }
@@ -821,7 +823,12 @@ document.getElementById("content").addEventListener("click", (event) => {
         return;
     }
 
-    sendAction(button.dataset.environmentId, button.dataset.serviceName, button.dataset.actionType);
+    sendAction(
+        button.dataset.environmentId,
+        button.dataset.serviceName,
+        button.dataset.actionType,
+        button.dataset.serviceIp || ""
+    );
 });
 
 document.getElementById("themeToggle").addEventListener("click", toggleTheme);

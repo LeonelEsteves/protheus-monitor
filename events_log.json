@@ -1,5 +1,26 @@
 [
   {
+    "datetime": "2026-04-13 12:35:14",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 12:34:58",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 12:34:50",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-13 12:32:25",
     "service": "AMBIENTE :: APEX-PRD",
     "action": "UPDATE",

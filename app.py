@@ -1012,6 +1012,7 @@ def action():
     data = request.get_json(silent=True) or {}
     environment_id = data.get("environment_id")
     service = data.get("service")
+    service_ip = (data.get("service_ip") or "").strip()
     action_type = data.get("action")
     user = current_user()
     environment = find_environment(environment_id)
@@ -1029,8 +1030,23 @@ def action():
     if not any(item["name"] == service for item in all_environment_services):
         return jsonify({"success": False, "error": "Serviço não cadastrado para o ambiente."}), 404
 
-    resolved_service = next((item for item in all_environment_services if item.get("name") == service), None) or {}
-    machine = resolve_service_machine(resolved_service.get("service_ip") or environment.get("host"))
+    if service_ip:
+        resolved_service = next(
+            (
+                item
+                for item in all_environment_services
+                if item.get("name") == service and (item.get("service_ip") or "").strip() == service_ip
+            ),
+            None,
+        )
+    else:
+        resolved_service = next((item for item in all_environment_services if item.get("name") == service), None)
+
+    if not resolved_service:
+        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
+
+    resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
+    machine = resolve_service_machine(resolved_host)
 
     try:
         if action_type == "start":
@@ -1044,15 +1060,15 @@ def action():
         else:
             return jsonify({"success": False, "error": "Ação inválida."}), 400
 
-        save_environment_log(environment["name"], environment.get("host"), service, action_type, "SUCCESS", user["username"])
-        return jsonify({"success": True})
+        save_environment_log(environment["name"], resolved_host, service, action_type, "SUCCESS", user["username"])
+        return jsonify({"success": True, "service_ip": resolved_host})
     except Exception as exc:
-        target = f"{environment['name']} [{environment.get('host') or 'local'}] - {service}"
+        target = f"{environment['name']} [{resolved_host or 'local'}] - {service}"
         msg = f"ERRO: {target} - {action_type}"
-        save_environment_log(environment["name"], environment.get("host"), service, action_type, "ERROR", user["username"])
+        save_environment_log(environment["name"], resolved_host, service, action_type, "ERROR", user["username"])
         send_teams(msg)
         send_email(msg)
-        return jsonify({"success": False, "error": str(exc)}), 500
+        return jsonify({"success": False, "error": str(exc), "service_ip": resolved_host}), 500
 
 
 @app.route("/logs")
