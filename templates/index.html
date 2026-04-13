@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -265,12 +265,14 @@ let environmentsData = {{ initial_environments|tojson }}.map((environment) => ({
     status_loaded: false,
     status_loading: false,
 }));
+const currentUser = {{ user|tojson }};
 let activeTab = 0;
 let lastRead = localStorage.getItem("lastRead") || null;
 let allLogs = [];
 let debugEntriesByContext = {};
 let activeDebugContext = null;
 let runningActions = {};
+let actionGuardTimers = {};
 let confirmModalResolver = null;
 let loadingEnvironmentIds = new Set();
 let activeServiceLogContext = null;
@@ -308,9 +310,19 @@ function normalizeFilterText(value) {
         .replace(/[\u0300-\u036f]/g, "");
 }
 
+function isProductionEnvironmentType(value) {
+    return normalizeFilterText(value) === "producao";
+}
+
+function isLicenseService(service) {
+    const nameText = normalizeFilterText(service.name || "");
+    const displayText = normalizeFilterText(service.display_name || "");
+    return nameText.includes("license") || displayText.includes("license");
+}
+
 function getServiceFilters() {
-    const nameFilter = normalizeFilterText(document.getElementById("serviceNameFilter")?.value || "");
-    const statusFilter = String(document.getElementById("serviceStatusFilter")?.value || "").trim().toUpperCase();
+    const nameFilter = normalizeFilterText(document.getElementById("serviceNameFilter").value || "");
+    const statusFilter = String(document.getElementById("serviceStatusFilter").value || "").trim().toUpperCase();
     return { nameFilter, statusFilter };
 }
 
@@ -567,8 +579,21 @@ function isActionRunning(environmentId, service, action, serviceIp = "") {
     return Boolean(runningActions[getActionKey(environmentId, service, action, serviceIp)]);
 }
 
+function clearActionRunningState(actionKey) {
+    if (!actionKey) return;
+    delete runningActions[actionKey];
+    if (actionGuardTimers[actionKey]) {
+        clearTimeout(actionGuardTimers[actionKey]);
+        delete actionGuardTimers[actionKey];
+    }
+    renderContent();
+}
+
 function getNormalizedPriority(priority) {
     const value = String(priority || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (value === "1" || value === "p1" || value === "prioridade 1") return "p1";
+    if (value === "2" || value === "p2" || value === "prioridade 2") return "media";
+    if (value === "3" || value === "p3" || value === "prioridade 3") return "alta";
     if (value === "alta" || value === "high") return "alta";
     if (value === "baixa" || value === "low") return "baixa";
     return "media";
@@ -582,16 +607,76 @@ function isBulkActionRunning(environmentId, action) {
     return Boolean(runningBulkActions[getBulkActionKey(environmentId, action)]);
 }
 
-async function apiFetch(url, options = {}) {
-    const response = await fetch(url, options);
+async function monitorQueuedAction({ jobId, environmentId, service, action, serviceIp, actionKey = "" }) {
+    let attempts = 0;
+    const maxAttempts = 180;
+    try {
+        while (attempts < maxAttempts) {
+            attempts += 1;
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const result = await apiFetch(`/action-job/${encodeURIComponent(jobId)}`);
+            if (!result) {
+                break;
+            }
+            if (!result.response.ok || !result.data.success || !result.data.job) {
+                appendDebug(environmentId, service, `[FILA ${action.toUpperCase()}] Falha ao consultar job ${jobId}.`, "error", serviceIp);
+                break;
+            }
 
-    if (response.status === 401) {
-        window.location.href = "/login";
-        return null;
+            const job = result.data.job;
+            if (job.status === "completed") {
+                appendDebug(environmentId, service, `Ação concluída: ${action.toUpperCase()} em ${service} [${job.service_ip || serviceIp || "sem IP"}].`, "success", serviceIp);
+                break;
+            }
+            if (job.status === "failed") {
+                appendDebug(environmentId, service, `Falha na ação ${action.toUpperCase()} em ${service}: ${job.error || "erro não informado"}.`, "error", serviceIp);
+                break;
+            }
+        }
+        if (attempts >= maxAttempts) {
+            appendDebug(environmentId, service, `[FILA ${action.toUpperCase()}] Tempo limite para acompanhar job ${jobId}.`, "error", serviceIp);
+        }
+    } catch (error) {
+        appendDebug(environmentId, service, `[FILA ${action.toUpperCase()}] Erro ao acompanhar job ${jobId}: ${error.message || "erro desconhecido"}.`, "error", serviceIp);
+    } finally {
+        clearActionRunningState(actionKey);
+        try {
+            await loadEnvironmentStatus(environmentId, { force: true });
+        } catch (error) {
+            appendDebug(environmentId, service, `Falha ao atualizar status após ${action.toUpperCase()}: ${error.message || "erro desconhecido"}.`, "error", serviceIp);
+        }
     }
+}
 
-    const data = await response.json();
-    return { response, data };
+async function apiFetch(url, options = {}) {
+    try {
+        const response = await fetch(url, options);
+
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return null;
+        }
+
+        let data = {};
+        const contentType = response.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (_error) {
+                data = { success: false, error: text || "Resposta inválida do servidor." };
+            }
+        }
+
+        return { response, data };
+    } catch (error) {
+        return {
+            response: { ok: false, status: 0 },
+            data: { success: false, error: error.message || "Falha de comunicação com o servidor." },
+        };
+    }
 }
 
 function getFilteredEnvironments() {
@@ -636,7 +721,7 @@ function environmentHasRegisteredServices(environment) {
 async function refreshLogsBadge() {
     const logsResult = await apiFetch("/logs");
     if (logsResult) {
-        allLogs = logsResult.data;
+        allLogs = Array.isArray(logsResult.data) ? logsResult.data : [];
         updateBadge();
     }
 }
@@ -703,19 +788,20 @@ async function loadEnvironmentStatus(environmentId, { force = false } = {}) {
 
 function updateBadge() {
     const badge = document.getElementById("badge");
+    const safeLogs = Array.isArray(allLogs) ? allLogs : [];
 
-    if (!allLogs.length) {
+    if (!safeLogs.length) {
         badge.classList.add("hidden");
         return;
     }
 
     if (!lastRead) {
-        badge.textContent = allLogs.length;
+        badge.textContent = safeLogs.length;
         badge.classList.remove("hidden");
         return;
     }
 
-    const unread = allLogs.filter((log) => log.datetime > lastRead);
+    const unread = safeLogs.filter((log) => log.datetime > lastRead);
     if (unread.length > 0) {
         badge.textContent = unread.length;
         badge.classList.remove("hidden");
@@ -853,6 +939,7 @@ function renderServiceCard(env, service) {
     const serviceIp = service.service_ip || "";
     const consoleLogFile = service.console_log_file || "";
     const priority = service.priority || "";
+    const blockStopLicenseInProduction = isProductionEnvironmentType(env.environment_type) && currentUser.role !== "admin" && isLicenseService(service);
 
     const metaParts = [];
     if (tcpPort) metaParts.push(`TCP ${escapeHtml(tcpPort)}`);
@@ -861,9 +948,6 @@ function renderServiceCard(env, service) {
     if (serviceIp) metaParts.push(`IP ${escapeHtml(serviceIp)}`);
     if (priority) metaParts.push(`Prioridade ${escapeHtml(priority)}`);
     const metaLine = metaParts.length ? metaParts.join(" • ") : "Portas não informadas";
-    const startRunning = isActionRunning(env.id, service.name, "start", serviceIp);
-    const stopRunning = isActionRunning(env.id, service.name, "stop", serviceIp);
-    const restartRunning = isActionRunning(env.id, service.name, "restart", serviceIp);
     return `
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
@@ -874,9 +958,9 @@ function renderServiceCard(env, service) {
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <button ${startRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${startRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-500 hover:bg-emerald-400"}">${startRunning ? "Iniciando..." : "Start"}</button>
-                <button ${stopRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">${stopRunning ? "Parando..." : "Stop"}</button>
-                <button ${restartRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">${restartRunning ? "Reiniciando..." : "Restart"}</button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">Start</button>
+                <button ${blockStopLicenseInProduction ? "disabled title=\"Somente administrador pode parar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockStopLicenseInProduction ? "cursor-not-allowed bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">Stop</button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-400">Restart</button>
                 <button data-environment-id="${escapeHtml(env.id)}" data-debug-service-name="${escapeHtml(service.name)}" data-debug-service-ip="${escapeHtml(serviceIp)}" data-debug-environment-name="${escapeHtml(env.environment)}" class="service-debug-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Debug</button>
                 <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-600">Console Log</button>
             </div>
@@ -908,61 +992,52 @@ async function triggerBulkAction(environmentId, action) {
         return;
     }
 
-    const services = [...(environment.services || []), ...(environment.infra_services || [])]
-        .filter((service) => String(service.name || "").trim());
-    if (!services.length) {
-        showToast("Não há serviços cadastrados neste ambiente.");
+    runningBulkActions[actionKey] = true;
+    renderContent();
+    const result = await apiFetch("/action-bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ environment_id: environmentId, action }),
+    });
+    if (!result) {
+        delete runningBulkActions[actionKey];
+        renderContent();
+        return;
+    }
+    if (!result.response.ok || !result.data.success || !result.data.job_id) {
+        delete runningBulkActions[actionKey];
+        renderContent();
+        showToast(result.data.error || "Falha ao enfileirar operação em lote.");
         return;
     }
 
-    const prioritySequence = action === "stop"
-        ? ["baixa", "media", "alta"]
-        : ["alta", "media", "baixa"];
-    const orderedServices = [];
-    prioritySequence.forEach((priority) => {
-        services.forEach((service) => {
-            if (getNormalizedPriority(service.priority) === priority) {
-                orderedServices.push(service);
+    appendDebug(environmentId, "__bulk__", `[LOTE ${action.toUpperCase()}] Enfileirado com ${result.data.total_services || 0} serviço(s). Job: ${result.data.job_id}.`, "info");
+    showToast(`Lote ${actionLabel} enfileirado (${result.data.total_services || 0} serviços).`, "success");
+
+    const pollBulkJob = async () => {
+        let attempts = 0;
+        while (attempts < 240) {
+            attempts += 1;
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const jobResult = await apiFetch(`/action-job/${encodeURIComponent(result.data.job_id)}`);
+            if (!jobResult || !jobResult.response.ok || !jobResult.data.success || !jobResult.data.job) {
+                continue;
             }
-        });
-    });
-
-    runningBulkActions[actionKey] = true;
-    renderContent();
-
-    let successCount = 0;
-    let failCount = 0;
-    for (const service of orderedServices) {
-        const serviceName = service.name;
-        const serviceIp = service.service_ip || "";
-        const priority = getNormalizedPriority(service.priority);
-        appendDebug(environmentId, serviceName, `[LOTE ${action.toUpperCase()}] Prioridade ${priority}: iniciando ação em ${serviceName} [${serviceIp || "sem IP"}].`, "info", serviceIp);
-
-        const result = await apiFetch("/action", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ environment_id: environmentId, service: serviceName, service_ip: serviceIp, action }),
-        });
-
-        if (!result) {
-            delete runningBulkActions[actionKey];
-            renderContent();
-            return;
+            const job = jobResult.data.job;
+            if (job.status === "completed") {
+                delete runningBulkActions[actionKey];
+                renderContent();
+                await loadEnvironmentStatus(environmentId, { force: true });
+                const failCount = Number(job.fail_count || 0);
+                showToast(`Lote ${actionLabel}: ${job.success_count || 0} sucesso(s), ${failCount} falha(s).`, failCount ? "error" : "success");
+                if (Array.isArray(job.errors) && job.errors.length) {
+                    job.errors.forEach((message) => appendDebug(environmentId, "__bulk__", `[LOTE ${action.toUpperCase()}] ${message}`, "error"));
+                }
+                break;
+            }
         }
-
-        if (!result.response.ok || !result.data.success) {
-            failCount += 1;
-            appendDebug(environmentId, serviceName, `[LOTE ${action.toUpperCase()}] Falha em ${serviceName}: ${result.data.error || "erro não informado"}.`, "error", serviceIp);
-        } else {
-            successCount += 1;
-            appendDebug(environmentId, serviceName, `[LOTE ${action.toUpperCase()}] Sucesso em ${serviceName}.`, "success", serviceIp);
-        }
-    }
-
-    delete runningBulkActions[actionKey];
-    await loadEnvironmentStatus(environmentId, { force: true });
-    renderContent();
-    showToast(`Lote ${actionLabel}: ${successCount} sucesso(s), ${failCount} falha(s).`, failCount ? "error" : "success");
+    };
+    pollBulkJob();
 }
 
 async function sendAction(environmentId, service, action, serviceIp = "") {
@@ -991,34 +1066,50 @@ async function sendAction(environmentId, service, action, serviceIp = "") {
 
     runningActions[actionKey] = true;
     renderContent();
+    if (actionGuardTimers[actionKey]) {
+        clearTimeout(actionGuardTimers[actionKey]);
+    }
+    actionGuardTimers[actionKey] = setTimeout(async () => {
+        if (!runningActions[actionKey]) return;
+        clearActionRunningState(actionKey);
+        appendDebug(environmentId, service, `[FILA ${action.toUpperCase()}] Timeout local de acompanhamento; liberando botão e recarregando status.`, "error", serviceIp);
+        try {
+            await loadEnvironmentStatus(environmentId, { force: true });
+        } catch (_error) {
+        }
+    }, 240000);
     appendDebug(environmentId, service, `Solicitação iniciada: ${action.toUpperCase()} em ${service} [${serviceIp || "sem IP"}].`, "info", serviceIp);
     showToast(`Ação ${action} iniciada para ${service} (${serviceIp || "sem IP"}).`, "success");
 
     const result = await apiFetch("/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ environment_id: environmentId, service, service_ip: serviceIp, action })
+        body: JSON.stringify({ environment_id: environmentId, service, service_ip: serviceIp, action, async: true })
     });
 
     if (!result) {
-        delete runningActions[actionKey];
-        renderContent();
+        clearActionRunningState(actionKey);
         appendDebug(environmentId, service, `Sessão expirada durante ${action.toUpperCase()} em ${service} [${serviceIp || "sem IP"}].`, "error", serviceIp);
         return;
     }
 
-    if (!result.response.ok || !result.data.success) {
-        delete runningActions[actionKey];
-        renderContent();
+    if (!result.response.ok || !result.data.success || !result.data.job_id) {
+        clearActionRunningState(actionKey);
         appendDebug(environmentId, service, `Falha na ação ${action.toUpperCase()} em ${service} [${serviceIp || result.data.service_ip || "sem IP"}]: ${result.data.error || "erro não informado"}.`, "error", serviceIp);
         showToast(result.data.error || "Erro ao executar a ação.");
         return;
     }
 
-    delete runningActions[actionKey];
-    appendDebug(environmentId, service, `Ação concluída: ${action.toUpperCase()} em ${service} [${result.data.service_ip || serviceIp || "sem IP"}] finalizada com sucesso.`, "success", serviceIp);
-    showToast(`Ação ${action} executada para ${service} (${result.data.service_ip || serviceIp || "sem IP"}).`, "success");
-    await loadEnvironmentStatus(environmentId, { force: true });
+    appendDebug(environmentId, service, `Ação ${action.toUpperCase()} enfileirada (${result.data.job_id}) para ${service} [${serviceIp || "sem IP"}].`, "info", serviceIp);
+    showToast(`Ação ${action} enfileirada para ${service}.`, "success");
+    monitorQueuedAction({
+        jobId: result.data.job_id,
+        environmentId,
+        service,
+        action,
+        serviceIp,
+        actionKey,
+    });
 }
 
 async function toggleLogs() {
@@ -1032,7 +1123,7 @@ async function toggleLogs() {
     const result = await apiFetch("/logs");
     if (!result) return;
 
-    allLogs = result.data;
+    allLogs = Array.isArray(result.data) ? result.data : [];
     const container = document.getElementById("logContent");
     container.innerHTML = "";
 
@@ -1164,3 +1255,4 @@ refreshLogsBadge();
 
 </body>
 </html>
+

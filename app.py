@@ -9,6 +9,9 @@ import smtplib
 import subprocess
 import base64
 import socket
+import time
+import threading
+import uuid
 
 from email.mime.text import MIMEText
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
@@ -72,6 +75,9 @@ DEFAULT_ENVIRONMENTS = [
 
 ALLOWED_ROLES = {"admin", "technical", "operator"}
 SERVICE_PRIORITIES = {"baixa", "media", "alta"}
+ACTION_EXECUTOR = ThreadPoolExecutor(max_workers=12)
+ACTION_JOBS = {}
+ACTION_JOBS_LOCK = threading.Lock()
 
 
 def normalize_username(username):
@@ -740,6 +746,61 @@ def resolve_service_machine(host):
     return host
 
 
+def _is_local_machine_host(host):
+    normalized = (host or "").strip().lower()
+    return normalized in {"", "127.0.0.1", "localhost", ".", "(local)"}
+
+
+def _get_service_pid_via_sc(service_name, host):
+    if not service_name:
+        return 0
+    command = ["sc"]
+    if not _is_local_machine_host(host):
+        command.append(f"\\\\{host}")
+    command.extend(["queryex", service_name])
+    completed = subprocess.run(command, capture_output=True, text=True)
+    output = f"{completed.stdout or ''}\n{completed.stderr or ''}"
+    match = re.search(r"PID\s*:\s*(\d+)", output, flags=re.IGNORECASE)
+    if not match:
+        return 0
+    try:
+        return int(match.group(1))
+    except Exception:
+        return 0
+
+
+def _force_kill_service_process(service_name, host):
+    pid = _get_service_pid_via_sc(service_name, host)
+    if pid <= 0:
+        return False, "PID do serviço não encontrado para forçar parada."
+
+    command = ["taskkill"]
+    if not _is_local_machine_host(host):
+        command.extend(["/S", host])
+    command.extend(["/PID", str(pid), "/F"])
+    completed = subprocess.run(command, capture_output=True, text=True)
+    if completed.returncode != 0:
+        details = (completed.stderr or completed.stdout or "").strip()
+        return False, details or f"Falha ao executar taskkill para PID {pid}."
+    return True, f"Parada forçada executada via taskkill no PID {pid}."
+
+
+def stop_service_with_force(service_name, host, timeout_seconds=8):
+    # Regra solicitada: sempre parar usando taskkill para maior velocidade.
+    killed, details = _force_kill_service_process(service_name, host)
+    if not killed:
+        return {"success": False, "forced": False, "message": f"Falha no taskkill: {details}"}
+
+    deadline = time.time() + max(timeout_seconds, 3)
+    while time.time() < deadline:
+        current_status = get_service_status_for_host(service_name, host)
+        if current_status == "STOPPED":
+            return {"success": True, "forced": True, "message": details}
+        time.sleep(0.5)
+
+    return {"success": False, "forced": True, "message": "Taskkill executado, mas o serviço ainda não está STOPPED."}
+
+
 def find_service_in_environment(environment, service_name, service_ip=""):
     all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
     if service_ip:
@@ -914,6 +975,12 @@ def can_user_access_environment(user, environment):
     return True
 
 
+def is_license_service(service_name="", display_name=""):
+    name_text = (service_name or "").strip().lower()
+    display_text = (display_name or "").strip().lower()
+    return "license" in name_text or "license" in display_text
+
+
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -1020,7 +1087,12 @@ def save_log(service, action, result, user):
             json.dump([], file)
 
     with open(LOG_FILE, "r+", encoding="utf-8") as file:
-        data = json.load(file)
+        try:
+            data = json.load(file)
+            if not isinstance(data, list):
+                data = []
+        except Exception:
+            data = []
         data.insert(0, log)
         file.seek(0)
         json.dump(data[:200], file, indent=2, ensure_ascii=False)
@@ -1110,6 +1182,72 @@ def get_app_version():
     dirty = bool(run_git_command(["status", "--short"]))
     branch = run_git_command(["rev-parse", "--abbrev-ref", "HEAD"]) or "branch-local"
     return f"{branch}@{commit}{'-dirty' if dirty else ''}"
+
+
+def _as_bool(value):
+    if isinstance(value, bool):
+        return value
+    return str(value or "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _set_action_job(job_key, **fields):
+    with ACTION_JOBS_LOCK:
+        current = ACTION_JOBS.get(job_key, {})
+        current.update(fields)
+        ACTION_JOBS[job_key] = current
+
+
+def _run_service_action(environment, resolved_host, service, action_type, username):
+    machine = resolve_service_machine(resolved_host)
+    forced_stop = False
+    if action_type == "start":
+        win32serviceutil.StartService(service, machine=machine)
+    elif action_type == "stop":
+        stop_result = stop_service_with_force(service, resolved_host)
+        if not stop_result.get("success"):
+            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço.")
+        forced_stop = bool(stop_result.get("forced"))
+    elif action_type == "restart":
+        stop_result = stop_service_with_force(service, resolved_host)
+        if not stop_result.get("success"):
+            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço para reinício.")
+        forced_stop = bool(stop_result.get("forced"))
+        win32serviceutil.StartService(service, machine=machine)
+    else:
+        raise ValueError("Ação inválida.")
+
+    result_label = "SUCCESS_FORCED" if forced_stop else "SUCCESS"
+    save_environment_log(environment["name"], resolved_host, service, action_type, result_label, username)
+    return {"success": True, "service_ip": resolved_host, "forced_stop": forced_stop}
+
+
+def _normalize_bulk_priority(value):
+    normalized = (value or "").strip().lower()
+    normalized = normalized.replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
+    if normalized in {"1", "p1", "prioridade 1"}:
+        return "p1"
+    if normalized in {"2", "p2", "prioridade 2", "media", "medio", "medium"}:
+        return "media"
+    if normalized in {"3", "p3", "prioridade 3", "alta", "high"}:
+        return "alta"
+    if normalized in {"baixa", "low"}:
+        return "baixa"
+    return "media"
+
+
+def _build_bulk_ordered_services(environment, action_type):
+    services = [item for item in (environment.get("services", []) + environment.get("infra_services", [])) if item.get("name")]
+    if action_type == "start":
+        sequence = ["alta", "media"]
+    else:
+        sequence = ["p1", "baixa", "media", "alta"]
+
+    ordered = []
+    for priority in sequence:
+        for service in services:
+            if _normalize_bulk_priority(service.get("priority")) == priority:
+                ordered.append(service)
+    return ordered
 
 
 def send_teams(message):
@@ -1291,6 +1429,7 @@ def action():
     service = data.get("service")
     service_ip = (data.get("service_ip") or "").strip()
     action_type = data.get("action")
+    async_requested = _as_bool(data.get("async"))
     user = current_user()
     environment = find_environment(environment_id)
 
@@ -1313,22 +1452,62 @@ def action():
         return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
 
     resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
-    machine = resolve_service_machine(resolved_host)
+    if action_type not in {"start", "stop", "restart"}:
+        return jsonify({"success": False, "error": "Ação inválida."}), 400
+
+    if (
+        action_type == "stop"
+        and user.get("role") != "admin"
+        and (environment.get("environment_type") or infer_environment_type(environment.get("name"))) == "producao"
+        and is_license_service(service, resolved_service.get("display_name"))
+    ):
+        return jsonify({"success": False, "error": "Somente administrador pode parar o serviço de license em produção."}), 403
+
+    if async_requested:
+        job_id = uuid.uuid4().hex
+        _set_action_job(
+            job_id,
+            job_id=job_id,
+            status="queued",
+            created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            environment_id=environment_id,
+            environment=environment["name"],
+            service=service,
+            service_ip=resolved_host,
+            action=action_type,
+            requested_by=user["username"],
+        )
+
+        def _worker():
+            _set_action_job(job_id, status="running", started_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            try:
+                result = _run_service_action(environment, resolved_host, service, action_type, user["username"])
+                _set_action_job(
+                    job_id,
+                    status="completed",
+                    success=True,
+                    forced_stop=bool(result.get("forced_stop")),
+                    finished_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                )
+            except Exception as exc:
+                target = f"{environment['name']} [{resolved_host or 'local'}] - {service}"
+                msg = f"ERRO: {target} - {action_type}"
+                save_environment_log(environment["name"], resolved_host, service, action_type, "ERROR", user["username"])
+                send_teams(msg)
+                send_email(msg)
+                _set_action_job(
+                    job_id,
+                    status="failed",
+                    success=False,
+                    error=str(exc),
+                    finished_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                )
+
+        ACTION_EXECUTOR.submit(_worker)
+        return jsonify({"success": True, "queued": True, "job_id": job_id, "service_ip": resolved_host})
 
     try:
-        if action_type == "start":
-            win32serviceutil.StartService(service, machine=machine)
-        elif action_type == "stop":
-            win32serviceutil.StopService(service, machine=machine)
-        elif action_type == "restart":
-            win32serviceutil.StopService(service, machine=machine)
-            win32serviceutil.WaitForServiceStatus(service, win32service.SERVICE_STOPPED, 30, machine=machine)
-            win32serviceutil.StartService(service, machine=machine)
-        else:
-            return jsonify({"success": False, "error": "Ação inválida."}), 400
-
-        save_environment_log(environment["name"], resolved_host, service, action_type, "SUCCESS", user["username"])
-        return jsonify({"success": True, "service_ip": resolved_host})
+        return jsonify(_run_service_action(environment, resolved_host, service, action_type, user["username"]))
     except Exception as exc:
         target = f"{environment['name']} [{resolved_host or 'local'}] - {service}"
         msg = f"ERRO: {target} - {action_type}"
@@ -1336,6 +1515,98 @@ def action():
         send_teams(msg)
         send_email(msg)
         return jsonify({"success": False, "error": str(exc), "service_ip": resolved_host}), 500
+
+
+@app.route("/action-job/<job_id>")
+@login_required
+def action_job(job_id):
+    user = current_user()
+    with ACTION_JOBS_LOCK:
+        job = dict(ACTION_JOBS.get(job_id) or {})
+
+    if not job:
+        return jsonify({"success": False, "error": "Ação não encontrada."}), 404
+
+    if job.get("requested_by") != user.get("username") and user.get("role") != "admin":
+        return jsonify({"success": False, "error": "Acesso negado."}), 403
+
+    return jsonify({"success": True, "job": job})
+
+
+@app.route("/action-bulk", methods=["POST"])
+@login_required
+def action_bulk():
+    data = request.get_json(silent=True) or {}
+    environment_id = data.get("environment_id")
+    action_type = data.get("action")
+    user = current_user()
+    environment = find_environment(environment_id)
+
+    if not environment_id or action_type not in {"start", "stop"}:
+        return jsonify({"success": False, "error": "Ambiente e ação (start/stop) são obrigatórios."}), 400
+
+    if not environment:
+        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+
+    if not can_user_access_environment(user, environment):
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
+
+    ordered_services = _build_bulk_ordered_services(environment, action_type)
+    if action_type == "stop" and user.get("role") != "admin" and (environment.get("environment_type") or infer_environment_type(environment.get("name"))) == "producao":
+        ordered_services = [
+            service for service in ordered_services
+            if not is_license_service(service.get("name"), service.get("display_name"))
+        ]
+
+    if not ordered_services:
+        return jsonify({"success": False, "error": "Nenhum serviço elegível para execução em lote."}), 400
+
+    job_id = uuid.uuid4().hex
+    _set_action_job(
+        job_id,
+        job_id=job_id,
+        status="queued",
+        created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        environment_id=environment_id,
+        environment=environment["name"],
+        action=action_type,
+        requested_by=user["username"],
+        total_services=len(ordered_services),
+        success_count=0,
+        fail_count=0,
+    )
+
+    def _bulk_worker():
+        _set_action_job(job_id, status="running", started_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        success_count = 0
+        fail_count = 0
+        errors = []
+
+        for service in ordered_services:
+            service_name = service.get("name")
+            resolved_host = (service.get("service_ip") or environment.get("host") or "").strip()
+            try:
+                _run_service_action(environment, resolved_host, service_name, action_type, user["username"])
+                success_count += 1
+            except Exception as exc:
+                fail_count += 1
+                if len(errors) < 20:
+                    errors.append(f"{service_name}: {str(exc)}")
+
+            _set_action_job(job_id, success_count=success_count, fail_count=fail_count)
+
+        _set_action_job(
+            job_id,
+            status="completed",
+            success=fail_count == 0,
+            success_count=success_count,
+            fail_count=fail_count,
+            errors=errors,
+            finished_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        )
+
+    ACTION_EXECUTOR.submit(_bulk_worker)
+    return jsonify({"success": True, "queued": True, "job_id": job_id, "total_services": len(ordered_services)})
 
 
 @app.route("/service-console-log", methods=["POST"])
@@ -1397,8 +1668,14 @@ def logs():
     if not os.path.exists(LOG_FILE):
         return jsonify([])
 
-    with open(LOG_FILE, "r", encoding="utf-8") as file:
-        return jsonify(json.load(file))
+    try:
+        with open(LOG_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+            if isinstance(data, list):
+                return jsonify(data)
+    except Exception:
+        pass
+    return jsonify([])
 
 
 @app.route("/users")

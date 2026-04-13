@@ -149,7 +149,7 @@
         "rest_port": "",
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_SCHED.log",
-        "priority": "media"
+        "priority": "baixa"
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WF",
@@ -160,7 +160,7 @@
         "rest_port": "",
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_WF.log",
-        "priority": "media"
+        "priority": "baixa"
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS",
@@ -171,7 +171,7 @@
         "rest_port": "",
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_WS.log",
-        "priority": "media"
+        "priority": "baixa"
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS-TAF",
@@ -182,7 +182,7 @@
         "rest_port": "8085",
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_TAF.log",
-        "priority": "media"
+        "priority": "baixa"
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS2",
@@ -193,7 +193,7 @@
         "rest_port": "9103",
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_WS2.log",
-        "priority": "media"
+        "priority": "baixa"
       }
     ],
     "infra_services": [

@@ -53,3 +53,9 @@ Este repositÃ³rio Ã© um app **Flask** (Windows) para **monitorar e controlar ser
 - Gestão de usuários: permitir edição e exclusão de usuário (com confirmação e regras de segurança, sem autoexclusão).
 - Consulta de status deve tentar fallback por Display Name e aliases para serviços de license quando o Name não resolve.
 - Monitor por ambiente deve oferecer ações em lote (Iniciar todos/Parar todos) com confirmação prévia e ordem por prioridade.
+- Ação de parada/reinício deve tentar parada graciosa e, se exceder timeout, forçar parada (taskkill) antes de retornar erro.
+- Em iniciar em lote: executar somente serviços de prioridade alta e média (não iniciar baixa).
+- Parada de serviço deve priorizar taskkill imediato para acelerar stop/restart em ambientes com lentidão.
+- Regra operacional: parada de serviços (stop/restart) deve usar taskkill sempre, sem fallback para StopService.
+- Em start em lote: iniciar apenas prioridades alta e média; ignorar prioridade 1.
+- Ações de start/stop/restart devem suportar execução assíncrona em fila com acompanhamento por job para reduzir latência da UI.
