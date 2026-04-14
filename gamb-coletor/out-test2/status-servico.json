@@ -1,0 +1,11 @@
+﻿{
+    "server_name":  "SRVAPEX173",
+    "server_ip":  "10.85.0.173",
+    "service_name":  "Spooler",
+    "display_name":  "Print Spooler",
+    "install_folder":  null,
+    "status_atual":  "PARADO",
+    "status_anterior":  "PARADO",
+    "evento":  "SEM_ALTERACAO",
+    "timestamp":  "2026-04-14 15:02:57"
+}

@@ -59,3 +59,4 @@ Este repositÃ³rio Ã© um app **Flask** (Windows) para **monitorar e controlar ser
 - Regra operacional: parada de serviços (stop/restart) deve usar taskkill sempre, sem fallback para StopService.
 - Em start em lote: iniciar apenas prioridades alta e média; ignorar prioridade 1.
 - Ações de start/stop/restart devem suportar execução assíncrona em fila com acompanhamento por job para reduzir latência da UI.
+- Coletor gamb-coletor: so regravar status-servico.json quando houver mudanca real nos dados coletados; sem mudanca, manter arquivo inalterado.

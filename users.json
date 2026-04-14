@@ -26,5 +26,12 @@
     "role": "technical",
     "active": true,
     "created_at": "2026-04-13 19:18:16"
+  },
+  {
+    "username": "chrys",
+    "password_hash": "scrypt:32768:8:1$OoHJ1HfAU7Qn4nUt$7ac5626d2a5bc6d07786ddbc123fc05c5645ace15720df5174abad5353b0bfa54d9e251851d57d069a5c7669674e3098fff417aa67fce4213d66970db52554f0",
+    "role": "technical",
+    "active": true,
+    "created_at": "2026-04-14 11:23:01"
   }
 ]
