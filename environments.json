@@ -626,7 +626,7 @@
     "host": "10.10.1.197",
     "app_url": "https://webprotheus.apexbrasil.com.br/webapp/",
     "rest_url": "https://api90.apexbrasil.com.br/rest",
-    "erp_version": "",
+    "erp_version": "Protheus 12.1.2410",
     "database_update_date": "2026-04-13",
     "services": [
       {
@@ -652,72 +652,6 @@
         "priority": "media"
       },
       {
-        "name": "TOTVS-Appserver12-PRD-PAYTRACK-SLV05",
-        "display_name": ".15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 05 | PAYTRACK",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv05\\appserver.exe",
-        "tcp_port": "13005",
-        "webapp_port": "",
-        "rest_port": "9108",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE05.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-PRD-PAYTRACK-SLV06",
-        "display_name": ".15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 06 | SMART VIEW",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv06\\appserver.exe",
-        "tcp_port": "13006",
-        "webapp_port": "",
-        "rest_port": "9109",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE06.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-PRD-REST-SLV01",
-        "display_name": ".11 TOTVS | Microsiga Protheus 12 PRD - REST Slave 01",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv01\\appserver.exe",
-        "tcp_port": "13001",
-        "webapp_port": "",
-        "rest_port": "9104",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE01.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-PRD-REST-SLV02",
-        "display_name": ".12 TOTVS | Microsiga Protheus 12 PRD - REST Slave 02",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv02\\appserver.exe",
-        "tcp_port": "13002",
-        "webapp_port": "",
-        "rest_port": "9105",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE02.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-PRD-REST-SLV03",
-        "display_name": ".13 TOTVS | Microsiga Protheus 12 PRD - REST Slave 03",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv03\\appserver.exe",
-        "tcp_port": "13003",
-        "webapp_port": "",
-        "rest_port": "9106",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE03.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-PRD-REST-SLV04",
-        "display_name": ".14 TOTVS | Microsiga Protheus 12 PRD - REST Slave 04 | TAF-FULL",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv04\\appserver.exe",
-        "tcp_port": "13004",
-        "webapp_port": "",
-        "rest_port": "9107",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE04.log",
-        "priority": "media"
-      },
-      {
         "name": "TOTVS-Appserver12-PRD-SCHED",
         "display_name": ".21 TOTVS | Microsiga Protheus 12 PRD - Schedule",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched\\appserver.exe",
@@ -726,6 +660,50 @@
         "rest_port": "",
         "service_ip": "10.10.1.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_SCHED.log",
+        "priority": "media"
+      },
+      {
+        "name": "TOTVS-Appserver12-PRD-WS",
+        "display_name": ".22 TOTVS | Microsiga Protheus 12 PRD - Web Service",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
+        "tcp_port": "12040",
+        "webapp_port": "",
+        "rest_port": "",
+        "service_ip": "10.10.1.197",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WS.log",
+        "priority": "media"
+      },
+      {
+        "name": "TOTVS-Appserver12-PRD-WF",
+        "display_name": ".23 TOTVS | Microsiga Protheus 12 PRD - Workflow",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
+        "tcp_port": "12050",
+        "webapp_port": "",
+        "rest_port": "",
+        "service_ip": "10.10.1.197",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WF.log",
+        "priority": "media"
+      },
+      {
+        "name": "TOTVS-Appserver12-PRD-WS-TAF",
+        "display_name": ".24 TOTVS | Microsiga Protheus 12 PRD - WS TAF",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
+        "tcp_port": "19001",
+        "webapp_port": "",
+        "rest_port": "8085",
+        "service_ip": "10.10.1.197",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_TAF.log",
+        "priority": "media"
+      },
+      {
+        "name": "TOTVS-Appserver12-PRD-WS2",
+        "display_name": ".25 TOTVS | Microsiga Protheus 12 PRD - HUB Cielo",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws2\\appserver.exe",
+        "tcp_port": "12041",
+        "webapp_port": "",
+        "rest_port": "9103",
+        "service_ip": "10.10.1.197",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WS2.log",
         "priority": "media"
       },
       {
@@ -784,47 +762,69 @@
         "priority": "media"
       },
       {
-        "name": "TOTVS-Appserver12-PRD-WF",
-        "display_name": ".23 TOTVS | Microsiga Protheus 12 PRD - Workflow",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_wf\\appserver.exe",
-        "tcp_port": "12050",
+        "name": "TOTVS-Appserver12-PRD-REST-SLV01",
+        "display_name": ".11 TOTVS | Microsiga Protheus 12 PRD - REST Slave 01",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv01\\appserver.exe",
+        "tcp_port": "13001",
         "webapp_port": "",
-        "rest_port": "",
-        "service_ip": "10.10.1.197",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WF.log",
+        "rest_port": "9104",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE01.log",
         "priority": "media"
       },
       {
-        "name": "TOTVS-Appserver12-PRD-WS",
-        "display_name": ".22 TOTVS | Microsiga Protheus 12 PRD - Web Service",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws\\appserver.exe",
-        "tcp_port": "12040",
+        "name": "TOTVS-Appserver12-PRD-REST-SLV02",
+        "display_name": ".12 TOTVS | Microsiga Protheus 12 PRD - REST Slave 02",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv02\\appserver.exe",
+        "tcp_port": "13002",
         "webapp_port": "",
-        "rest_port": "",
-        "service_ip": "10.10.1.197",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WS.log",
+        "rest_port": "9105",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE02.log",
         "priority": "media"
       },
       {
-        "name": "TOTVS-Appserver12-PRD-WS-TAF",
-        "display_name": ".24 TOTVS | Microsiga Protheus 12 PRD - WS TAF",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
-        "tcp_port": "19001",
+        "name": "TOTVS-Appserver12-PRD-REST-SLV03",
+        "display_name": ".13 TOTVS | Microsiga Protheus 12 PRD - REST Slave 03",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv03\\appserver.exe",
+        "tcp_port": "13003",
         "webapp_port": "",
-        "rest_port": "8085",
-        "service_ip": "10.10.1.197",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_TAF.log",
+        "rest_port": "9106",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE03.log",
         "priority": "media"
       },
       {
-        "name": "TOTVS-Appserver12-PRD-WS2",
-        "display_name": ".25 TOTVS | Microsiga Protheus 12 PRD - HUB Cielo",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws2\\appserver.exe",
-        "tcp_port": "12041",
+        "name": "TOTVS-Appserver12-PRD-REST-SLV04",
+        "display_name": ".14 TOTVS | Microsiga Protheus 12 PRD - REST Slave 04 | TAF-FULL",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv04\\appserver.exe",
+        "tcp_port": "13004",
         "webapp_port": "",
-        "rest_port": "9103",
-        "service_ip": "10.10.1.197",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WS2.log",
+        "rest_port": "9107",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE04.log",
+        "priority": "media"
+      },
+      {
+        "name": "TOTVS-Appserver12-PRD-PAYTRACK-SLV05",
+        "display_name": ".15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 05 | PAYTRACK",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv05\\appserver.exe",
+        "tcp_port": "13005",
+        "webapp_port": "",
+        "rest_port": "9108",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE05.log",
+        "priority": "media"
+      },
+      {
+        "name": "TOTVS-Appserver12-PRD-PAYTRACK-SLV06",
+        "display_name": ".15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 06 | SMART VIEW",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_slv06\\appserver.exe",
+        "tcp_port": "13006",
+        "webapp_port": "",
+        "rest_port": "9109",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE06.log",
         "priority": "media"
       }
     ],
@@ -839,28 +839,6 @@
         "service_ip": "10.10.1.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_BAL.log",
         "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-P241-PRD-REST-MASTER",
-        "display_name": ".10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_master\\appserver.exe",
-        "tcp_port": "",
-        "webapp_port": "",
-        "rest_port": "",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_Master.log",
-        "priority": "media"
-      },
-      {
-        "name": "licenseVirtual",
-        "display_name": "TOTVS | License Server Virtual",
-        "path_executable": "C:\\TOTVS\\TOTVSLicenseVirtual\\bin\\appserver\\appserver.exe",
-        "tcp_port": "2234",
-        "webapp_port": "8020",
-        "rest_port": "",
-        "service_ip": "10.10.1.67",
-        "console_log_file": "",
-        "priority": "alta"
       },
       {
         "name": "TOTVSDBAccess64",
@@ -883,6 +861,28 @@
         "service_ip": "10.10.1.198",
         "console_log_file": "",
         "priority": "alta"
+      },
+      {
+        "name": "licenseVirtual",
+        "display_name": "TOTVS | License Server Virtual",
+        "path_executable": "C:\\TOTVS\\TOTVSLicenseVirtual\\bin\\appserver\\appserver.exe",
+        "tcp_port": "2234",
+        "webapp_port": "8020",
+        "rest_port": "",
+        "service_ip": "10.10.1.67",
+        "console_log_file": "",
+        "priority": "alta"
+      },
+      {
+        "name": "TOTVS-Appserver12-P241-PRD-REST-MASTER",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_master\\appserver.exe",
+        "tcp_port": "",
+        "webapp_port": "",
+        "rest_port": "",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_Master.log",
+        "priority": "media"
       }
     ]
   }

@@ -1011,19 +1011,34 @@ function renderContent() {
                 <span class="rounded-full px-3 py-1 text-xs font-semibold ${environmentType.badgeClass}">${environmentType.label}</span>
             </div>
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <div><span class="font-semibold text-slate-900">IP:</span> ${escapeHtml(env.host || "local")}</div>
-                <div><span class="font-semibold text-slate-900">ERP:</span> ${escapeHtml(env.erp_version || "Não informado")}</div>
-                <div><span class="font-semibold text-slate-900">Base atualizada:</span> ${escapeHtml(env.database_update_date || "Não informado")}</div>
-                ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline underline-offset-2">Acessar aplicação</a>` : ""}
-                ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-cyan-700 underline underline-offset-2">Acessar serviço REST</a>` : ""}
+                <div class="inline-flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 11-8 11s-8-5-8-11a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span><span class="font-semibold text-slate-900">IP:</span> ${escapeHtml(env.host || "local")}</span>
+                </div>
+                <div class="inline-flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><path d="M8 4v16"/></svg>
+                    <span><span class="font-semibold text-slate-900">Versão ERP:</span> ${escapeHtml(env.erp_version || "Não informado")}</span>
+                </div>
+                <div class="inline-flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
+                    <span><span class="font-semibold text-slate-900">Atualização do banco de dados do ambiente:</span> ${escapeHtml(env.database_update_date || "Não informado")}</span>
+                </div>
+                ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold text-blue-600 underline underline-offset-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg><span>Acessar aplicação</span></a>` : ""}
+                ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold text-cyan-700 underline underline-offset-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8"/><path d="M12 8v8"/><circle cx="12" cy="12" r="9"/></svg><span>Acessar serviço REST</span></a>` : ""}
             </div>
             <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
                 <span class="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Em execução: ${serviceSummary.runningCount}</span>
                 <span class="rounded-full bg-rose-100 px-3 py-1 text-rose-700">Parados: ${serviceSummary.stoppedCount}</span>
             </div>
             <div class="mt-3 flex flex-wrap gap-2">
-                <button ${bulkStartRunning ? "disabled" : ""} data-bulk-action="start" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStartRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-600 hover:bg-emerald-500"}">${bulkStartRunning ? "Iniciando lote..." : "Iniciar todos"}</button>
-                <button ${bulkStopRunning ? "disabled" : ""} data-bulk-action="stop" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStopRunning ? "cursor-wait bg-rose-300" : "bg-rose-600 hover:bg-rose-500"}">${bulkStopRunning ? "Parando lote..." : "Parar todos"}</button>
+                <button ${bulkStartRunning ? "disabled" : ""} data-bulk-action="start" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStartRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-600 hover:bg-emerald-500"}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l10.5-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z"/></svg>
+                    <span>${bulkStartRunning ? "Iniciando lote..." : "Iniciar todos"}</span>
+                </button>
+                <button ${bulkStopRunning ? "disabled" : ""} data-bulk-action="stop" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStopRunning ? "cursor-wait bg-rose-300" : "bg-rose-600 hover:bg-rose-500"}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
+                    <span>${bulkStopRunning ? "Parando lote..." : "Parar todos"}</span>
+                </button>
             </div>
         </div>
     `;
@@ -1099,26 +1114,41 @@ function renderServiceCard(env, service) {
     const blockLicenseControlInProduction = isProductionEnvironmentType(env.environment_type) && currentUser.role !== "admin" && isLicenseService(service);
 
     const metaParts = [];
-    if (tcpPort) metaParts.push(`TCP ${escapeHtml(tcpPort)}`);
-    if (webappPort) metaParts.push(`WebApp ${escapeHtml(webappPort)}`);
-    if (restPort) metaParts.push(`REST ${escapeHtml(restPort)}`);
-    if (serviceIp) metaParts.push(`IP ${escapeHtml(serviceIp)}`);
-    if (priority) metaParts.push(`Prioridade ${escapeHtml(priority)}`);
-    const metaLine = metaParts.length ? metaParts.join(" • ") : "Portas não informadas";
+    if (tcpPort) metaParts.push(`<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3v18"/></svg><span>TCP ${escapeHtml(tcpPort)}</span></span>`);
+    if (webappPort) metaParts.push(`<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8"/></svg><span>WebApp ${escapeHtml(webappPort)}</span></span>`);
+    if (restPort) metaParts.push(`<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8"/><path d="M12 8v8"/><circle cx="12" cy="12" r="9"/></svg><span>REST ${escapeHtml(restPort)}</span></span>`);
+    if (serviceIp) metaParts.push(`<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 11-8 11s-8-5-8-11a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>IP ${escapeHtml(serviceIp)}</span></span>`);
+    if (priority) metaParts.push(`<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="m5 10 7-7 7 7"/><path d="m5 14 7 7 7-7"/></svg><span>Prioridade ${escapeHtml(priority)}</span></span>`);
+    const metaLine = metaParts.length ? metaParts.join('<span class="text-slate-400">•</span>') : '<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span>Portas não informadas</span></span>';
     return `
         <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <div class="font-semibold text-slate-900">${escapeHtml(displayName)}</div>
-                <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">${metaLine}</div>
-                ${consoleLogFile ? `<div class="mt-1 text-xs text-slate-500">Log: ${escapeHtml(consoleLogFile)}</div>` : ""}
-                <div class="${getColor(service.status)} mt-2 text-sm font-semibold">${escapeHtml(service.status)}</div>
+                <div class="inline-flex items-center gap-2 font-semibold text-slate-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h6"/></svg>
+                    <span>${escapeHtml(displayName)}</span>
+                </div>
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.2em] text-slate-500">${metaLine}</div>
+                ${consoleLogFile ? `<div class="mt-1 inline-flex items-center gap-2 text-xs text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6"/><path d="M18 20v-10"/><path d="M6 20V10"/><path d="M3 20h18"/></svg><span>Log: ${escapeHtml(consoleLogFile)}</span></div>` : ""}
+                <div class="${getColor(service.status)} mt-2 inline-flex items-center gap-2 text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg><span>${escapeHtml(service.status)}</span></div>
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <button data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">Start</button>
-                <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode parar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">Stop</button>
-                <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode reiniciar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">Restart</button>
-                <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Console Log</button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l10.5-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z"/></svg>
+                    <span>Start</span>
+                </button>
+                <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode parar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
+                    <span>Stop</span>
+                </button>
+                <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode reiniciar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                    <span>Restart</span>
+                </button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6"/><path d="M18 20v-10"/><path d="M6 20V10"/><path d="M3 20h18"/></svg>
+                    <span>Console Log</span>
+                </button>
             </div>
         </div>
     `;

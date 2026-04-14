@@ -292,16 +292,28 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     <div class="grid gap-6 xl:grid-cols-[280px_1fr]">
         <aside class="surface-sidebar rounded-3xl bg-white p-5 shadow-sm">
             <div class="space-y-2">
-                <button onclick="setAdminTab('security')" id="tab-security" class="w-full rounded-2xl button-highlight-primary px-4 py-3 text-left text-sm font-semibold">Segurança</button>
-                <button onclick="setAdminTab('users')" id="tab-users" class="w-full rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">Usuários</button>
-                <button onclick="setAdminTab('environments')" id="tab-environments" class="w-full rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">Ambientes</button>
+                <button onclick="setAdminTab('security')" id="tab-security" class="inline-flex w-full items-center gap-2 rounded-2xl button-highlight-primary px-4 py-3 text-left text-sm font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/><path d="M9.5 12.5l1.5 1.5 3.5-4"/></svg>
+                    <span>Segurança</span>
+                </button>
+                <button onclick="setAdminTab('users')" id="tab-users" class="inline-flex w-full items-center gap-2 rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Usuários</span>
+                </button>
+                <button onclick="setAdminTab('environments')" id="tab-environments" class="inline-flex w-full items-center gap-2 rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/><path d="M15 13h1"/><path d="M15 17h1"/></svg>
+                    <span>Ambientes</span>
+                </button>
             </div>
         </aside>
 
         <main class="space-y-6">
             <section id="panel-security" class="surface-panel rounded-3xl bg-white p-6 shadow-sm">
                 <div class="mb-4">
-                    <h2 class="text-2xl font-semibold">Segurança</h2>
+                    <h2 class="inline-flex items-center gap-2 text-2xl font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/><path d="M9.5 12.5l1.5 1.5 3.5-4"/></svg>
+                        <span>Segurança</span>
+                    </h2>
                     <p class="text-sm text-slate-500">Dados do administrador autenticado nesta sessão.</p>
                 </div>
 
@@ -319,7 +331,10 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
 
             <section id="panel-users" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
                 <div class="mb-4">
-                    <h2 class="text-2xl font-semibold">Gerenciamento de usuários</h2>
+                    <h2 class="inline-flex items-center gap-2 text-2xl font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Gerenciamento de usuários</span>
+                    </h2>
                     <p class="text-sm text-slate-500">Crie usuários, altere perfis, redefina senhas e controle acessos.</p>
                 </div>
 
@@ -365,7 +380,10 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
 
             <section id="panel-environments" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
                 <div class="mb-4">
-                    <h2 class="text-2xl font-semibold">Cadastro de ambientes</h2>
+                    <h2 class="inline-flex items-center gap-2 text-2xl font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/><path d="M15 13h1"/><path d="M15 17h1"/></svg>
+                        <span>Cadastro de ambientes</span>
+                    </h2>
                     <p class="text-sm text-slate-500">Veja primeiro todos os ambientes cadastrados e abra o formulário só quando precisar criar ou editar.</p>
                 </div>
 
@@ -545,11 +563,11 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
             </div>
             <div class="grid gap-3 md:grid-cols-2">
                 <label class="space-y-1 text-sm">
-                    <span class="font-medium text-slate-700">Versão do ERP</span>
+                    <span class="font-medium text-slate-700">Versão ERP</span>
                     <input id="environmentErpVersion" placeholder="Ex.: 12.1.2410" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
                 </label>
                 <label class="space-y-1 text-sm">
-                    <span class="font-medium text-slate-700">Data da atualização da base</span>
+                    <span class="font-medium text-slate-700">Atualização do banco de dados do ambiente</span>
                     <input id="environmentDatabaseUpdateDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
                     <p id="environmentDatabaseUpdateHint" class="mt-1 text-xs text-slate-500">Informe manualmente a data da atualização da base.</p>
                 </label>
@@ -1577,8 +1595,8 @@ async function loadEnvironmentAdmin() {
                             <span class="rounded-full px-3 py-1 text-xs font-semibold ${environmentType.badgeClass}">${environmentType.label}</span>
                         </div>
                         <div class="mt-1 text-sm text-slate-500">IP: ${escapeHtml(environment.host)}</div>
-                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">ERP:</span> ${escapeHtml(environment.erp_version || "Não informado")}</div>
-                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Base atualizada em:</span> ${escapeHtml(environment.database_update_date || "Não informado")}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Versão ERP:</span> ${escapeHtml(environment.erp_version || "Não informado")}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Atualização do banco de dados do ambiente:</span> ${escapeHtml(environment.database_update_date || "Não informado")}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Aplicação:</span> ${appLinkLabel}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">REST:</span> ${restLinkLabel}</div>
                         <div class="mt-2 text-sm text-slate-600"><span class="font-semibold">Serviços cadastrados:</span> ${totalServicesCount}</div>
