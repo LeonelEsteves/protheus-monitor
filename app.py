@@ -2594,17 +2594,6 @@ def get_servers():
     return jsonify({"success": True, "servers": servers, "raw": ", ".join(servers)})
 
 
-@app.route("/servers", methods=["PUT"])
-@admin_required
-def update_servers():
-    data = request.get_json(silent=True) or request.form
-    raw_servers = data.get("servers", "")
-    servers = normalize_server_list(raw_servers)
-    save_servers(servers)
-    save_log("SERVERS", "UPDATE", "SUCCESS", current_user()["username"])
-    return jsonify({"success": True, "servers": servers, "raw": ", ".join(servers)})
-
-
 @app.route("/servers/inventory", methods=["GET"])
 @admin_required
 def get_servers_inventory():

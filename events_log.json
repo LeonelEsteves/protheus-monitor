@@ -1,5 +1,40 @@
 [
   {
+    "datetime": "2026-04-14 18:27:51",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:27:15",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:26:45",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:26:36",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:25:11",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:25:08",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:24:22",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:24:14",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:22:46",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:22:23",
+    "user": "system"
+  },
+  {
     "datetime": "2026-04-14 18:19:55",
     "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
     "action": "COLLECTOR_HEALTH",
@@ -1361,41 +1396,6 @@
     "datetime": "2026-04-13 20:44:44",
     "service": "SERVICO :: APEX-HML5 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.177",
     "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:44:44",
-    "service": "AMBIENTE :: APEX-HML5",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:44:31",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.176",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:44:31",
-    "service": "AMBIENTE :: APEX-HML4",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:44:16",
-    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.173",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:44:16",
-    "service": "AMBIENTE :: APEX-HML3",
-    "action": "UPDATE",
     "result": "SUCCESS",
     "user": "admin"
   }
