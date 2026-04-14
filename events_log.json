@@ -1,5 +1,929 @@
 [
   {
+    "datetime": "2026-04-14 17:22:59",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:22:27",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:22:15",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:22:15",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:22:09",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-14 17:21:39)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:20:28",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:20:27",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:20:18",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-14 17:19:47)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:19:42",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:19:35",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:19:12",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-14 17:14:42)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:00:42",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:35",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-WS2",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:32",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-WS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:21",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:21",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-WF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:07",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML3 - Web Service :: 10.10.1.173",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:07",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo :: 10.10.1.173",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:07",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML3 - Workflow :: 10.10.1.173",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:06",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML3 - Schedule :: 10.10.1.173",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:06",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.85.0.173",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:06",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: TOTVS | License Server Virtual :: LOCALHOST",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 17:00:06",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:58:26",
+    "service": "APEX-HML3 (LOCALHOST) :: licenseVirtual",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:57:54",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:57:42",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:56:47",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-WS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:56:11",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:55:14",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:54:35",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:54:22",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:54:09",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:53:44",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:51:03",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:49:05",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:48:42",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:48:16",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:46:10",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:45:57",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:45:35",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:45:24",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:39:23",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:35:14",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:33:44",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:59",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:23",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML3 :: 10.10.1.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:23",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML3 - Web Service :: 10.10.1.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:23",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo :: 10.10.1.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:23",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML3 - Workflow :: 10.10.1.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:23",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML3 - Schedule :: 10.10.1.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:23",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML3 - REST :: 10.10.1.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:22",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:22",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:22",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: TOTVS | License Server Virtual :: LOCALHOST",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:30:22",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:29:19",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:26:32",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML3 :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML3 - Web Service :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML3 - Workflow :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML3 - Schedule :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML3 - REST :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: TOTVS | License Server Virtual :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:20:25",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .22 TOTVS | Microsiga Protheus 12 PRD - Web Service :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .25 TOTVS | Microsiga Protheus 12 PRD - HUB Cielo :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .24 TOTVS | Microsiga Protheus 12 PRD - WS TAF :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .23 TOTVS | Microsiga Protheus 12 PRD - Workflow :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 PRD - Slave 05 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 PRD - Slave 04 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 PRD - Slave 03 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .02 TOTVS | Microsiga Protheus 12 PRD - Slave 02 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .01 TOTVS | Microsiga Protheus 12 PRD - Slave 01 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .21 TOTVS | Microsiga Protheus 12 PRD - Schedule :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .14 TOTVS | Microsiga Protheus 12 PRD - REST Slave 04 | TAF-FULL :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .13 TOTVS | Microsiga Protheus 12 PRD - REST Slave 03 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .12 TOTVS | Microsiga Protheus 12 PRD - REST Slave 02 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .11 TOTVS | Microsiga Protheus 12 PRD - REST Slave 01 :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 06 | SMART VIEW :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 05 | PAYTRACK :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .12 TOTVS | Microsiga Protheus 12 PRD - Padrao :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .11 TOTVS | Microsiga Protheus 12 PRD - Compila‡ao :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.198",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.198",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Infra :: .10 TOTVS | Microsiga Protheus 12 PRD - Balance Master :: 10.10.1.197",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Infra :: .10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker :: 10.10.1.90",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "SERVICO :: APEX-PRD :: Infra :: TOTVS | License Server Virtual :: 10.10.1.67",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:58",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:54",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML5 :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML5 - Web Service :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML5 - WS TAF :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML5 - Workflow :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML5 - Schedule :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML5 - REST :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.177",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:53",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML4 :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML4 - SMARTVIEW :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML4 - Web Service :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML4 - WS TAF :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML4 - Workflow :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML4 - Schedule :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML4 - REST :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.176",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:50",
+    "service": "AMBIENTE :: APEX-HML4",
+    "action": "DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML2 :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML2 - Web Service :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML2 - HUB Cielo :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML2 - WS TAF :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML2 - Workflow :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML2 - Schedule :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML2 - REST :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML2-NGF :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .10 TOTVS | Microsiga Protheus 12 APEX-HML2-FISC :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.172",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:47",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML1 - Web Service :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML1 - HUB Cielo :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML1 - WS TAF :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML1 - Workflow :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML1 - Schedule :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 16:19:43",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-14 12:34:11",
     "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
     "action": "stop",
@@ -473,811 +1397,6 @@
     "service": "SERVICO :: APEX-PRD :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 PRD - Slave 05 :: 10.10.1.90",
     "action": "SERVICE_CREATE",
     "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 PRD - Slave 04 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 PRD - Slave 03 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .02 TOTVS | Microsiga Protheus 12 PRD - Slave 02 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .01 TOTVS | Microsiga Protheus 12 PRD - Slave 01 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .21 TOTVS | Microsiga Protheus 12 PRD - Schedule :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .14 TOTVS | Microsiga Protheus 12 PRD - REST Slave 04 | TAF-FULL :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .13 TOTVS | Microsiga Protheus 12 PRD - REST Slave 03 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .12 TOTVS | Microsiga Protheus 12 PRD - REST Slave 02 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .11 TOTVS | Microsiga Protheus 12 PRD - REST Slave 01 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 06 | SMART VIEW :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 05 | PAYTRACK :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .12 TOTVS | Microsiga Protheus 12 PRD - Padrao :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .11 TOTVS | Microsiga Protheus 12 PRD - Compila‡ao :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .10 TOTVS | Microsiga Protheus 12 PRD - Balance Master :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.198",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.198",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "SERVICO :: APEX-PRD :: Infra :: TOTVS | License Server Virtual :: 10.10.1.67",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:25",
-    "service": "AMBIENTE :: APEX-PRD",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:14",
-    "service": "DISCOVER",
-    "action": "AUTO_DISCOVER",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: TOTVS :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: TOTVS :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .22 TOTVS | Microsiga Protheus 12 PRD - Web Service :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .25 TOTVS | Microsiga Protheus 12 PRD - HUB Cielo :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .24 TOTVS | Microsiga Protheus 12 PRD - WS TAF :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .23 TOTVS | Microsiga Protheus 12 PRD - Workflow :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 PRD - Slave 05 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 PRD - Slave 04 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 PRD - Slave 03 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .02 TOTVS | Microsiga Protheus 12 PRD - Slave 02 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .01 TOTVS | Microsiga Protheus 12 PRD - Slave 01 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .21 TOTVS | Microsiga Protheus 12 PRD - Schedule :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .14 TOTVS | Microsiga Protheus 12 PRD - REST Slave 04 | TAF-FULL :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .13 TOTVS | Microsiga Protheus 12 PRD - REST Slave 03 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .12 TOTVS | Microsiga Protheus 12 PRD - REST Slave 02 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .11 TOTVS | Microsiga Protheus 12 PRD - REST Slave 01 :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 06 | SMART VIEW :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .15 TOTVS | Microsiga Protheus 12 PRD - REST Slave 05 | PAYTRACK :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .12 TOTVS | Microsiga Protheus 12 PRD - Padrao :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .11 TOTVS | Microsiga Protheus 12 PRD - Compila‡ao :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .10 TOTVS | Microsiga Protheus 12 PRD - Balance Master :: 10.10.1.197",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker :: 10.10.1.90",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.198",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.198",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "SERVICO :: APEX-PRD :: Infra :: TOTVS | License Server Virtual :: 10.10.1.67",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:47:47",
-    "service": "AMBIENTE :: APEX-PRD",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:38:05",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML5 - Web Service :: 10.10.1.177",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:38:05",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML5 - WS TAF :: 10.10.1.177",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:38:05",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML5 - Workflow :: 10.10.1.177",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:38:05",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML5 - Schedule :: 10.10.1.177",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:38:05",
-    "service": "AMBIENTE :: APEX-HML5",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:37",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML5 :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:37",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML5 - Web Service :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:36",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML5 - WS TAF :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:36",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML5 - Workflow :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:36",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML5 - Schedule :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:36",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML5 - REST :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:36",
-    "service": "SERVICO :: APEX-HML5 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:36",
-    "service": "SERVICO :: APEX-HML5 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.177",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:36",
-    "service": "AMBIENTE :: APEX-HML5",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:32",
-    "service": "DISCOVER",
-    "action": "AUTO_DISCOVER",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: TOTVS-Appserver12-APEX-HML5 :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: TOTVS-Appserver12-APEX-HML5-WS :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: TOTVS-Appserver12-APEX-HML5-WS-TAF :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: TOTVS-Appserver12-APEX-HML5-WF :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: TOTVS-Appserver12-APEX-HML5-SCHED :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: TOTVS-Appserver12-APEX-HML5-REST :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Infra :: TOTVSDBAccess64 :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "SERVICO :: APEX-HML5 :: Infra :: TOTVSDBAccess64TSS :: 10.10.1.177",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:36:22",
-    "service": "AMBIENTE :: APEX-HML5",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:26",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML4 :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:26",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML4 - SMARTVIEW :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:26",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML4 - Web Service :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:26",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML4 - WS TAF :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:26",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML4 - Workflow :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:26",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML4 - Schedule :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:25",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML4 - REST :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:25",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:25",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:25",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:25",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.176",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:35:25",
-    "service": "AMBIENTE :: APEX-HML4",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:19",
-    "service": "DISCOVER",
-    "action": "AUTO_DISCOVER",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: TOTVS-Appserver12-APEX-HML4 :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: TOTVS-Appserver12-APEX-HML4_SVW :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: TOTVS-Appserver12-APEX-HML4-WS :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: TOTVS-Appserver12-APEX-HML4-WS-TAF :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: TOTVS-Appserver12-APEX-HML4-WF :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: TOTVS-Appserver12-APEX-HML4-SCHED :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: TOTVS-Appserver12-APEX-HML4-REST :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: TOTVSDBAccess64 :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: TOTVSDBAccess64TSS :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: TOTVS-Appserver12-P2410-HML1-BROKER :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "SERVICO :: APEX-HML4 :: Infra :: TOTVS-Appserver12-P2410-HML1-BROKER_REST :: 10.10.1.176",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:33:06",
-    "service": "AMBIENTE :: APEX-HML4",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:31:02",
-    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML3 - Web Service :: 10.10.1.173",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:31:02",
-    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo :: 10.10.1.173",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:31:02",
-    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML3 - Workflow :: 10.10.1.173",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:31:01",
-    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML3 - Schedule :: 10.10.1.173",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:31:01",
-    "service": "AMBIENTE :: APEX-HML3",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:29:09",
-    "service": "APEX-HML2 (10.10.1.172) :: TOTVSDBAccess64",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:29:07",
-    "service": "APEX-HML2 (10.10.1.172) :: TOTVS-Appserver12-APEX-HML2",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:27:54",
-    "service": "APEX-HML2 (10.10.1.172) :: TOTVS-Appserver12-APEX-HML2-REST",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML2 - Web Service :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML2 - HUB Cielo :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML2 - WS TAF :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML2 - Workflow :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML2 - Schedule :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML2 - REST :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML2-NGF :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .10 TOTVS | Microsiga Protheus 12 APEX-HML2-FISC :: 10.10.1.172",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:25:30",
-    "service": "AMBIENTE :: APEX-HML2",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:21:58",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-WF",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:13:13",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-WF",
-    "action": "start",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:01:53",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1",
-    "action": "restart",
-    "result": "SUCCESS_FORCED",
     "user": "admin"
   }
 ]

@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+﻿from concurrent.futures import ThreadPoolExecutor
 from collections import deque
 from datetime import date, datetime
 from functools import wraps
@@ -95,6 +95,16 @@ ENVIRONMENT_STATUS_CACHE_LOCK = threading.Lock()
 SERVER_INVENTORY_CACHE = {}
 SERVER_INVENTORY_CACHE_LOCK = threading.Lock()
 SERVER_INVENTORY_CACHE_TTL_SECONDS = 300
+COLLECTOR_STATUS_PATH = r"C:\gamb-coletor\status-servico.json"
+COLLECTOR_DATA_CACHE = {}
+COLLECTOR_DATA_CACHE_LOCK = threading.Lock()
+COLLECTOR_DATA_CACHE_TTL_SECONDS = 15
+COLLECTOR_STALE_SECONDS = 90
+COLLECTOR_HEALTH_STATE = {}
+COLLECTOR_HEALTH_STATE_LOCK = threading.Lock()
+LOCAL_IP_CACHE = {"generated_at": 0.0, "values": {"127.0.0.1"}}
+LOCAL_IP_CACHE_LOCK = threading.Lock()
+LOCAL_IP_CACHE_TTL_SECONDS = 60
 
 _FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
 GAMB_BEHIND_PROXY = os.getenv("GAMB_BEHIND_PROXY", "0").strip() == "1"
@@ -143,7 +153,7 @@ def normalize_service_priority(value):
         "baixa": "baixa",
         "low": "baixa",
         "media": "media",
-        "média": "media",
+        "mÃ©dia": "media",
         "medium": "media",
         "alta": "alta",
         "high": "alta",
@@ -153,7 +163,7 @@ def normalize_service_priority(value):
 
 def infer_environment_type(name):
     normalized = (name or "").strip().lower()
-    if any(token in normalized for token in ["prd", "prod", "producao", "produção"]):
+    if any(token in normalized for token in ["prd", "prod", "producao", "produÃ§Ã£o"]):
         return "producao"
     if any(token in normalized for token in ["hml", "homolog", "qa", "teste"]):
         return "homologacao"
@@ -164,10 +174,10 @@ def normalize_environment_type(value, fallback_name=""):
     normalized = (value or "").strip().lower()
     mapping = {
         "producao": "producao",
-        "produção": "producao",
+        "produÃ§Ã£o": "producao",
         "prod": "producao",
         "homologacao": "homologacao",
-        "homologação": "homologacao",
+        "homologaÃ§Ã£o": "homologacao",
         "hml": "homologacao",
         "desenvolvimento": "desenvolvimento",
         "dev": "desenvolvimento",
@@ -442,7 +452,7 @@ def parse_appserver_ini(text):
         return {}
 
     def extract_section_value(section_name, key_name):
-        # Busca robusta por seção+chave sem depender de parser INI estrito
+        # Busca robusta por seÃ§Ã£o+chave sem depender de parser INI estrito
         section_pattern = re.compile(
             rf"(?ims)^\s*\[{re.escape(section_name)}\]\s*$" rf"(.*?)(?=^\s*\[.*?\]\s*$|\Z)"
         )
@@ -513,7 +523,7 @@ def run_powershell(script):
 def build_remote_targets(hosts):
     normalized_hosts = [host.strip() for host in (hosts or []) if is_valid_remote_host(host)]
     if not normalized_hosts:
-        return [], ["Nenhum host válido informado."]
+        return [], ["Nenhum host vÃ¡lido informado."]
 
     targets = []
     step_logs = []
@@ -527,14 +537,14 @@ def build_remote_targets(hosts):
         if connect != host:
             step_logs.append(f"[{host}] Hostname resolvido automaticamente para {connect}.")
         else:
-            step_logs.append(f"[{host}] Usando destino de conexão {connect}.")
+            step_logs.append(f"[{host}] Usando destino de conexÃ£o {connect}.")
     return targets, step_logs
 
 
 def get_winrm_troubleshooting_hint(server, raw_error):
     if "TrustedHosts" in raw_error and "WinRM" in raw_error and "IP address" in raw_error:
         return (
-            "Use hostname (não IP) se possível, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
+            "Use hostname (nÃ£o IP) se possÃ­vel, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
             f"(ex.: `Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value \"{server}\" -Concatenate -Force`) "
             "e garanta que o WinRM/PSRemoting esteja habilitado no destino (ex.: `Enable-PSRemoting -Force`)."
         )
@@ -604,7 +614,7 @@ def build_server_alerts_payload(force_refresh=False):
                     "server_name": server_name,
                     "server_ip": server_ip,
                     "type": "updates",
-                    "message": f"{server_name or server_ip} possui {int(item.get('pending_update_count') or 0)} atualização(ões) pendente(s).",
+                    "message": f"{server_name or server_ip} possui {int(item.get('pending_update_count') or 0)} atualizaÃ§Ã£o(Ãµes) pendente(s).",
                 }
             )
 
@@ -625,7 +635,7 @@ def build_server_alerts_payload(force_refresh=False):
                         "type": "disk",
                         "drive": drive_name,
                         "free_percent": free_percent,
-                        "message": f"{server_name or server_ip} está com {free_percent:.2f}% livre no disco {drive_name}.",
+                        "message": f"{server_name or server_ip} estÃ¡ com {free_percent:.2f}% livre no disco {drive_name}.",
                     }
                 )
 
@@ -718,7 +728,7 @@ function Get-ServerInventoryByWmi($computerName) {{
         last_windows_update = $lastUpdateDate
         has_pending_updates = $null
         pending_update_count = $null
-        pending_updates_error = 'Não foi possível verificar atualizações pendentes sem acesso remoto via WinRM.'
+        pending_updates_error = 'NÃ£o foi possÃ­vel verificar atualizaÃ§Ãµes pendentes sem acesso remoto via WinRM.'
         last_restart = $lastRestart
         collection_method = 'WMI'
     }}
@@ -856,7 +866,7 @@ if ($results.Count -eq 0) {{
 
     raw = (stdout or "").strip()
     if not raw:
-        step_logs.append("Execução concluída sem retorno dos servidores.")
+        step_logs.append("ExecuÃ§Ã£o concluÃ­da sem retorno dos servidores.")
         return {"success": True, "items": [], "steps": step_logs, "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
     try:
@@ -864,7 +874,7 @@ if ($results.Count -eq 0) {{
     except Exception:
         return {
             "success": False,
-            "error": "Não foi possível interpretar o retorno do inventário de servidores.",
+            "error": "NÃ£o foi possÃ­vel interpretar o retorno do inventÃ¡rio de servidores.",
             "details": raw[:5000],
             "items": [],
             "steps": step_logs,
@@ -889,7 +899,7 @@ if ($results.Count -eq 0) {{
             if isinstance(tried_hosts, str):
                 tried_hosts = [tried_hosts]
             tried_hosts = [str(item).strip() for item in tried_hosts if str(item).strip()]
-            step_logs.append(f"[{server}] Falha ao consultar inventário: {raw_error}")
+            step_logs.append(f"[{server}] Falha ao consultar inventÃ¡rio: {raw_error}")
             items.append(
                 {
                     "server": server,
@@ -954,11 +964,11 @@ if ($results.Count -eq 0) {{
         }
         items.append(item)
         step_logs.append(
-            f"[{server}] Inventário carregado: dispositivo {item['device_name']}, {len(normalized_disks)} disco(s), "
-            f"última atualização {item['last_windows_update'] or 'não informada'}."
+            f"[{server}] InventÃ¡rio carregado: dispositivo {item['device_name']}, {len(normalized_disks)} disco(s), "
+            f"Ãºltima atualizaÃ§Ã£o {item['last_windows_update'] or 'nÃ£o informada'}."
         )
         if item["collection_method"] == "WMI" and item["fallback_reason"]:
-            step_logs.append(f"[{server}] Coleta obtida via fallback WMI após falha WinRM: {item['fallback_reason']}")
+            step_logs.append(f"[{server}] Coleta obtida via fallback WMI apÃ³s falha WinRM: {item['fallback_reason']}")
 
     return {
         "success": True,
@@ -972,10 +982,10 @@ if ($results.Count -eq 0) {{
 def discover_services_on_hosts(hosts, credential=None):
     normalized_hosts = [host.strip() for host in (hosts or []) if is_valid_remote_host(host)]
     if not normalized_hosts:
-        return [], {"error": "Nenhum host válido informado."}
+        return [], {"error": "Nenhum host vÃ¡lido informado."}
 
-    # Descoberta via PowerShell Remoting (Invoke-Command). Usa as credenciais do usuário que está executando o app.
-    # Se WinRM não estiver habilitado nos servidores, retornará erro.
+    # Descoberta via PowerShell Remoting (Invoke-Command). Usa as credenciais do usuÃ¡rio que estÃ¡ executando o app.
+    # Se WinRM nÃ£o estiver habilitado nos servidores, retornarÃ¡ erro.
     targets = []
     step_logs = []
     for host in normalized_hosts:
@@ -988,12 +998,75 @@ def discover_services_on_hosts(hosts, credential=None):
         if connect != host:
             step_logs.append(f"[{host}] Hostname resolvido automaticamente para {connect}.")
         else:
-            step_logs.append(f"[{host}] Usando destino de conexão {connect}.")
+            step_logs.append(f"[{host}] Usando destino de conexÃ£o {connect}.")
+
+    discovered = []
+    discovered_keys = set()
+    errors = []
+    remote_targets = []
+
+    for target in targets:
+        source_host = (target.get("input") or "").strip()
+        connect_host = (target.get("connect") or "").strip()
+        collector_payload = load_collector_status_for_host(connect_host or source_host, use_cache=False)
+        collector_services = (collector_payload.get("services_by_name") or {})
+        if collector_services:
+            step_logs.append(f"[{source_host}] Descoberta via gamb-coletor (status-servico.json).")
+            for service in collector_services.values():
+                name = (service.get("name") or "").strip()
+                if not name:
+                    continue
+                path_executable = (service.get("path_executable") or "").strip()
+                if not path_executable:
+                    step_logs.append(f"[{source_host}] ServiÃ§o ignorado sem path_executable no JSON do coletor: {name}.")
+                    continue
+
+                service_ip = (service.get("service_ip") or source_host).strip()
+                row = {
+                    "name": name,
+                    "display_name": (service.get("display_name") or "").strip(),
+                    "service_ip": service_ip,
+                    "path_executable": path_executable,
+                    "tcp_port": service.get("tcp_port", ""),
+                    "webapp_port": service.get("webapp_port", ""),
+                    "rest_port": service.get("rest_port", ""),
+                    "console_log_file": service.get("console_log_file", ""),
+                    "priority": "media",
+                    "_meta": {
+                        "source": "collector_json",
+                        "host": source_host,
+                        "connect_host": connect_host,
+                        "service_state": (service.get("status") or "").upper(),
+                    },
+                }
+                key = (_normalize_service_lookup_key(row["service_ip"]), _normalize_service_lookup_key(row["name"]))
+                if key in discovered_keys:
+                    continue
+                discovered_keys.add(key)
+                discovered.append(row)
+        else:
+            errors.append(
+                {
+                    "server": source_host,
+                    "error": "Arquivo do gamb-coletor nao encontrado, vazio ou sem servicos validos.",
+                    "hint": "Garanta que o coletor esteja executando no servidor e atualizando C:\\gamb-coletor\\status-servico.json.",
+                }
+            )
+            step_logs.append(f"[{source_host}] Falha: status-servico.json indisponivel no gamb-coletor.")
+
+    if discovered:
+        step_logs.append("Descoberta concluida usando exclusivamente dados do gamb-coletor.")
+    else:
+        step_logs.append("Nenhum servico TOTVS elegivel foi encontrado no gamb-coletor dos hosts informados.")
+    payload = {"steps": step_logs}
+    if errors:
+        payload["errors"] = errors
+    return discovered, payload
 
     targets_literal = ",".join(
         [
             "@{ input='" + item["input"].replace("'", "''") + "'; connect='" + item["connect"].replace("'", "''") + "' }"
-            for item in targets
+            for item in remote_targets
         ]
     )
 
@@ -1028,7 +1101,7 @@ foreach ($t in $targets) {{
         $invokeParams = @{{
             ComputerName = $connectHost
             ScriptBlock  = {{
-            # Serviços TOTVS por DisplayName OU Name (contains), excluindo desabilitados.
+            # ServiÃ§os TOTVS por DisplayName OU Name (contains), excluindo desabilitados.
             $cimServices = Get-CimInstance Win32_Service | Where-Object {{
                 $nameText = ([string]$_.Name).ToLowerInvariant()
                 $displayText = ([string]$_.DisplayName).ToLowerInvariant()
@@ -1052,7 +1125,7 @@ foreach ($t in $targets) {{
                         $any = $all | Select-Object -First 1
                         if ($any) {{ return $any.FullName }}
                     }} catch {{
-                        # Ignorar erros de permissão/pastas inacessíveis
+                        # Ignorar erros de permissÃ£o/pastas inacessÃ­veis
                     }}
                 }}
 
@@ -1154,27 +1227,25 @@ if ($results.Count -eq 0) {{
 
     code, stdout, stderr = run_powershell(script)
     if code != 0:
-        step_logs.append("Execução do script de descoberta finalizada com erro no PowerShell.")
+        step_logs.append("ExecuÃ§Ã£o do script de descoberta finalizada com erro no PowerShell.")
         return [], {"error": (stderr or stdout or "Falha ao executar PowerShell.").strip(), "steps": step_logs}
 
     raw = (stdout or "").strip()
     if not raw:
-        # Em alguns cenários o PowerShell pode não emitir saída mesmo com execução bem-sucedida.
-        # Tratamos como "nenhum serviço encontrado" para não quebrar o fluxo da busca automática.
-        step_logs.append("Execução concluída sem saída do script remoto.")
+        # Em alguns cenÃ¡rios o PowerShell pode nÃ£o emitir saÃ­da mesmo com execuÃ§Ã£o bem-sucedida.
+        # Tratamos como "nenhum serviÃ§o encontrado" para nÃ£o quebrar o fluxo da busca automÃ¡tica.
+        step_logs.append("ExecuÃ§Ã£o concluÃ­da sem saÃ­da do script remoto.")
         return [], {"errors": [], "steps": step_logs}
 
     try:
         data = json.loads(raw)
     except Exception:
-        step_logs.append("Falha ao interpretar saída JSON da descoberta.")
-        return [], {"error": "Não foi possível interpretar o retorno da descoberta.", "details": raw[:5000], "steps": step_logs}
+        step_logs.append("Falha ao interpretar saÃ­da JSON da descoberta.")
+        return [], {"error": "NÃ£o foi possÃ­vel interpretar o retorno da descoberta.", "details": raw[:5000], "steps": step_logs}
 
     if isinstance(data, dict):
         data = [data]
 
-    discovered = []
-    errors = []
     for row in data:
         if not isinstance(row, dict):
             continue
@@ -1184,7 +1255,7 @@ if ($results.Count -eq 0) {{
             if "TrustedHosts" in raw_error and "WinRM" in raw_error and "IP address" in raw_error:
                 server = (row.get("server") or "").strip()
                 hint = (
-                    "Use hostname (não IP) se possível, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
+                    "Use hostname (nÃ£o IP) se possÃ­vel, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
                     f"(ex.: `Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value \"{server}\" -Concatenate -Force`) "
                     "e garanta que o WinRM/PSRemoting esteja habilitado no destino (ex.: `Enable-PSRemoting -Force`)."
                 )
@@ -1199,7 +1270,7 @@ if ($results.Count -eq 0) {{
             exe_path = (row.get("exe_path") or "").strip()
             reason = str(row.get("skip_reason") or "Skipped").strip()
             step_logs.append(
-                f"[{server}] Serviço ignorado ({reason}): {service_name}. Executável informado: {exe_path or '-'}."
+                f"[{server}] ServiÃ§o ignorado ({reason}): {service_name}. ExecutÃ¡vel informado: {exe_path or '-'}."
             )
             continue
 
@@ -1208,7 +1279,7 @@ if ($results.Count -eq 0) {{
         start_mode = str(row.get("start_mode") or "").strip()
         if start_mode.lower() == "disabled":
             step_logs.append(
-                f"[{row.get('server')}] Serviço ignorado por startup type desabilitado: {(row.get('service_name') or '').strip()}."
+                f"[{row.get('server')}] ServiÃ§o ignorado por startup type desabilitado: {(row.get('service_name') or '').strip()}."
             )
             continue
         if ini_b64:
@@ -1226,17 +1297,17 @@ if ($results.Count -eq 0) {{
         exe_dir = (row.get("exe_dir") or "").strip()
         service_state = (row.get("service_state") or "").strip()
         normalized_state = service_state.upper()
-        running_label = "SIM" if normalized_state == "RUNNING" else "NÃO"
+        running_label = "SIM" if normalized_state in {"RUNNING", "RODANDO"} else "NÃƒO"
 
-        step_logs.append(f"[{server}] Serviço detectado: {service_name}.")
+        step_logs.append(f"[{server}] ServiÃ§o detectado: {service_name}.")
         if exe_path:
-            step_logs.append(f"[{server}] Executável: {exe_path}")
+            step_logs.append(f"[{server}] ExecutÃ¡vel: {exe_path}")
         if exe_dir:
-            step_logs.append(f"[{server}] Pasta do serviço: {exe_dir}")
+            step_logs.append(f"[{server}] Pasta do serviÃ§o: {exe_dir}")
         if ini_path:
             step_logs.append(f"[{server}] appserver.ini localizado: {ini_path}")
         else:
-            step_logs.append(f"[{server}] appserver.ini não localizado para {service_name}.")
+            step_logs.append(f"[{server}] appserver.ini nÃ£o localizado para {service_name}.")
 
         step_logs.append(
             f"[{server}] Campos lidos para {service_name}: TCP={ini_payload.get('tcp_port', '') or '-'}, "
@@ -1244,43 +1315,47 @@ if ($results.Count -eq 0) {{
             f"ConsoleFile={ini_payload.get('console_log_file', '') or '-'}."
         )
         step_logs.append(
-            f"[{server}] Status atual do serviço {service_name}: {normalized_state or 'UNKNOWN'} (Rodando: {running_label})."
+            f"[{server}] Status atual do serviÃ§o {service_name}: {normalized_state or 'UNKNOWN'} (Rodando: {running_label})."
         )
 
         if not exe_path:
-            step_logs.append(f"[{server}] Serviço ignorado: {service_name} sem path executable válido.")
+            step_logs.append(f"[{server}] ServiÃ§o ignorado: {service_name} sem path executable vÃ¡lido.")
             continue
 
-        discovered.append(
-            {
-                "name": service_name,
-                "display_name": (row.get("display_name") or "").strip(),
-                "service_ip": server,
-                "path_executable": exe_path,
-                "tcp_port": ini_payload.get("tcp_port", ""),
-                "webapp_port": ini_payload.get("webapp_port", ""),
-                "rest_port": ini_payload.get("rest_port", ""),
-                "console_log_file": ini_payload.get("console_log_file", ""),
-                "priority": "media",
-                "_meta": {
-                    "display_name": row.get("display_name"),
-                    "path_name": row.get("path_name"),
-                    "exe_path": row.get("exe_path"),
-                    "exe_dir": row.get("exe_dir"),
-                    "ini_path": row.get("ini_path"),
-                    "host": row.get("host"),
-                    "service_state": normalized_state or service_state,
-                },
-            }
-        )
+        row_data = {
+            "name": service_name,
+            "display_name": (row.get("display_name") or "").strip(),
+            "service_ip": server,
+            "path_executable": exe_path,
+            "tcp_port": ini_payload.get("tcp_port", ""),
+            "webapp_port": ini_payload.get("webapp_port", ""),
+            "rest_port": ini_payload.get("rest_port", ""),
+            "console_log_file": ini_payload.get("console_log_file", ""),
+            "priority": "media",
+            "_meta": {
+                "display_name": row.get("display_name"),
+                "path_name": row.get("path_name"),
+                "exe_path": row.get("exe_path"),
+                "exe_dir": row.get("exe_dir"),
+                "ini_path": row.get("ini_path"),
+                "host": row.get("host"),
+                "service_state": normalized_state or service_state,
+                "source": "winrm",
+            },
+        }
+        key = (_normalize_service_lookup_key(row_data["service_ip"]), _normalize_service_lookup_key(row_data["name"]))
+        if key in discovered_keys:
+            continue
+        discovered_keys.add(key)
+        discovered.append(row_data)
 
     if not discovered and not errors:
-        step_logs.append("Nenhum serviço TOTVS elegível foi encontrado nos hosts informados.")
+        step_logs.append("Nenhum serviÃ§o TOTVS elegÃ­vel foi encontrado nos hosts informados.")
     elif discovered:
-        step_logs.append("Resumo final de execução (serviço está rodando?):")
+        step_logs.append("Resumo final de execuÃ§Ã£o (serviÃ§o estÃ¡ rodando?):")
         for item in discovered:
             meta_state = str((item.get("_meta") or {}).get("service_state") or "").upper()
-            running_label = "SIM" if meta_state == "RUNNING" else "NÃO"
+            running_label = "SIM" if meta_state in {"RUNNING", "RODANDO"} else "NÃƒO"
             step_logs.append(
                 f"[{item.get('service_ip')}] {item.get('name')}: {meta_state or 'UNKNOWN'} (Rodando: {running_label})."
             )
@@ -1301,6 +1376,158 @@ def build_status_service(service, host):
 
 def _normalize_service_lookup_key(value):
     return (value or "").strip().lower()
+
+
+def map_collector_status(status_text):
+    return str(status_text or "").strip().upper() or "UNKNOWN"
+
+
+def parse_collector_status_payload(payload):
+    server_info = {}
+    services = []
+    if isinstance(payload, dict):
+        server_info = payload.get("server") if isinstance(payload.get("server"), dict) else {}
+        if isinstance(payload.get("services"), list):
+            services = payload.get("services") or []
+        elif payload.get("service_name") or payload.get("name"):
+            services = [payload]
+    elif isinstance(payload, list):
+        services = payload
+
+    by_name = {}
+    for raw_service in services:
+        if not isinstance(raw_service, dict):
+            continue
+        service_name = (raw_service.get("service_name") or raw_service.get("name") or "").strip()
+        if not service_name:
+            continue
+        normalized = {
+            "name": service_name,
+            "display_name": (raw_service.get("display_name") or "").strip(),
+            "path_executable": (raw_service.get("path_executable") or raw_service.get("install_folder") or "").strip(),
+            "tcp_port": normalize_port(raw_service.get("tcp_port")),
+            "webapp_port": normalize_port(raw_service.get("webapp_port")),
+            "rest_port": normalize_port(raw_service.get("rest_port")),
+            "service_ip": (raw_service.get("service_ip") or "").strip(),
+            "console_log_file": (raw_service.get("console_log_file") or raw_service.get("console_log") or "").strip(),
+            "sourcepath": (raw_service.get("sourcepath") or "").strip(),
+            "rpocustom": (raw_service.get("rpocustom") or "").strip(),
+            "status": map_collector_status(raw_service.get("status_atual") or raw_service.get("status")),
+        }
+        by_name[_normalize_service_lookup_key(service_name)] = normalized
+
+    server = {
+        "server_name": (server_info.get("server_name") or "").strip(),
+        "server_ip": (server_info.get("server_ip") or "").strip(),
+        "os_version": (server_info.get("os_version") or "").strip(),
+        "os_build": (server_info.get("os_build") or "").strip(),
+        "disk_space": (server_info.get("disk_space") or "").strip(),
+        "disk_total_gb": server_info.get("disk_total_gb"),
+        "disk_free_gb": server_info.get("disk_free_gb"),
+        "windows_updates_pending": server_info.get("windows_updates_pending"),
+        "timestamp": (server_info.get("timestamp") or "").strip(),
+    }
+    return {"server": server, "services_by_name": by_name}
+
+
+def _parse_collector_timestamp(timestamp_text):
+    text = str(timestamp_text or "").strip()
+    if not text:
+        return None
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"):
+        try:
+            return datetime.strptime(text, fmt)
+        except Exception:
+            continue
+    return None
+
+
+def is_collector_stale(collector_server):
+    timestamp_text = str((collector_server or {}).get("timestamp") or "").strip()
+    collector_dt = _parse_collector_timestamp(timestamp_text)
+    if collector_dt is None:
+        return True
+    age_seconds = (datetime.now() - collector_dt).total_seconds()
+    return age_seconds > COLLECTOR_STALE_SECONDS
+
+
+def register_collector_health_event(environment, collector_server):
+    host = str((environment or {}).get("host") or "").strip() or "local"
+    server_ip = str((collector_server or {}).get("server_ip") or "").strip()
+    timestamp_text = str((collector_server or {}).get("timestamp") or "").strip()
+    is_stale = is_collector_stale(collector_server)
+
+    current_state = "PARADO" if is_stale else "RODANDO"
+    state_key = _normalize_service_lookup_key(server_ip or host) or host.lower()
+
+    with COLLECTOR_HEALTH_STATE_LOCK:
+        previous_state = COLLECTOR_HEALTH_STATE.get(state_key)
+        if previous_state == current_state:
+            return
+        COLLECTOR_HEALTH_STATE[state_key] = current_state
+
+    environment_name = str((environment or {}).get("name") or "").strip() or host
+    target = f"COLETOR :: {environment_name} ({server_ip or host})"
+    if current_state == "PARADO":
+        if timestamp_text:
+            result = f"PARADO - sem sincronizacao recente (ultima: {timestamp_text})"
+        else:
+            result = "PARADO - timestamp indisponivel no gamb-coletor"
+    else:
+        result = f"RODANDO - sincronizado em {timestamp_text}"
+    save_log(target, "COLLECTOR_HEALTH", result, "system")
+
+
+def _collector_status_candidate_hosts(host):
+    normalized_host = (host or "").strip()
+    if not normalized_host:
+        return []
+    candidates = [normalized_host]
+    if is_ipv4_address(normalized_host):
+        resolved = resolve_hostname_for_ip(normalized_host)
+        if resolved and resolved not in candidates:
+            candidates.insert(0, resolved)
+    return candidates
+
+
+def load_collector_status_for_host(host, use_cache=True):
+    cache_key = _normalize_service_lookup_key(host) or "__local__"
+    now_ts = time.time()
+
+    if use_cache:
+        with COLLECTOR_DATA_CACHE_LOCK:
+            cached = COLLECTOR_DATA_CACHE.get(cache_key)
+            if cached and (now_ts - float(cached.get("generated_at") or 0)) <= COLLECTOR_DATA_CACHE_TTL_SECONDS:
+                return cached.get("payload") or {"server": {}, "services_by_name": {}}
+
+    parsed_payload = {"server": {}, "services_by_name": {}}
+    candidate_paths = []
+    if _is_local_machine_host(host):
+        candidate_paths = [
+            COLLECTOR_STATUS_PATH,
+            os.path.join("gamb-coletor", "status-servico.json"),
+            os.path.join("gamb-coletor", "out", "status-servico.json"),
+        ]
+    else:
+        for candidate_host in _collector_status_candidate_hosts(host):
+            unc = local_path_to_unc(candidate_host, COLLECTOR_STATUS_PATH)
+            if unc:
+                candidate_paths.append(unc)
+
+    for path_value in candidate_paths:
+        try:
+            if not os.path.exists(path_value):
+                continue
+            with open(path_value, "r", encoding="utf-8-sig") as file:
+                data = json.load(file)
+            parsed_payload = parse_collector_status_payload(data)
+            break
+        except Exception:
+            continue
+
+    with COLLECTOR_DATA_CACHE_LOCK:
+        COLLECTOR_DATA_CACHE[cache_key] = {"generated_at": now_ts, "payload": parsed_payload}
+    return parsed_payload
 
 
 def _build_service_status_snapshot(host):
@@ -1489,7 +1716,7 @@ def build_environment_status(environment):
     built_services = {"services": [], "infra_services": []}
     previous_status_lookup = _build_previous_status_lookup(get_cached_environment_status(environment["id"]))
 
-    snapshots_by_host = {}
+    collector_by_host = {}
     target_hosts = sorted(
         {
             ((service or {}).get("service_ip") or host or "").strip()
@@ -1497,32 +1724,46 @@ def build_environment_status(environment):
         }
     )
     for target_host in target_hosts:
-        try:
-            snapshots_by_host[target_host] = _get_cached_service_status_snapshot(target_host, use_cache=True)
-        except Exception:
-            snapshots_by_host[target_host] = None
+        collector_by_host[target_host] = load_collector_status_for_host(target_host, use_cache=True)
 
     for service_type, service in all_services:
         resolved_host = (service or {}).get("service_ip") or host
         base = dict(service or {})
         base["name"] = service["name"]
-        snapshot = snapshots_by_host.get((resolved_host or "").strip())
-        if snapshot is None:
+        collector_payload = collector_by_host.get((resolved_host or "").strip()) or {}
+        collector_server = collector_payload.get("server") or {}
+        collector_is_stale = is_collector_stale(collector_server)
+        collector_service = (collector_payload.get("services_by_name") or {}).get(_normalize_service_lookup_key(service.get("name")))
+        if collector_service:
+            for field in (
+                "display_name",
+                "path_executable",
+                "tcp_port",
+                "webapp_port",
+                "rest_port",
+                "service_ip",
+                "console_log_file",
+                "sourcepath",
+                "rpocustom",
+            ):
+                if collector_service.get(field):
+                    base[field] = collector_service.get(field)
+        if collector_is_stale:
+            base["status"] = "COLETOR PARADO"
+        elif collector_service and collector_service.get("status"):
+            base["status"] = collector_service.get("status")
+        else:
             fallback_key = (
                 service_type,
                 _normalize_service_lookup_key(service.get("name")),
                 _normalize_service_lookup_key(service.get("service_ip")),
             )
+            # Regra operacional: status vem sempre do gamb-coletor; sem fallback ao SCM/Windows.
             base["status"] = previous_status_lookup.get(fallback_key, "UNKNOWN")
-        else:
-            base["status"] = get_service_status_for_host(
-                service["name"],
-                resolved_host,
-                service.get("display_name", ""),
-                snapshot=snapshot,
-            )
         built_services[service_type].append(base)
 
+    environment_collector = load_collector_status_for_host(host, use_cache=True).get("server") or {}
+    register_collector_health_event(environment, environment_collector)
     return {
         "id": environment["id"],
         "environment": environment["name"],
@@ -1532,6 +1773,7 @@ def build_environment_status(environment):
         "rest_url": environment.get("rest_url", ""),
         "erp_version": environment.get("erp_version", ""),
         "database_update_date": environment.get("database_update_date", get_default_database_update_date(environment.get("environment_type", infer_environment_type(environment["name"])))),
+        "collector_server": environment_collector,
         "services": built_services["services"],
         "infra_services": built_services["infra_services"],
     }
@@ -1587,9 +1829,54 @@ def resolve_service_machine(host):
     return host
 
 
+def _get_local_ipv4_addresses():
+    now_ts = time.time()
+    with LOCAL_IP_CACHE_LOCK:
+        if (now_ts - float(LOCAL_IP_CACHE.get("generated_at") or 0)) <= LOCAL_IP_CACHE_TTL_SECONDS:
+            return set(LOCAL_IP_CACHE.get("values") or {"127.0.0.1"})
+
+    addresses = {"127.0.0.1"}
+    try:
+        _, _, ip_list = socket.gethostbyname_ex(socket.gethostname())
+        for ip in ip_list or []:
+            if is_ipv4_address(ip):
+                addresses.add(ip.strip())
+    except Exception:
+        pass
+
+    try:
+        code, stdout, _ = run_powershell(
+            "(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | "
+            "Where-Object { $_.IPAddress -and $_.IPAddress -ne '127.0.0.1' } | "
+            "Select-Object -ExpandProperty IPAddress) -join \"`n\""
+        )
+        if code == 0:
+            for line in (stdout or "").splitlines():
+                ip = (line or "").strip()
+                if is_ipv4_address(ip):
+                    addresses.add(ip)
+    except Exception:
+        pass
+
+    with LOCAL_IP_CACHE_LOCK:
+        LOCAL_IP_CACHE["generated_at"] = now_ts
+        LOCAL_IP_CACHE["values"] = set(addresses)
+    return addresses
+
+
 def _is_local_machine_host(host):
     normalized = (host or "").strip().lower()
-    return normalized in {"", "127.0.0.1", "localhost", ".", "(local)"}
+    if normalized in {"", "127.0.0.1", "localhost", ".", "(local)"}:
+        return True
+
+    try:
+        local_hostnames = {socket.gethostname().lower(), socket.getfqdn().lower()}
+        if normalized in local_hostnames:
+            return True
+    except Exception:
+        pass
+
+    return normalized in {ip.lower() for ip in _get_local_ipv4_addresses()}
 
 
 def _get_service_pid_via_sc(service_name, host):
@@ -1613,7 +1900,7 @@ def _get_service_pid_via_sc(service_name, host):
 def _force_kill_service_process(service_name, host):
     pid = _get_service_pid_via_sc(service_name, host)
     if pid <= 0:
-        return False, "PID do serviço não encontrado para forçar parada."
+        return False, "PID do serviÃ§o nÃ£o encontrado para forÃ§ar parada."
 
     command = ["taskkill"]
     if not _is_local_machine_host(host):
@@ -1623,7 +1910,7 @@ def _force_kill_service_process(service_name, host):
     if completed.returncode != 0:
         details = (completed.stderr or completed.stdout or "").strip()
         return False, details or f"Falha ao executar taskkill para PID {pid}."
-    return True, f"Parada forçada executada via taskkill no PID {pid}."
+    return True, f"Parada forÃ§ada executada via taskkill no PID {pid}."
 
 
 def stop_service_with_force(service_name, host, timeout_seconds=8):
@@ -1632,17 +1919,28 @@ def stop_service_with_force(service_name, host, timeout_seconds=8):
     if not killed:
         return {"success": False, "forced": False, "message": f"Falha no taskkill: {details}"}
 
-    deadline = time.time() + max(timeout_seconds, 3)
-    while time.time() < deadline:
-        current_status = get_service_status_for_host(service_name, host)
-        if current_status == "STOPPED":
-            return {"success": True, "forced": True, "message": details}
-        time.sleep(0.5)
+    ok, current_status = wait_for_collector_service_status(
+        service_name,
+        host,
+        expected_statuses={"PARADO", "STOPPED"},
+        timeout_seconds=max(timeout_seconds, 6),
+        poll_interval=0.8,
+    )
+    if ok:
+        return {"success": True, "forced": True, "message": details, "status": current_status}
 
-    return {"success": False, "forced": True, "message": "Taskkill executado, mas o serviço ainda não está STOPPED."}
+    return {
+        "success": False,
+        "forced": True,
+        "message": f"Taskkill executado, mas o gamb-coletor ainda reporta status {current_status}.",
+        "status": current_status,
+    }
 
 
 def find_service_in_environment(environment, service_name, service_ip=""):
+    # Regra operacional: toda ação deve consultar o gamb-coletor antes de executar.
+    environment = hydrate_environment_from_collector(environment, use_cache=False)
+
     all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
     if service_ip:
         return next(
@@ -1656,9 +1954,79 @@ def find_service_in_environment(environment, service_name, service_ip=""):
     return next((item for item in all_environment_services if item.get("name") == service_name), None)
 
 
+def hydrate_environment_from_collector(environment, use_cache=False):
+    if not environment:
+        return environment
+
+    hydrated = dict(environment)
+    environment_host = (environment.get("host") or "").strip()
+    collector_by_host = {}
+
+    def merge_service(raw_service):
+        base = dict(raw_service or {})
+        service_name = (base.get("name") or "").strip()
+        if not service_name:
+            return base
+
+        target_host = (base.get("service_ip") or environment_host).strip()
+        cache_key = _normalize_service_lookup_key(target_host)
+        if cache_key not in collector_by_host:
+            collector_by_host[cache_key] = load_collector_status_for_host(target_host, use_cache=use_cache)
+
+        collector_payload = collector_by_host.get(cache_key) or {}
+        collector_service = (collector_payload.get("services_by_name") or {}).get(_normalize_service_lookup_key(service_name))
+        if not collector_service:
+            return base
+
+        mapping = {
+            "display_name": "display_name",
+            "path_executable": "path_executable",
+            "tcp_port": "tcp_port",
+            "webapp_port": "webapp_port",
+            "rest_port": "rest_port",
+            "service_ip": "service_ip",
+            "console_log_file": "console_log_file",
+            "sourcepath": "sourcepath",
+            "rpocustom": "rpocustom",
+        }
+        for target_field, source_field in mapping.items():
+            incoming = collector_service.get(source_field)
+            if incoming not in (None, ""):
+                base[target_field] = incoming
+        return base
+
+    hydrated["services"] = [merge_service(item) for item in (environment.get("services") or [])]
+    hydrated["infra_services"] = [merge_service(item) for item in (environment.get("infra_services") or [])]
+    return hydrated
+
+
+def get_service_status_from_collector(service_name, host, use_cache=False):
+    payload = load_collector_status_for_host(host, use_cache=use_cache)
+    services_by_name = payload.get("services_by_name") or {}
+    service_data = services_by_name.get(_normalize_service_lookup_key(service_name))
+    if not service_data:
+        return "UNKNOWN"
+    return (service_data.get("status") or "UNKNOWN").strip().upper()
+
+
+def wait_for_collector_service_status(service_name, host, expected_statuses, timeout_seconds=20, poll_interval=0.8):
+    expected = {str(item or "").strip().upper() for item in (expected_statuses or []) if str(item or "").strip()}
+    if not expected:
+        return False, "UNKNOWN"
+
+    deadline = time.time() + max(timeout_seconds, 3)
+    latest_status = "UNKNOWN"
+    while time.time() < deadline:
+        latest_status = get_service_status_from_collector(service_name, host, use_cache=False)
+        if latest_status in expected:
+            return True, latest_status
+        time.sleep(max(0.2, poll_interval))
+    return False, latest_status
+
+
 def read_local_console_log_tail(log_path, max_lines=300):
     if not os.path.exists(log_path):
-        return {"success": False, "error": "Arquivo de log não encontrado para o serviço.", "exists": False}
+        return {"success": False, "error": "Arquivo de log nÃ£o encontrado para o serviÃ§o.", "exists": False}
 
     stats = os.stat(log_path)
     with open(log_path, "r", encoding="utf-8", errors="replace") as file:
@@ -1688,9 +2056,9 @@ def local_path_to_unc(host, path_value):
 
 def read_unc_console_log_tail(unc_path, max_lines=300):
     if not unc_path:
-        return {"success": False, "error": "Caminho UNC inválido."}
+        return {"success": False, "error": "Caminho UNC invÃ¡lido."}
     if not os.path.exists(unc_path):
-        return {"success": False, "error": "Arquivo UNC não encontrado.", "exists": False}
+        return {"success": False, "error": "Arquivo UNC nÃ£o encontrado.", "exists": False}
 
     stats = os.stat(unc_path)
     with open(unc_path, "r", encoding="utf-8", errors="replace") as file:
@@ -1707,7 +2075,7 @@ def read_unc_console_log_tail(unc_path, max_lines=300):
 
 def read_remote_console_log_tail(host, log_path, max_lines=300):
     if not is_valid_remote_host(host):
-        return {"success": False, "error": "Host remoto inválido para leitura do log."}
+        return {"success": False, "error": "Host remoto invÃ¡lido para leitura do log."}
 
     candidate_hosts = [host]
     if is_ipv4_address(host):
@@ -1732,7 +2100,7 @@ try {{
             return [PSCustomObject]@{{
                 success = $false
                 exists = $false
-                error = 'Arquivo de log não encontrado para o serviço.'
+                error = 'Arquivo de log nÃ£o encontrado para o serviÃ§o.'
             }}
         }}
 
@@ -1770,7 +2138,7 @@ try {{
         try:
             data = json.loads(raw)
         except Exception:
-            errors.append(f"[{current_host}] Retorno inválido na leitura do log remoto.")
+            errors.append(f"[{current_host}] Retorno invÃ¡lido na leitura do log remoto.")
             continue
 
         if isinstance(data, list):
@@ -1784,7 +2152,7 @@ try {{
 
         errors.append(f"[{current_host}] {data.get('error', 'Falha ao ler log remoto via WinRM.')}")
 
-    # Fallback sem WinRM: tentativa via SMB/UNC para evitar exigir autenticação explícita.
+    # Fallback sem WinRM: tentativa via SMB/UNC para evitar exigir autenticaÃ§Ã£o explÃ­cita.
     for current_host in candidate_hosts:
         unc_path = local_path_to_unc(current_host, log_path)
         if not unc_path:
@@ -1827,7 +2195,7 @@ def login_required(view):
     def wrapped_view(*args, **kwargs):
         if not current_user():
             if request.path != "/":
-                return jsonify({"success": False, "error": "Sessão expirada."}), 401
+                return jsonify({"success": False, "error": "SessÃ£o expirada."}), 401
             return redirect(url_for("login"))
         return view(*args, **kwargs)
 
@@ -1839,7 +2207,7 @@ def admin_required(view):
     def wrapped_view(*args, **kwargs):
         user = current_user()
         if not user:
-            return jsonify({"success": False, "error": "Sessão expirada."}), 401
+            return jsonify({"success": False, "error": "SessÃ£o expirada."}), 401
         if user.get("role") != "admin":
             return jsonify({"success": False, "error": "Acesso negado."}), 403
         return view(*args, **kwargs)
@@ -2040,32 +2408,58 @@ def _set_action_job(job_key, **fields):
 def _run_service_action(environment, resolved_host, service, action_type, username):
     machine = resolve_service_machine(resolved_host)
     forced_stop = False
+    final_status = "UNKNOWN"
     if action_type == "start":
         win32serviceutil.StartService(service, machine=machine)
+        ok, collector_status = wait_for_collector_service_status(
+            service,
+            resolved_host,
+            expected_statuses={"RODANDO", "RUNNING"},
+            timeout_seconds=20,
+            poll_interval=0.8,
+        )
+        if not ok:
+            raise RuntimeError(
+                f"Start executado, mas o gamb-coletor ainda reporta status {collector_status}."
+            )
+        final_status = collector_status
     elif action_type == "stop":
         stop_result = stop_service_with_force(service, resolved_host)
         if not stop_result.get("success"):
-            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço.")
+            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviÃ§o.")
         forced_stop = bool(stop_result.get("forced"))
+        final_status = str(stop_result.get("status") or "PARADO")
     elif action_type == "restart":
         stop_result = stop_service_with_force(service, resolved_host)
         if not stop_result.get("success"):
-            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço para reinício.")
+            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviÃ§o para reinÃ­cio.")
         forced_stop = bool(stop_result.get("forced"))
         win32serviceutil.StartService(service, machine=machine)
+        ok, collector_status = wait_for_collector_service_status(
+            service,
+            resolved_host,
+            expected_statuses={"RODANDO", "RUNNING"},
+            timeout_seconds=20,
+            poll_interval=0.8,
+        )
+        if not ok:
+            raise RuntimeError(
+                f"Restart executado, mas o gamb-coletor ainda reporta status {collector_status}."
+            )
+        final_status = collector_status
     else:
-        raise ValueError("Ação inválida.")
+        raise ValueError("AÃ§Ã£o invÃ¡lida.")
 
     invalidate_service_status_cache(resolved_host)
     invalidate_environment_status_cache(environment.get("id"))
     result_label = "SUCCESS_FORCED" if forced_stop else "SUCCESS"
     save_environment_log(environment["name"], resolved_host, service, action_type, result_label, username)
-    return {"success": True, "service_ip": resolved_host, "forced_stop": forced_stop}
+    return {"success": True, "service_ip": resolved_host, "forced_stop": forced_stop, "status": final_status}
 
 
 def _normalize_bulk_priority(value):
     normalized = (value or "").strip().lower()
-    normalized = normalized.replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
+    normalized = normalized.replace("Ã¡", "a").replace("Ã©", "e").replace("Ã­", "i").replace("Ã³", "o").replace("Ãº", "u")
     if normalized in {"1", "p1", "prioridade 1"}:
         return "p1"
     if normalized in {"2", "p2", "prioridade 2", "media", "medio", "medium"}:
@@ -2169,10 +2563,10 @@ def login():
 
     user = find_user(username)
     if not user or not user.get("active", True):
-        return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401
+        return jsonify({"success": False, "error": "UsuÃ¡rio ou senha invÃ¡lidos."}), 401
 
     if not check_password_hash(user["password_hash"], password):
-        return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401
+        return jsonify({"success": False, "error": "UsuÃ¡rio ou senha invÃ¡lidos."}), 401
 
     session.clear()
     session["username"] = user["username"]
@@ -2290,9 +2684,9 @@ def status():
     if environment_id:
         environment = find_environment(environment_id)
         if not environment:
-            return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+            return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
         if not can_user_access_environment(user, environment):
-            return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
+            return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
         cached_environment = get_cached_environment_status(environment_id)
         if cached_environment:
             return jsonify(cached_environment)
@@ -2332,26 +2726,26 @@ def action():
     environment = find_environment(environment_id)
 
     if not environment_id or not service or not action_type:
-        return jsonify({"success": False, "error": "Ambiente, serviço e ação são obrigatórios."}), 400
+        return jsonify({"success": False, "error": "Ambiente, serviÃ§o e aÃ§Ã£o sÃ£o obrigatÃ³rios."}), 400
 
     if not environment:
-        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
 
     if not can_user_access_environment(user, environment):
-        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
 
     all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
     if not any(item["name"] == service for item in all_environment_services):
-        return jsonify({"success": False, "error": "Serviço não cadastrado para o ambiente."}), 404
+        return jsonify({"success": False, "error": "ServiÃ§o nÃ£o cadastrado para o ambiente."}), 404
 
     resolved_service = find_service_in_environment(environment, service, service_ip=service_ip)
 
     if not resolved_service:
-        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
+        return jsonify({"success": False, "error": "ServiÃ§o nÃ£o cadastrado para o IP informado."}), 404
 
     resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
     if action_type not in {"start", "stop", "restart"}:
-        return jsonify({"success": False, "error": "Ação inválida."}), 400
+        return jsonify({"success": False, "error": "AÃ§Ã£o invÃ¡lida."}), 400
 
     if (
         action_type in {"stop", "restart"}
@@ -2360,7 +2754,7 @@ def action():
         and is_license_service(service, resolved_service.get("display_name"))
     ):
         action_label = "parar" if action_type == "stop" else "reiniciar"
-        return jsonify({"success": False, "error": f"Somente administrador pode {action_label} o serviço de license em produção."}), 403
+        return jsonify({"success": False, "error": f"Somente administrador pode {action_label} o serviÃ§o de license em produÃ§Ã£o."}), 403
 
     if async_requested:
         job_id = uuid.uuid4().hex
@@ -2424,7 +2818,7 @@ def action_job(job_id):
         job = dict(ACTION_JOBS.get(job_id) or {})
 
     if not job:
-        return jsonify({"success": False, "error": "Ação não encontrada."}), 404
+        return jsonify({"success": False, "error": "AÃ§Ã£o nÃ£o encontrada."}), 404
 
     if job.get("requested_by") != user.get("username") and user.get("role") != "admin":
         return jsonify({"success": False, "error": "Acesso negado."}), 403
@@ -2442,23 +2836,26 @@ def action_bulk():
     environment = find_environment(environment_id)
 
     if not environment_id or action_type not in {"start", "stop"}:
-        return jsonify({"success": False, "error": "Ambiente e ação (start/stop) são obrigatórios."}), 400
+        return jsonify({"success": False, "error": "Ambiente e aÃ§Ã£o (start/stop) sÃ£o obrigatÃ³rios."}), 400
 
     if not environment:
-        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
 
     if not can_user_access_environment(user, environment):
-        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
+
+    # Regra operacional: toda ação deve consultar o gamb-coletor antes de executar.
+    environment = hydrate_environment_from_collector(environment, use_cache=False)
 
     ordered_services = _build_bulk_ordered_services(environment, action_type)
-    if action_type == "stop" and user.get("role") != "admin" and (environment.get("environment_type") or infer_environment_type(environment.get("name"))) == "producao":
+    if action_type == "stop":
         ordered_services = [
             service for service in ordered_services
             if not is_license_service(service.get("name"), service.get("display_name"))
         ]
 
     if not ordered_services:
-        return jsonify({"success": False, "error": "Nenhum serviço elegível para execução em lote."}), 400
+        return jsonify({"success": False, "error": "Nenhum serviÃ§o elegÃ­vel para execuÃ§Ã£o em lote."}), 400
 
     job_id = uuid.uuid4().hex
     _set_action_job(
@@ -2519,22 +2916,25 @@ def service_console_log():
     max_lines = int(data.get("max_lines") or 300)
 
     if not environment_id or not service_name:
-        return jsonify({"success": False, "error": "Ambiente e serviço são obrigatórios."}), 400
+        return jsonify({"success": False, "error": "Ambiente e serviÃ§o sÃ£o obrigatÃ³rios."}), 400
 
     user = current_user()
     environment = find_environment(environment_id)
     if not environment:
-        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
     if not can_user_access_environment(user, environment):
-        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
+
+    # Regra operacional: toda ação deve consultar o gamb-coletor antes de executar.
+    environment = hydrate_environment_from_collector(environment, use_cache=False)
 
     resolved_service = find_service_in_environment(environment, service_name, service_ip=service_ip)
     if not resolved_service:
-        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
+        return jsonify({"success": False, "error": "ServiÃ§o nÃ£o cadastrado para o IP informado."}), 404
 
     log_path = (resolved_service.get("console_log_file") or "").strip()
     if not log_path:
-        return jsonify({"success": False, "error": "Console log file não cadastrado para este serviço."}), 400
+        return jsonify({"success": False, "error": "Console log file nÃ£o cadastrado para este serviÃ§o."}), 400
 
     resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
     if resolve_service_machine(resolved_host) is None:
@@ -2543,7 +2943,7 @@ def service_console_log():
         read_result = read_remote_console_log_tail(resolved_host, log_path, max_lines=max_lines)
 
     if not read_result.get("success"):
-        return jsonify({"success": False, "error": read_result.get("error", "Falha ao ler log do serviço."), "details": read_result.get("details")}), 400
+        return jsonify({"success": False, "error": read_result.get("error", "Falha ao ler log do serviÃ§o."), "details": read_result.get("details")}), 400
 
     signature = f"{read_result.get('size','0')}::{read_result.get('last_write_utc','')}"
     changed = signature != last_signature
@@ -2592,17 +2992,17 @@ def create_user():
     role = data.get("role", "operator")
 
     if not username or not password:
-        return jsonify({"success": False, "error": "Usuário e senha são obrigatórios."}), 400
+        return jsonify({"success": False, "error": "UsuÃ¡rio e senha sÃ£o obrigatÃ³rios."}), 400
 
     if not is_valid_username(username):
-        return jsonify({"success": False, "error": "Usuário deve ter de 3 a 40 caracteres: letras, números, ponto, hífen ou underscore."}), 400
+        return jsonify({"success": False, "error": "UsuÃ¡rio deve ter de 3 a 40 caracteres: letras, nÃºmeros, ponto, hÃ­fen ou underscore."}), 400
 
     if role not in ALLOWED_ROLES:
-        return jsonify({"success": False, "error": "Perfil inválido."}), 400
+        return jsonify({"success": False, "error": "Perfil invÃ¡lido."}), 400
 
     users_data = load_users()
     if any(normalize_username(item["username"]) == username for item in users_data):
-        return jsonify({"success": False, "error": "Usuário já cadastrado."}), 409
+        return jsonify({"success": False, "error": "UsuÃ¡rio jÃ¡ cadastrado."}), 409
 
     new_user = {
         "username": username,
@@ -2633,10 +3033,10 @@ def update_user(username):
         new_active = bool(data["active"]) if "active" in data else user.get("active", True)
 
         if new_role not in ALLOWED_ROLES:
-            return jsonify({"success": False, "error": "Perfil inválido."}), 400
+            return jsonify({"success": False, "error": "Perfil invÃ¡lido."}), 400
 
         if normalize_username(actor["username"]) == target_username and not new_active:
-            return jsonify({"success": False, "error": "Você não pode desativar o próprio usuário."}), 400
+            return jsonify({"success": False, "error": "VocÃª nÃ£o pode desativar o prÃ³prio usuÃ¡rio."}), 400
 
         simulated_users = []
         for item in users_data:
@@ -2660,7 +3060,7 @@ def update_user(username):
         save_users(users_data)
         return jsonify({"success": True, "user": serialize_user(user)})
 
-    return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
+    return jsonify({"success": False, "error": "UsuÃ¡rio nÃ£o encontrado."}), 404
 
 
 @app.route("/users/<username>", methods=["DELETE"])
@@ -2671,11 +3071,11 @@ def delete_user(username):
     actor = current_user()
 
     if normalize_username(actor["username"]) == target_username:
-        return jsonify({"success": False, "error": "Você não pode excluir o próprio usuário."}), 400
+        return jsonify({"success": False, "error": "VocÃª nÃ£o pode excluir o prÃ³prio usuÃ¡rio."}), 400
 
     deleted_user = next((item for item in users_data if normalize_username(item.get("username")) == target_username), None)
     if not deleted_user:
-        return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
+        return jsonify({"success": False, "error": "UsuÃ¡rio nÃ£o encontrado."}), 404
 
     filtered_users = [item for item in users_data if normalize_username(item.get("username")) != target_username]
     active_admins = sum(1 for item in filtered_users if item.get("role") == "admin" and item.get("active", True))
@@ -2701,7 +3101,7 @@ def create_environment():
     actor = current_user()
 
     if not environment["name"] or not environment["host"]:
-        return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
+        return jsonify({"success": False, "error": "Nome do ambiente e endereÃ§o IP sÃ£o obrigatÃ³rios."}), 400
 
     environments_data = load_environments()
     existing_ids = {item["id"] for item in environments_data}
@@ -2732,7 +3132,7 @@ def update_environment(environment_id):
 
         updated = sanitize_environment(data, existing_id=environment_id)
         if not updated["name"] or not updated["host"]:
-            return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
+            return jsonify({"success": False, "error": "Nome do ambiente e endereÃ§o IP sÃ£o obrigatÃ³rios."}), 400
 
         environments_data[index] = updated
         save_environments(environments_data)
@@ -2740,7 +3140,7 @@ def update_environment(environment_id):
         save_service_registry_changes_log(updated["name"], environment, updated, actor["username"])
         return jsonify({"success": True, "environment": updated})
 
-    return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+    return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
 
 
 @app.route("/environments/<environment_id>", methods=["DELETE"])
@@ -2752,7 +3152,7 @@ def delete_environment(environment_id):
     filtered = [environment_item for environment_item in environments_data if environment_item["id"] != environment_id]
 
     if len(filtered) == len(environments_data):
-        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
 
     save_environments(filtered)
     if environment:
@@ -2799,7 +3199,7 @@ def discover_services():
         save_log("DISCOVER", "AUTO_DISCOVER", "SUCCESS", actor["username"])
         return jsonify({"success": True, "services": services, "infra_services": infra, **extra})
     except Exception as exc:
-        return jsonify({"success": False, "error": "Erro inesperado na busca automática.", "details": str(exc)}), 500
+        return jsonify({"success": False, "error": "Erro inesperado na busca automÃ¡tica.", "details": str(exc)}), 500
 
 
 if __name__ == "__main__":
@@ -2809,3 +3209,4 @@ if __name__ == "__main__":
     if GAMB_SSL_CERT_FILE and GAMB_SSL_KEY_FILE and os.path.exists(GAMB_SSL_CERT_FILE) and os.path.exists(GAMB_SSL_KEY_FILE):
         ssl_context = (GAMB_SSL_CERT_FILE, GAMB_SSL_KEY_FILE)
     app.run(host="0.0.0.0", port=5000, debug=False, ssl_context=ssl_context)
+

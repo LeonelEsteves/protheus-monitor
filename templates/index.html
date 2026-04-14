@@ -279,11 +279,13 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
                     </span>
                     <select id="serviceStatusFilter" class="h-10 rounded-xl border border-slate-200 pl-10 pr-3 text-sm">
                         <option value="">Todos status</option>
-                        <option value="RUNNING">Running</option>
-                        <option value="STOPPED">Stopped</option>
+                        <option value="RODANDO">Rodando</option>
+                        <option value="PARADO">Parado</option>
                         <option value="NOT FOUND">Not Found</option>
-                        <option value="STARTING">Starting</option>
-                        <option value="STOPPING">Stopping</option>
+                        <option value="INICIANDO">Iniciando</option>
+                        <option value="PARANDO">Parando</option>
+                        <option value="PAUSADO">Pausado</option>
+                        <option value="COLETOR PARADO">Coletor parado</option>
                         <option value="UNKNOWN">Unknown</option>
                     </select>
                 </div>
@@ -490,8 +492,9 @@ function getEnvironmentTypeMeta(environmentType) {
 }
 
 function getColor(status) {
-    if (status === "RUNNING") return "text-emerald-600";
-    if (status === "STOPPED") return "text-rose-600";
+    if (status === "RODANDO" || status === "RUNNING") return "text-emerald-600";
+    if (status === "PARADO" || status === "STOPPED") return "text-rose-600";
+    if (status === "COLETOR PARADO") return "text-rose-700";
     if (status === "NOT FOUND") return "text-slate-400";
     return "text-amber-600";
 }
@@ -503,9 +506,9 @@ function getEnvironmentServiceSummary(environment) {
 
     allServices.forEach((service) => {
         const status = String(service.status || "").trim().toUpperCase();
-        if (status === "RUNNING") {
+        if (status === "RODANDO" || status === "RUNNING") {
             runningCount += 1;
-        } else if (status === "STOPPED") {
+        } else if (status === "PARADO" || status === "STOPPED") {
             stoppedCount += 1;
         }
     });
@@ -755,6 +758,7 @@ function isBulkActionRunning(environmentId, action) {
 async function monitorQueuedAction({ jobId, environmentId, service, action, serviceIp, actionKey = "" }) {
     let attempts = 0;
     const maxAttempts = 180;
+    let completed = false;
     try {
         while (attempts < maxAttempts) {
             attempts += 1;
@@ -771,10 +775,12 @@ async function monitorQueuedAction({ jobId, environmentId, service, action, serv
             const job = result.data.job;
             if (job.status === "completed") {
                 appendDebug(environmentId, service, `Ação concluída: ${action.toUpperCase()} em ${service} [${job.service_ip || serviceIp || "sem IP"}].`, "success", serviceIp);
+                completed = true;
                 break;
             }
             if (job.status === "failed") {
                 appendDebug(environmentId, service, `Falha na ação ${action.toUpperCase()} em ${service}: ${job.error || "erro não informado"}.`, "error", serviceIp);
+                showToast(job.error || `Falha na ação ${action}.`, "error");
                 break;
             }
         }
@@ -787,6 +793,11 @@ async function monitorQueuedAction({ jobId, environmentId, service, action, serv
         clearActionRunningState(actionKey);
         try {
             await loadEnvironmentStatus(environmentId, { force: true });
+            if (completed) {
+                const currentStatus = getServiceStatusFromEnvironmentState(environmentId, service, serviceIp) || "UNKNOWN";
+                appendDebug(environmentId, service, `Status atual após ${action.toUpperCase()}: ${currentStatus}.`, "info", serviceIp);
+                showToast(`Ação ${action} finalizada. Status atual: ${currentStatus}.`, "success");
+            }
         } catch (error) {
             appendDebug(environmentId, service, `Falha ao atualizar status após ${action.toUpperCase()}: ${error.message || "erro desconhecido"}.`, "error", serviceIp);
         }
@@ -854,6 +865,76 @@ function syncEnvironmentFilter() {
 
 function getEnvironmentById(environmentId) {
     return environmentsData.find((item) => item.id === environmentId);
+}
+
+function getCollectorSyncTimestamp(environment) {
+    const raw = String((environment && environment.collector_server && environment.collector_server.timestamp) || "").trim();
+    return raw || "";
+}
+
+function formatCollectorTimestampBr(timestamp) {
+    const text = String(timestamp || "").trim();
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2}:\d{2})$/);
+    if (match) {
+        return `${match[3]}/${match[2]}/${match[1]} ${match[4]}`;
+    }
+    return text;
+}
+
+function parseCollectorTimestamp(timestamp) {
+    const text = String(timestamp || "").trim();
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/);
+    if (!match) return null;
+    const year = Number(match[1]);
+    const month = Number(match[2]) - 1;
+    const day = Number(match[3]);
+    const hour = Number(match[4]);
+    const minute = Number(match[5]);
+    const second = Number(match[6]);
+    const parsed = new Date(year, month, day, hour, minute, second);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getCollectorSyncMeta(environment) {
+    const timestamp = getCollectorSyncTimestamp(environment);
+    const parsed = parseCollectorTimestamp(timestamp);
+    const staleAfterMs = 90 * 1000;
+    const isStale = !parsed || ((Date.now() - parsed.getTime()) > staleAfterMs);
+    if (!timestamp) {
+        return {
+            isStale: true,
+            label: "Coletor parado: sem sincronização",
+            badgeClass: "border-rose-300 bg-rose-50 text-rose-700",
+            iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+        };
+    }
+    if (isStale) {
+        return {
+            isStale: true,
+            label: `Coletor parado: última sincronização ${formatCollectorTimestampBr(timestamp)}`,
+            badgeClass: "border-rose-300 bg-rose-50 text-rose-700",
+            iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+        };
+    }
+    return {
+        isStale: false,
+        label: `Sinconizado com o coletor: ${formatCollectorTimestampBr(timestamp)}`,
+        badgeClass: "border-emerald-300 bg-emerald-50 text-emerald-700",
+        iconPath: '<path d="M21 12a9 9 0 0 1-15.5 6.36"/><path d="M3 12a9 9 0 0 1 15.5-6.36"/><path d="M7 18H3v4"/><path d="M17 2h4v4"/>',
+    };
+}
+
+function getServiceStatusFromEnvironmentState(environmentId, serviceName, serviceIp = "") {
+    const environment = getEnvironmentById(environmentId);
+    if (!environment) return "";
+    const allServices = [...(environment.services || []), ...(environment.infra_services || [])];
+    const targetIp = String(serviceIp || "").trim();
+    const service = allServices.find((item) => {
+        if (String(item.name || "").trim() !== String(serviceName || "").trim()) return false;
+        if (!targetIp) return true;
+        return String(item.service_ip || "").trim() === targetIp;
+    });
+    return String((service && service.status) || "").trim().toUpperCase();
 }
 
 function environmentHasRegisteredServices(environment) {
@@ -1012,11 +1093,18 @@ function renderContent() {
     const bulkStopRunning = isBulkActionRunning(env.id, "stop");
     const bulkStartRunning = isBulkActionRunning(env.id, "start");
     const serviceSummary = getEnvironmentServiceSummary(env);
+    const collectorSyncMeta = getCollectorSyncMeta(env);
     let html = `
         <div class="mb-4 rounded-2xl border p-4 text-sm text-slate-600 ${environmentType.headerClass}">
             <div class="mb-2 flex flex-wrap items-center gap-2">
                 <span class="font-semibold text-slate-900">Ambiente:</span> ${escapeHtml(env.environment)}
                 <span class="rounded-full px-3 py-1 text-xs font-semibold ${environmentType.badgeClass}">${environmentType.label}</span>
+                <span class="inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold ${collectorSyncMeta.badgeClass}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        ${collectorSyncMeta.iconPath}
+                    </svg>
+                    <span>${escapeHtml(collectorSyncMeta.label)}</span>
+                </span>
             </div>
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <div class="inline-flex items-center gap-2">
@@ -1116,6 +1204,9 @@ function renderServiceCard(env, service) {
     const consoleLogFile = service.console_log_file || "";
     const priority = service.priority || "";
     const blockLicenseControlInProduction = isProductionEnvironmentType(env.environment_type) && currentUser.role !== "admin" && isLicenseService(service);
+    const startRunning = isActionRunning(env.id, service.name, "start", serviceIp);
+    const stopRunning = isActionRunning(env.id, service.name, "stop", serviceIp);
+    const restartRunning = isActionRunning(env.id, service.name, "restart", serviceIp);
 
     const metaParts = [];
     if (tcpPort) metaParts.push(`<span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3v18"/></svg><span>TCP ${escapeHtml(tcpPort)}</span></span>`);
@@ -1137,17 +1228,17 @@ function renderServiceCard(env, service) {
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <button data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">
+                <button ${startRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${startRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-500 hover:bg-emerald-400"}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l10.5-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z"/></svg>
-                    <span>Start</span>
+                    <span>${startRunning ? "Executando..." : "Start"}</span>
                 </button>
-                <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode parar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">
+                <button ${(blockLicenseControlInProduction || stopRunning) ? "disabled" : ""} ${blockLicenseControlInProduction ? "title=\"Somente administrador pode parar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-rose-300" : (stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400")}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
-                    <span>Stop</span>
+                    <span>${stopRunning ? "Executando..." : "Stop"}</span>
                 </button>
-                <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode reiniciar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">
+                <button ${(blockLicenseControlInProduction || restartRunning) ? "disabled" : ""} ${blockLicenseControlInProduction ? "title=\"Somente administrador pode reiniciar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-amber-300" : (restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400")}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-                    <span>Restart</span>
+                    <span>${restartRunning ? "Executando..." : "Restart"}</span>
                 </button>
                 <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6"/><path d="M18 20v-10"/><path d="M6 20V10"/><path d="M3 20h18"/></svg>

@@ -60,3 +60,14 @@ Este repositÃ³rio Ã© um app **Flask** (Windows) para **monitorar e controlar ser
 - Em start em lote: iniciar apenas prioridades alta e média; ignorar prioridade 1.
 - Ações de start/stop/restart devem suportar execução assíncrona em fila com acompanhamento por job para reduzir latência da UI.
 - Coletor gamb-coletor: so regravar status-servico.json quando houver mudanca real nos dados coletados; sem mudanca, manter arquivo inalterado.
+- Monitor deve consumir C:\gamb-coletor\status-servico.json (local/UNC por servidor) como fonte primaria para metadados e status de servicos no /status.
+- Busca automatica (/discover-services) deve priorizar C:\gamb-coletor\status-servico.json de cada servidor; usar WinRM apenas como fallback.
+- Busca automatica deve usar exclusivamente o JSON do gamb-coletor (C:\gamb-coletor\status-servico.json), sem fallback por WinRM.
+- Antes de qualquer acao de servico (start/stop/restart/lote/console-log), hidratar servicos do ambiente com C:\gamb-coletor\status-servico.json (gamb-coletor).
+- Confirmacao de execucao das acoes start/stop/restart deve usar sempre status vindo do gamb-coletor (status-servico.json), sem consulta direta de status no Windows.
+- UX de acao de servico: ao clicar Start/Stop/Restart, botao deve indicar execucao (Executando...) e ao concluir exibir status atual retornado no painel.
+- Painel de status deve usar somente status do gamb-coletor (status-servico.json), sem fallback de status direto do Windows/SCM.
+- Em parada em lote (stop all), nunca parar servicos de license, independentemente de perfil ou ambiente.
+- Registrar em events_log.json transicoes de saude do coletor por host (COLLECTOR_HEALTH): PARADO quando sem sincronizacao recente e RODANDO quando retomar.
+- Quando o coletor estiver parado/desatualizado, status dos servicos deve ser exibido como COLETOR PARADO para evitar falsa impressao operacional.
+- Tempo de tolerancia para considerar coletor parado ajustado para janela confortavel (90s) no backend e UI.
