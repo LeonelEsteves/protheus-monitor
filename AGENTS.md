@@ -74,3 +74,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Tempo de tolerancia para considerar coletor parado ajustado para janela confortavel (90s) no backend e UI.
 
 - Preferencia visual: em resumo de disco, exibir percentual livre por unidade (ex.: C: 18,4% livre) e alertar "Pouco espaco em disco" quando alguma unidade estiver abaixo do limite configurado.
+
+- Tema unico: interface deve operar somente em tema escuro; remover/evitar opcao de alternancia claro/escuro nas telas.
+
+- Preferencia de UX: remover seletor de tema e manter somente tema escuro nas telas (login, operacao, admin e inventario).

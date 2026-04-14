@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +7,7 @@
 <script>
 window.tailwind = window.tailwind || {};
 window.tailwind.config = { darkMode: "class" };
-const THEME_STORAGE_KEY = "monitor-theme";
-if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
-    document.documentElement.classList.add("dark");
-}
+document.documentElement.classList.add("dark");
 </script>
 <script src="{{ url_for('static', filename='vendor/tailwindcss.js') }}"></script>
 <title>Monitor Protheus</title>
@@ -46,55 +43,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     .button-highlight-neutral:hover {
         background: #1e293b;
         border-color: #334155;
-    }
-
-    .theme-switch {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 0.9rem;
-        border-radius: 9999px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        color: #ffffff;
-    }
-
-    .theme-switch-track {
-        position: relative;
-        display: inline-flex;
-        width: 3.25rem;
-        height: 1.8rem;
-        border-radius: 9999px;
-        background: rgba(148, 163, 184, 0.45);
-        transition: background-color 0.2s ease;
-    }
-
-    .theme-switch-thumb {
-        position: absolute;
-        top: 0.2rem;
-        left: 0.22rem;
-        width: 1.35rem;
-        height: 1.35rem;
-        border-radius: 9999px;
-        background: #ffffff;
-        transition: transform 0.2s ease;
-    }
-
-    .theme-switch input:checked + .theme-switch-track {
-        background: #2563eb;
-    }
-
-    .theme-switch input:checked + .theme-switch-track .theme-switch-thumb {
-        transform: translateX(1.42rem);
-    }
-
-    .theme-switch-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.82);
-    }
+    }
 
     button,
     a.inline-flex,
@@ -109,7 +58,6 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     }
 
     button:focus-visible,
-    .theme-switch input:focus-visible + .theme-switch-track,
     a.inline-flex:focus-visible,
     a.rounded-xl:focus-visible {
         outline: none;
@@ -237,11 +185,6 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
                     Painel Administrativo
                 </a>
                 {% endif %}
-                <label class="theme-switch">
-                    <input id="themeToggle" type="checkbox" class="sr-only" aria-label="Alternar tema">
-                    <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
-                    <span id="themeToggleLabel" class="theme-switch-label">Claro</span>
-                </label>
                 <button id="logsButton" onclick="toggleLogs()" class="relative inline-flex h-10 items-center rounded-xl bg-blue-500 px-4 text-sm font-semibold text-white transition hover:bg-blue-400">
                     Logs
                     <span id="badge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
@@ -405,29 +348,6 @@ let activeServiceLogSignature = "";
 let serviceLogPollingTimer = null;
 let serviceLogRequestInFlight = false;
 let runningBulkActions = {};
-
-function getSavedTheme() {
-    return localStorage.getItem(THEME_STORAGE_KEY) || "dark";
-}
-
-function applyTheme(theme) {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    const toggle = document.getElementById("themeToggle");
-    const label = document.getElementById("themeToggleLabel");
-    if (toggle) {
-        toggle.checked = theme === "dark";
-    }
-    if (label) {
-        label.textContent = theme === "dark" ? "Escuro" : "Claro";
-    }
-}
-
-function toggleTheme() {
-    const nextTheme = getSavedTheme() === "dark" ? "light" : "dark";
-    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-    applyTheme(nextTheme);
-}
-
 
 function compareEnvironmentNames(left, right) {
     return String(left.environment || "").localeCompare(String(right.environment || ""), "pt-BR", { sensitivity: "base" });
@@ -1589,9 +1509,6 @@ document.getElementById("content").addEventListener("click", (event) => {
     );
 });
 
-document.getElementById("themeToggle").addEventListener("change", toggleTheme);
-applyTheme(getSavedTheme());
-
 setInterval(() => {
     const activeEnvironment = getFilteredEnvironments()[activeTab];
     if (activeEnvironment) {
@@ -1611,4 +1528,5 @@ refreshLogsBadge();
 
 </body>
 </html>
+
 

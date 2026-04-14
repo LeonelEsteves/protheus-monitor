@@ -1,8 +1,0 @@
-[2026-04-14 15:21:07] --------------------------------------------------
-[2026-04-14 15:21:07] GAMB COLETOR iniciado
-[2026-04-14 15:21:07] Servidor: SRVAPEX173
-[2026-04-14 15:21:08] IP: 10.85.0.173
-[2026-04-14 15:21:08] Filtro servico: TOTVS
-[2026-04-14 15:21:08] JSON: gamb-coletor\out-totvs\status-servico.json
-[2026-04-14 15:21:09] Intervalo: 1s
-[2026-04-14 15:21:10] JSON atualizado - Servicos filtrados: 10
