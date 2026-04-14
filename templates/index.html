@@ -8,13 +8,114 @@
 window.tailwind = window.tailwind || {};
 window.tailwind.config = { darkMode: "class" };
 const THEME_STORAGE_KEY = "monitor-theme";
-if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
+if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     document.documentElement.classList.add("dark");
 }
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <title>Monitor Protheus</title>
 <style>
+    .button-highlight-primary {
+        background: #2563eb;
+        border: 1px solid #1d4ed8;
+        color: #ffffff;
+    }
+
+    .button-highlight-primary:hover {
+        background: #1d4ed8;
+        border-color: #1e40af;
+    }
+
+    .button-highlight-secondary {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    .button-highlight-secondary:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+    }
+
+    .button-highlight-neutral {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        color: #ffffff;
+    }
+
+    .button-highlight-neutral:hover {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .theme-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+    }
+
+    .theme-switch-track {
+        position: relative;
+        display: inline-flex;
+        width: 3.25rem;
+        height: 1.8rem;
+        border-radius: 9999px;
+        background: rgba(148, 163, 184, 0.45);
+        transition: background-color 0.2s ease;
+    }
+
+    .theme-switch-thumb {
+        position: absolute;
+        top: 0.2rem;
+        left: 0.22rem;
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 9999px;
+        background: #ffffff;
+        transition: transform 0.2s ease;
+    }
+
+    .theme-switch input:checked + .theme-switch-track {
+        background: #2563eb;
+    }
+
+    .theme-switch input:checked + .theme-switch-track .theme-switch-thumb {
+        transform: translateX(1.42rem);
+    }
+
+    .theme-switch-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.82);
+    }
+
+    button,
+    a.inline-flex,
+    a.rounded-xl {
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    button:hover,
+    a.inline-flex:hover,
+    a.rounded-xl:hover {
+        transform: translateY(-1px);
+    }
+
+    button:focus-visible,
+    .theme-switch input:focus-visible + .theme-switch-track,
+    a.inline-flex:focus-visible,
+    a.rounded-xl:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
     .dark body {
         background:
             radial-gradient(circle at top, rgba(37, 99, 235, 0.18), transparent 34%),
@@ -86,6 +187,26 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         border-color: rgba(96, 165, 250, 0.2);
     }
 
+    .dark .button-highlight-secondary {
+        background: rgba(37, 99, 235, 0.16);
+        border-color: rgba(96, 165, 250, 0.28);
+        color: #dbeafe;
+    }
+
+    .dark .button-highlight-secondary:hover {
+        background: rgba(37, 99, 235, 0.24);
+        border-color: rgba(147, 197, 253, 0.38);
+    }
+
+    .dark .button-highlight-neutral {
+        background: rgba(15, 23, 42, 0.9);
+        border-color: rgba(71, 85, 105, 0.85);
+    }
+
+    .dark .button-highlight-neutral:hover {
+        background: rgba(30, 41, 59, 0.96);
+    }
+
     .dark #debugModal > div {
         border-color: rgba(71, 85, 105, 0.7);
         box-shadow: 0 24px 60px rgba(2, 6, 23, 0.55);
@@ -112,18 +233,20 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                     <span class="text-slate-300">| {{ user.role }}</span>
                 </div>
                 {% if user.role == "admin" %}
-                <a href="/admin" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
+                <a href="/admin" class="button-highlight-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">
                     Painel Administrativo
                 </a>
                 {% endif %}
-                <button id="themeToggle" type="button" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
-                    Tema escuro
-                </button>
+                <label class="theme-switch">
+                    <input id="themeToggle" type="checkbox" class="sr-only" aria-label="Alternar tema">
+                    <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
+                    <span id="themeToggleLabel" class="theme-switch-label">Claro</span>
+                </label>
                 <button id="logsButton" onclick="toggleLogs()" class="relative inline-flex h-10 items-center rounded-xl bg-blue-500 px-4 text-sm font-semibold text-white transition hover:bg-blue-400">
                     Logs
                     <span id="badge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
                 </button>
-                <button onclick="logout()" class="inline-flex h-10 items-center rounded-xl border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10">Sair</button>
+                <button onclick="logout()" class="button-highlight-neutral inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Sair</button>
             </div>
         </div>
     </div>
@@ -183,7 +306,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 
     <footer class="surface-panel mt-6 rounded-3xl bg-white px-6 py-5 shadow-sm">
         <div class="flex items-center justify-between gap-4 overflow-x-auto whitespace-nowrap">
-            <div class="text-sm text-slate-500 dark:text-slate-400 md:text-left">Desenvolvido por Leonel Diniz</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400 md:text-left">GAMB | Developed by leonel.diniz | 2026</div>
             <div class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Versão {{ app_version }}</div>
             <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300">
                 <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Flask</span>
@@ -206,8 +329,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             <p id="confirmModalMessage" class="mt-2 text-sm leading-6 text-slate-600"></p>
         </div>
         <div class="flex flex-wrap justify-end gap-2">
-            <button type="button" onclick="resolveConfirmModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
-            <button id="confirmModalConfirmButton" type="button" onclick="resolveConfirmModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Confirmar</button>
+            <button type="button" onclick="resolveConfirmModal(false)" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Cancelar</button>
+            <button id="confirmModalConfirmButton" type="button" onclick="resolveConfirmModal(true)" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Confirmar</button>
         </div>
     </div>
 </div>
@@ -220,8 +343,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <p id="debugSubtitle" class="text-sm text-slate-400">Acompanhamento das ações disparadas na interface.</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="clearDebugLog()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Limpar</button>
-                <button onclick="toggleDebugModal()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Fechar</button>
+                <button onclick="clearDebugLog()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar</button>
+                <button onclick="toggleDebugModal()" class="button-highlight-neutral rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
             </div>
         </div>
         <div id="debugTerminal" class="h-[55vh] overflow-y-auto bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300"></div>
@@ -236,9 +359,9 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <p id="serviceLogSubtitle" class="text-sm text-slate-400">Selecione um serviço para acompanhar o log.</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="refreshActiveServiceLog(true)" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Atualizar</button>
-                <button onclick="clearServiceLogScreen()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Limpar</button>
-                <button onclick="closeServiceLogModal()" class="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200">Fechar</button>
+                <button onclick="refreshActiveServiceLog(true)" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Atualizar</button>
+                <button onclick="clearServiceLogScreen()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar</button>
+                <button onclick="closeServiceLogModal()" class="button-highlight-neutral rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
             </div>
         </div>
         <div id="serviceLogMeta" class="border-b border-slate-800 bg-slate-900/60 px-5 py-2 text-xs text-slate-400">Aguardando leitura...</div>
@@ -253,7 +376,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <h2 class="text-xl font-semibold">Eventos registrados</h2>
                 <p class="text-sm text-slate-500">Histórico das ações executadas na aplicação.</p>
             </div>
-            <button onclick="toggleLogs()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
+            <button onclick="toggleLogs()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
         </div>
         <div id="logContent" class="max-h-[60vh] space-y-3 overflow-y-auto"></div>
     </div>
@@ -262,7 +385,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 <script>
 let environmentsData = {{ initial_environments|tojson }}.map((environment) => ({
     ...environment,
-    status_loaded: false,
+    status_loaded: [...(environment.services || []), ...(environment.infra_services || [])].some((service) => String(service.status || "").trim().toUpperCase() !== "LOADING"),
     status_loading: false,
 }));
 const currentUser = {{ user|tojson }};
@@ -282,14 +405,18 @@ let serviceLogRequestInFlight = false;
 let runningBulkActions = {};
 
 function getSavedTheme() {
-    return localStorage.getItem(THEME_STORAGE_KEY) || "light";
+    return localStorage.getItem(THEME_STORAGE_KEY) || "dark";
 }
 
 function applyTheme(theme) {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    const button = document.getElementById("themeToggle");
-    if (button) {
-        button.textContent = theme === "dark" ? "Tema claro" : "Tema escuro";
+    const toggle = document.getElementById("themeToggle");
+    const label = document.getElementById("themeToggleLabel");
+    if (toggle) {
+        toggle.checked = theme === "dark";
+    }
+    if (label) {
+        label.textContent = theme === "dark" ? "Escuro" : "Claro";
     }
 }
 
@@ -368,6 +495,23 @@ function getColor(status) {
     return "text-amber-600";
 }
 
+function getEnvironmentServiceSummary(environment) {
+    const allServices = [...(environment.services || []), ...(environment.infra_services || [])];
+    let runningCount = 0;
+    let stoppedCount = 0;
+
+    allServices.forEach((service) => {
+        const status = String(service.status || "").trim().toUpperCase();
+        if (status === "RUNNING") {
+            runningCount += 1;
+        } else if (status === "STOPPED") {
+            stoppedCount += 1;
+        }
+    });
+
+    return { runningCount, stoppedCount };
+}
+
 function showToast(message, type = "error") {
     const toast = document.getElementById("toast");
     toast.className = `fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg ${type === "success" ? "bg-emerald-600" : "bg-rose-600"}`;
@@ -392,7 +536,7 @@ function getConfirmButtonClass(tone) {
     if (tone === "success") {
         return "rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500";
     }
-    return "rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700";
+    return "button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold";
 }
 
 function showConfirmModal({ title, message, confirmLabel = "Confirmar", tone = "default" }) {
@@ -859,6 +1003,7 @@ function renderContent() {
     const environmentType = getEnvironmentTypeMeta(env.environment_type);
     const bulkStopRunning = isBulkActionRunning(env.id, "stop");
     const bulkStartRunning = isBulkActionRunning(env.id, "start");
+    const serviceSummary = getEnvironmentServiceSummary(env);
     let html = `
         <div class="mb-4 rounded-2xl border p-4 text-sm text-slate-600 ${environmentType.headerClass}">
             <div class="mb-2 flex flex-wrap items-center gap-2">
@@ -867,8 +1012,14 @@ function renderContent() {
             </div>
             <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <div><span class="font-semibold text-slate-900">IP:</span> ${escapeHtml(env.host || "local")}</div>
+                <div><span class="font-semibold text-slate-900">ERP:</span> ${escapeHtml(env.erp_version || "Não informado")}</div>
+                <div><span class="font-semibold text-slate-900">Base atualizada:</span> ${escapeHtml(env.database_update_date || "Não informado")}</div>
                 ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 underline underline-offset-2">Acessar aplicação</a>` : ""}
                 ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-cyan-700 underline underline-offset-2">Acessar serviço REST</a>` : ""}
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
+                <span class="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Em execução: ${serviceSummary.runningCount}</span>
+                <span class="rounded-full bg-rose-100 px-3 py-1 text-rose-700">Parados: ${serviceSummary.stoppedCount}</span>
             </div>
             <div class="mt-3 flex flex-wrap gap-2">
                 <button ${bulkStartRunning ? "disabled" : ""} data-bulk-action="start" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStartRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-600 hover:bg-emerald-500"}">${bulkStartRunning ? "Iniciando lote..." : "Iniciar todos"}</button>
@@ -913,6 +1064,12 @@ function renderServiceSection(env, services, sectionLabel, filters = { nameFilte
     let html = `<div class="grid gap-3">`;
 
     const sortedServices = [...services].sort((left, right) => {
+        const leftIp = String(left.service_ip || env.host || "");
+        const rightIp = String(right.service_ip || env.host || "");
+        const ipComparison = leftIp.localeCompare(rightIp, "pt-BR", { sensitivity: "base" });
+        if (ipComparison !== 0) {
+            return ipComparison;
+        }
         const leftLabel = String(left.display_name || left.name || "");
         const rightLabel = String(right.display_name || right.name || "");
         return leftLabel.localeCompare(rightLabel, "pt-BR", { sensitivity: "base" });
@@ -961,8 +1118,7 @@ function renderServiceCard(env, service) {
                 <button data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-400">Start</button>
                 <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode parar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-rose-300" : "bg-rose-500 hover:bg-rose-400"}">Stop</button>
                 <button ${blockLicenseControlInProduction ? "disabled title=\"Somente administrador pode reiniciar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-amber-300" : "bg-amber-500 hover:bg-amber-400"}">Restart</button>
-                <button data-environment-id="${escapeHtml(env.id)}" data-debug-service-name="${escapeHtml(service.name)}" data-debug-service-ip="${escapeHtml(serviceIp)}" data-debug-environment-name="${escapeHtml(env.environment)}" class="service-debug-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Debug</button>
-                <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-600">Console Log</button>
+                <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">Console Log</button>
             </div>
         </div>
     `;
@@ -1233,7 +1389,7 @@ document.getElementById("content").addEventListener("click", (event) => {
     );
 });
 
-document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+document.getElementById("themeToggle").addEventListener("change", toggleTheme);
 applyTheme(getSavedTheme());
 
 setInterval(() => {
@@ -1241,7 +1397,7 @@ setInterval(() => {
     if (activeEnvironment) {
         loadEnvironmentStatus(activeEnvironment.id, { force: true });
     }
-}, 5000);
+}, 12000);
 syncEnvironmentFilter();
 renderTabs();
 renderContent();

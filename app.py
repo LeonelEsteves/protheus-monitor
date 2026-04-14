@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from collections import deque
-from datetime import datetime
+from datetime import date, datetime
 from functools import wraps
 import json
 import os
@@ -78,6 +78,14 @@ SERVICE_PRIORITIES = {"baixa", "media", "alta"}
 ACTION_EXECUTOR = ThreadPoolExecutor(max_workers=12)
 ACTION_JOBS = {}
 ACTION_JOBS_LOCK = threading.Lock()
+SERVICE_STATUS_CACHE = {}
+SERVICE_STATUS_CACHE_LOCK = threading.Lock()
+SERVICE_STATUS_CACHE_TTL_SECONDS = 15
+SERVICE_STATUS_MONITOR_INTERVAL_SECONDS = 5
+SERVICE_STATUS_MONITOR_THREAD = None
+SERVICE_STATUS_MONITOR_LOCK = threading.Lock()
+ENVIRONMENT_STATUS_CACHE = {}
+ENVIRONMENT_STATUS_CACHE_LOCK = threading.Lock()
 
 
 def normalize_username(username):
@@ -135,6 +143,10 @@ def normalize_environment_type(value, fallback_name=""):
     return mapping.get(normalized, infer_environment_type(fallback_name))
 
 
+def get_default_database_update_date(environment_type):
+    return date.today().isoformat() if environment_type == "producao" else ""
+
+
 def sanitize_service(service):
     if isinstance(service, str):
         service = {"name": service}
@@ -160,21 +172,52 @@ def sanitize_service(service):
     }
 
 
+def is_infra_service(service):
+    if isinstance(service, dict):
+        name = (service.get("name") or "").strip().lower()
+        display_name = (service.get("display_name") or service.get("displayName") or "").strip().lower()
+    else:
+        name = str(service or "").strip().lower()
+        display_name = ""
+    combined = f"{name} {display_name}"
+    return any(keyword in combined for keyword in ("dbaccess", "broker", "balance master", "balance", "license", "webagent"))
+
+
 def sanitize_environment(environment, existing_id=None):
-    services = [sanitize_service(service) for service in environment.get("services", [])]
-    services = [service for service in services if service["name"]]
-    infra_services = [sanitize_service(service) for service in environment.get("infra_services", [])]
-    infra_services = [service for service in infra_services if service["name"]]
-    for infra_service in infra_services:
-        infra_service["priority"] = "alta"
+    environment_type = normalize_environment_type(environment.get("environment_type"), environment.get("name"))
+    database_update_date = (environment.get("database_update_date") or environment.get("database_updated_at") or "").strip()
+    if not database_update_date:
+        database_update_date = get_default_database_update_date(environment_type)
+
+    raw_services = list(environment.get("services", []))
+    raw_infra_services = list(environment.get("infra_services", []))
+    services = []
+    infra_services = []
+
+    for raw_service in raw_services + raw_infra_services:
+        provided_priority = ""
+        if isinstance(raw_service, dict):
+            provided_priority = str(raw_service.get("priority") or "").strip()
+
+        service = sanitize_service(raw_service)
+        if not service["name"]:
+            continue
+        if is_infra_service(service):
+            if not provided_priority:
+                service["priority"] = "alta"
+            infra_services.append(service)
+        else:
+            services.append(service)
 
     return {
         "id": existing_id or slugify_environment_name(environment.get("name")),
         "name": (environment.get("name") or "").strip(),
-        "environment_type": normalize_environment_type(environment.get("environment_type"), environment.get("name")),
+        "environment_type": environment_type,
         "host": (environment.get("host") or "").strip(),
         "app_url": (environment.get("app_url") or "").strip(),
         "rest_url": (environment.get("rest_url") or "").strip(),
+        "erp_version": (environment.get("erp_version") or "").strip(),
+        "database_update_date": database_update_date,
         "services": services,
         "infra_services": infra_services,
     }
@@ -255,6 +298,9 @@ def load_environments():
             ):
                 changed = True
 
+        if any(is_infra_service(service) for service in (item.get("services") or [])):
+            changed = True
+
         if "infra_services" not in item:
             item["infra_services"] = []
             changed = True
@@ -267,10 +313,16 @@ def load_environments():
         if "rest_url" not in item:
             item["rest_url"] = ""
             changed = True
+        if "erp_version" not in item:
+            item["erp_version"] = ""
+            changed = True
+        if "database_update_date" not in item and "database_updated_at" not in item:
+            item["database_update_date"] = get_default_database_update_date(
+                normalize_environment_type(item.get("environment_type"), item.get("name"))
+            )
+            changed = True
 
         normalized.append(sanitize_environment(item, item.get("id") or slugify_environment_name(item.get("name"))))
-        if any((service.get("priority") or "") != "alta" for service in normalized[-1].get("infra_services", [])):
-            changed = True
 
     if changed:
         save_environments(normalized)
@@ -281,6 +333,7 @@ def load_environments():
 def save_environments(environments):
     with open(ENVIRONMENTS_FILE, "w", encoding="utf-8") as file:
         json.dump(environments, file, indent=2, ensure_ascii=False)
+    invalidate_environment_status_cache()
 
 
 def find_user(username):
@@ -713,19 +766,229 @@ def build_status_service(service, host):
     return base
 
 
+def _normalize_service_lookup_key(value):
+    return (value or "").strip().lower()
+
+
+def _build_service_status_snapshot(host):
+    machine = resolve_service_machine(host)
+    snapshot = {
+        "by_name": {},
+        "by_display_name": {},
+    }
+
+    scm = win32service.OpenSCManager(
+        machine,
+        None,
+        win32service.SC_MANAGER_ENUMERATE_SERVICE,
+    )
+    try:
+        items = win32service.EnumServicesStatus(
+            scm,
+            win32service.SERVICE_WIN32,
+            win32service.SERVICE_STATE_ALL,
+        )
+    finally:
+        win32service.CloseServiceHandle(scm)
+
+    status_mapping = {
+        win32service.SERVICE_RUNNING: "RUNNING",
+        win32service.SERVICE_STOPPED: "STOPPED",
+        win32service.SERVICE_START_PENDING: "STARTING",
+        win32service.SERVICE_STOP_PENDING: "STOPPING",
+    }
+
+    for item in items:
+        service_name = item[0]
+        display_name = item[1]
+        service_status = item[2] or ()
+        current_state = service_status[1] if isinstance(service_status, tuple) and len(service_status) > 1 else service_status
+        status_label = status_mapping.get(current_state, "UNKNOWN")
+        normalized_name = _normalize_service_lookup_key(service_name)
+        normalized_display_name = _normalize_service_lookup_key(display_name)
+        if normalized_name:
+            snapshot["by_name"][normalized_name] = status_label
+        if normalized_display_name:
+            snapshot["by_display_name"][normalized_display_name] = {
+                "name": service_name,
+                "status": status_label,
+            }
+
+    return snapshot
+
+
+def _get_cached_service_status_snapshot(host, use_cache=True):
+    cache_key = _normalize_service_lookup_key(host) or "__local__"
+    now = time.time()
+
+    if use_cache:
+        with SERVICE_STATUS_CACHE_LOCK:
+            cached = SERVICE_STATUS_CACHE.get(cache_key)
+            if cached and now - cached["created_at"] < SERVICE_STATUS_CACHE_TTL_SECONDS:
+                return cached["snapshot"]
+
+    try:
+        snapshot = _build_service_status_snapshot(host)
+    except Exception:
+        with SERVICE_STATUS_CACHE_LOCK:
+            SERVICE_STATUS_CACHE[cache_key] = {
+                "created_at": now,
+                "snapshot": None,
+            }
+        return None
+
+    with SERVICE_STATUS_CACHE_LOCK:
+        SERVICE_STATUS_CACHE[cache_key] = {
+            "created_at": now,
+            "snapshot": snapshot,
+        }
+    return snapshot
+
+
+def invalidate_service_status_cache(host):
+    cache_key = _normalize_service_lookup_key(host) or "__local__"
+    with SERVICE_STATUS_CACHE_LOCK:
+        SERVICE_STATUS_CACHE.pop(cache_key, None)
+
+
+def invalidate_environment_status_cache(environment_id=None):
+    with ENVIRONMENT_STATUS_CACHE_LOCK:
+        if environment_id:
+            ENVIRONMENT_STATUS_CACHE.pop(environment_id, None)
+            return
+        ENVIRONMENT_STATUS_CACHE.clear()
+
+
+def _collect_monitored_hosts(environments=None):
+    environments = environments if environments is not None else load_environments()
+    hosts = set()
+    for environment in environments:
+        environment_host = (environment.get("host") or "").strip()
+        if environment_host:
+            hosts.add(environment_host)
+        for service in (environment.get("services", []) + environment.get("infra_services", [])):
+            service_host = (service.get("service_ip") or "").strip()
+            if service_host:
+                hosts.add(service_host)
+    if not hosts:
+        hosts.add("")
+    return sorted(hosts)
+
+
+def refresh_service_status_cache(hosts=None):
+    target_hosts = hosts if hosts is not None else _collect_monitored_hosts()
+    for host in target_hosts:
+        try:
+            _get_cached_service_status_snapshot(host, use_cache=False)
+        except Exception:
+            continue
+
+
+def refresh_environment_status_cache(environments=None):
+    environments = environments if environments is not None else load_environments()
+    refreshed = {}
+    for environment in environments:
+        try:
+            refreshed[environment["id"]] = build_environment_status(environment)
+        except Exception:
+            continue
+    with ENVIRONMENT_STATUS_CACHE_LOCK:
+        ENVIRONMENT_STATUS_CACHE.clear()
+        ENVIRONMENT_STATUS_CACHE.update(refreshed)
+    return refreshed
+
+
+def get_cached_environment_status(environment_id):
+    with ENVIRONMENT_STATUS_CACHE_LOCK:
+        cached = ENVIRONMENT_STATUS_CACHE.get(environment_id)
+        return dict(cached) if isinstance(cached, dict) else None
+
+
+def get_all_cached_environment_statuses():
+    with ENVIRONMENT_STATUS_CACHE_LOCK:
+        return [dict(item) for item in ENVIRONMENT_STATUS_CACHE.values()]
+
+
+def _service_status_monitor_loop():
+    while True:
+        try:
+            environments = load_environments()
+            refresh_service_status_cache(_collect_monitored_hosts(environments))
+            refresh_environment_status_cache(environments)
+        except Exception:
+            pass
+        time.sleep(SERVICE_STATUS_MONITOR_INTERVAL_SECONDS)
+
+
+def ensure_service_status_monitor_started():
+    global SERVICE_STATUS_MONITOR_THREAD
+    with SERVICE_STATUS_MONITOR_LOCK:
+        if SERVICE_STATUS_MONITOR_THREAD and SERVICE_STATUS_MONITOR_THREAD.is_alive():
+            return
+        SERVICE_STATUS_MONITOR_THREAD = threading.Thread(
+            target=_service_status_monitor_loop,
+            name="service-status-monitor",
+            daemon=True,
+        )
+        SERVICE_STATUS_MONITOR_THREAD.start()
+
+
+def _build_previous_status_lookup(cached_environment):
+    lookup = {}
+    if not cached_environment:
+        return lookup
+    for section in ("services", "infra_services"):
+        for service in cached_environment.get(section, []) or []:
+            key = (
+                section,
+                _normalize_service_lookup_key(service.get("name")),
+                _normalize_service_lookup_key(service.get("service_ip")),
+            )
+            lookup[key] = service.get("status", "UNKNOWN")
+    return lookup
+
+
 def build_environment_status(environment):
     host = environment.get("host")
     services = environment.get("services", [])
     infra_services = environment.get("infra_services", [])
     all_services = [("services", service) for service in services] + [("infra_services", service) for service in infra_services]
-
-    max_workers = min(max(len(all_services), 1), 12)
     built_services = {"services": [], "infra_services": []}
+    previous_status_lookup = _build_previous_status_lookup(get_cached_environment_status(environment["id"]))
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [(service_type, executor.submit(build_status_service, service, host)) for service_type, service in all_services]
-        for service_type, future in futures:
-            built_services[service_type].append(future.result())
+    snapshots_by_host = {}
+    target_hosts = sorted(
+        {
+            ((service or {}).get("service_ip") or host or "").strip()
+            for _, service in all_services
+        }
+    )
+    for target_host in target_hosts:
+        try:
+            snapshots_by_host[target_host] = _get_cached_service_status_snapshot(target_host, use_cache=True)
+        except Exception:
+            snapshots_by_host[target_host] = None
+
+    for service_type, service in all_services:
+        resolved_host = (service or {}).get("service_ip") or host
+        base = dict(service or {})
+        base["name"] = service["name"]
+        snapshot = snapshots_by_host.get((resolved_host or "").strip())
+        if snapshot is None:
+            fallback_key = (
+                service_type,
+                _normalize_service_lookup_key(service.get("name")),
+                _normalize_service_lookup_key(service.get("service_ip")),
+            )
+            base["status"] = previous_status_lookup.get(fallback_key, "UNKNOWN")
+        else:
+            base["status"] = get_service_status_for_host(
+                service["name"],
+                resolved_host,
+                service.get("display_name", ""),
+                snapshot=snapshot,
+            )
+        built_services[service_type].append(base)
 
     return {
         "id": environment["id"],
@@ -734,8 +997,53 @@ def build_environment_status(environment):
         "host": host or "",
         "app_url": environment.get("app_url", ""),
         "rest_url": environment.get("rest_url", ""),
+        "erp_version": environment.get("erp_version", ""),
+        "database_update_date": environment.get("database_update_date", get_default_database_update_date(environment.get("environment_type", infer_environment_type(environment["name"])))),
         "services": built_services["services"],
         "infra_services": built_services["infra_services"],
+    }
+
+
+def build_initial_environment_payload(environment):
+    return {
+        "id": environment["id"],
+        "environment": environment["name"],
+        "environment_type": environment.get("environment_type", infer_environment_type(environment["name"])),
+        "host": environment.get("host", ""),
+        "app_url": environment.get("app_url", ""),
+        "rest_url": environment.get("rest_url", ""),
+        "erp_version": environment.get("erp_version", ""),
+        "database_update_date": environment.get("database_update_date", get_default_database_update_date(environment.get("environment_type", infer_environment_type(environment["name"])))),
+        "services": [
+            {
+                "name": service["name"],
+                "display_name": service.get("display_name", ""),
+                "path_executable": service.get("path_executable", ""),
+                "tcp_port": service.get("tcp_port", ""),
+                "webapp_port": service.get("webapp_port", ""),
+                "rest_port": service.get("rest_port", ""),
+                "service_ip": service.get("service_ip", ""),
+                "console_log_file": service.get("console_log_file", ""),
+                "priority": service.get("priority", "media"),
+                "status": "LOADING",
+            }
+            for service in environment.get("services", [])
+        ],
+        "infra_services": [
+            {
+                "name": service["name"],
+                "display_name": service.get("display_name", ""),
+                "path_executable": service.get("path_executable", ""),
+                "tcp_port": service.get("tcp_port", ""),
+                "webapp_port": service.get("webapp_port", ""),
+                "rest_port": service.get("rest_port", ""),
+                "service_ip": service.get("service_ip", ""),
+                "console_log_file": service.get("console_log_file", ""),
+                "priority": service.get("priority", "media"),
+                "status": "LOADING",
+            }
+            for service in environment.get("infra_services", [])
+        ],
     }
 
 
@@ -1006,7 +1314,7 @@ def admin_required(view):
     return wrapped_view
 
 
-def get_service_status_for_host(service_name, host, display_name=""):
+def get_service_status_for_host(service_name, host, display_name="", snapshot=None):
     def status_label(status_code):
         mapping = {
             win32service.SERVICE_RUNNING: "RUNNING",
@@ -1020,32 +1328,29 @@ def get_service_status_for_host(service_name, host, display_name=""):
         status_code = win32serviceutil.QueryServiceStatus(name_to_query, machine=resolve_service_machine(host))[1]
         return status_label(status_code)
 
-    def find_service_name_by_display_name(display_name):
-        if not display_name:
-            return ""
+    def get_snapshot():
+        if snapshot is not None:
+            return snapshot
         try:
-            scm = win32service.OpenSCManager(
-                resolve_service_machine(host),
-                None,
-                win32service.SC_MANAGER_ENUMERATE_SERVICE,
-            )
-            try:
-                items = win32service.EnumServicesStatus(
-                    scm,
-                    win32service.SERVICE_WIN32,
-                    win32service.SERVICE_STATE_ALL,
-                )
-                normalized_target = (display_name or "").strip().lower()
-                for item in items:
-                    candidate_name = item[0]
-                    candidate_display = item[1]
-                    if (candidate_display or "").strip().lower() == normalized_target:
-                        return candidate_name
-            finally:
-                win32service.CloseServiceHandle(scm)
+            return _get_cached_service_status_snapshot(host, use_cache=True)
         except Exception:
+            return None
+
+    def find_service_name_by_display_name(display_name_value):
+        if not display_name_value:
             return ""
-        return ""
+        current_snapshot = get_snapshot()
+        if not current_snapshot:
+            return ""
+        entry = current_snapshot["by_display_name"].get(_normalize_service_lookup_key(display_name_value))
+        if not entry:
+            return ""
+        return entry.get("name") or ""
+
+    current_snapshot = get_snapshot()
+    normalized_service_name = _normalize_service_lookup_key(service_name)
+    if current_snapshot and normalized_service_name in current_snapshot["by_name"]:
+        return current_snapshot["by_name"][normalized_service_name]
 
     try:
         return query_status_by_name(service_name)
@@ -1065,6 +1370,8 @@ def get_service_status_for_host(service_name, host, display_name=""):
         for alias in ("licenseVirtual", "TOTVSLicenseVirtual", "license"):
             if alias.lower() == service_name_text:
                 continue
+            if current_snapshot and alias.lower() in current_snapshot["by_name"]:
+                return current_snapshot["by_name"][alias.lower()]
             try:
                 return query_status_by_name(alias)
             except Exception:
@@ -1216,6 +1523,8 @@ def _run_service_action(environment, resolved_host, service, action_type, userna
     else:
         raise ValueError("Ação inválida.")
 
+    invalidate_service_status_cache(resolved_host)
+    invalidate_environment_status_cache(environment.get("id"))
     result_label = "SUCCESS_FORCED" if forced_stop else "SUCCESS"
     save_environment_log(environment["name"], resolved_host, service, action_type, result_label, username)
     return {"success": True, "service_ip": resolved_host, "forced_stop": forced_stop}
@@ -1344,51 +1653,14 @@ def session_info():
 @app.route("/")
 @login_required
 def index():
+    ensure_service_status_monitor_started()
     user = current_user()
     environments = [environment for environment in load_environments() if can_user_access_environment(user, environment)]
     initial_environments = []
 
     for environment in environments:
-        initial_environments.append(
-            {
-                "id": environment["id"],
-                "environment": environment["name"],
-                "environment_type": environment.get("environment_type", infer_environment_type(environment["name"])),
-                "host": environment.get("host", ""),
-                "app_url": environment.get("app_url", ""),
-                "rest_url": environment.get("rest_url", ""),
-                "services": [
-                    {
-                        "name": service["name"],
-                        "display_name": service.get("display_name", ""),
-                        "path_executable": service.get("path_executable", ""),
-                        "tcp_port": service.get("tcp_port", ""),
-                        "webapp_port": service.get("webapp_port", ""),
-                        "rest_port": service.get("rest_port", ""),
-                        "service_ip": service.get("service_ip", ""),
-                        "console_log_file": service.get("console_log_file", ""),
-                        "priority": service.get("priority", "media"),
-                        "status": "LOADING",
-                    }
-                    for service in environment.get("services", [])
-                ],
-                "infra_services": [
-                    {
-                        "name": service["name"],
-                        "display_name": service.get("display_name", ""),
-                        "path_executable": service.get("path_executable", ""),
-                        "tcp_port": service.get("tcp_port", ""),
-                        "webapp_port": service.get("webapp_port", ""),
-                        "rest_port": service.get("rest_port", ""),
-                        "service_ip": service.get("service_ip", ""),
-                        "console_log_file": service.get("console_log_file", ""),
-                        "priority": service.get("priority", "media"),
-                        "status": "LOADING",
-                    }
-                    for service in environment.get("infra_services", [])
-                ],
-            }
-        )
+        cached_environment = get_cached_environment_status(environment["id"])
+        initial_environments.append(cached_environment or build_initial_environment_payload(environment))
 
     return render_template("index.html", user=user, initial_environments=initial_environments)
 
@@ -1402,6 +1674,7 @@ def admin_panel():
 @app.route("/status")
 @login_required
 def status():
+    ensure_service_status_monitor_started()
     user = current_user()
     environment_id = request.args.get("environment_id", "").strip()
     if environment_id:
@@ -1410,14 +1683,29 @@ def status():
             return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
         if not can_user_access_environment(user, environment):
             return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
-        return jsonify(build_environment_status(environment))
+        cached_environment = get_cached_environment_status(environment_id)
+        if cached_environment:
+            return jsonify(cached_environment)
+        fresh_environment = build_environment_status(environment)
+        with ENVIRONMENT_STATUS_CACHE_LOCK:
+            ENVIRONMENT_STATUS_CACHE[environment_id] = fresh_environment
+        return jsonify(fresh_environment)
 
     environments = [environment for environment in load_environments() if can_user_access_environment(user, environment)]
-    max_workers = min(max(len(environments), 1), 8)
+    cached_items = get_all_cached_environment_statuses()
+    if cached_items:
+        cached_by_id = {item.get("id"): item for item in cached_items if item.get("id")}
+        ordered_cached = [cached_by_id[environment["id"]] for environment in environments if environment["id"] in cached_by_id]
+        if ordered_cached:
+            return jsonify(ordered_cached)
 
+    max_workers = min(max(len(environments), 1), 8)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         result = list(executor.map(build_environment_status, environments))
-
+    with ENVIRONMENT_STATUS_CACHE_LOCK:
+        ENVIRONMENT_STATUS_CACHE.clear()
+        for item in result:
+            ENVIRONMENT_STATUS_CACHE[item["id"]] = item
     return jsonify(result)
 
 
@@ -1888,14 +2176,12 @@ def discover_services():
                 400,
             )
 
-        infra_keywords = {"dbaccess", "broker", "license", "webagent"}
         infra = []
         services = []
         for item in discovered:
-            name = (item.get("name") or "").lower()
             if not (item.get("path_executable") or "").strip():
                 continue
-            if any(keyword in name for keyword in infra_keywords):
+            if is_infra_service(item):
                 infra.append(item)
             else:
                 services.append(item)

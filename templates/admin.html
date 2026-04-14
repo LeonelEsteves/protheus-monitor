@@ -8,13 +8,114 @@
 window.tailwind = window.tailwind || {};
 window.tailwind.config = { darkMode: "class" };
 const THEME_STORAGE_KEY = "monitor-theme";
-if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
+if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     document.documentElement.classList.add("dark");
 }
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <title>Painel Administrativo | Monitor Protheus</title>
 <style>
+    .button-highlight-primary {
+        background: #2563eb;
+        border: 1px solid #1d4ed8;
+        color: #ffffff;
+    }
+
+    .button-highlight-primary:hover {
+        background: #1d4ed8;
+        border-color: #1e40af;
+    }
+
+    .button-highlight-secondary {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    .button-highlight-secondary:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+    }
+
+    .button-highlight-neutral {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        color: #ffffff;
+    }
+
+    .button-highlight-neutral:hover {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .theme-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+    }
+
+    .theme-switch-track {
+        position: relative;
+        display: inline-flex;
+        width: 3.25rem;
+        height: 1.8rem;
+        border-radius: 9999px;
+        background: rgba(148, 163, 184, 0.45);
+        transition: background-color 0.2s ease;
+    }
+
+    .theme-switch-thumb {
+        position: absolute;
+        top: 0.2rem;
+        left: 0.22rem;
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 9999px;
+        background: #ffffff;
+        transition: transform 0.2s ease;
+    }
+
+    .theme-switch input:checked + .theme-switch-track {
+        background: #2563eb;
+    }
+
+    .theme-switch input:checked + .theme-switch-track .theme-switch-thumb {
+        transform: translateX(1.42rem);
+    }
+
+    .theme-switch-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.82);
+    }
+
+    button,
+    a.inline-flex,
+    a.rounded-xl {
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    button:hover,
+    a.inline-flex:hover,
+    a.rounded-xl:hover {
+        transform: translateY(-1px);
+    }
+
+    button:focus-visible,
+    .theme-switch input:focus-visible + .theme-switch-track,
+    a.inline-flex:focus-visible,
+    a.rounded-xl:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
     .dark body {
         background:
             radial-gradient(circle at top, rgba(37, 99, 235, 0.16), transparent 34%),
@@ -72,6 +173,27 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         color: #86efac !important;
     }
 
+    .dark #environmentFormModal .bg-white,
+    .dark #environmentFormModal .bg-white\/95 {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(9, 14, 26, 0.98)) !important;
+        color: #e2e8f0;
+    }
+
+    .dark #environmentFormModal .border-slate-200 {
+        border-color: rgba(148, 163, 184, 0.16) !important;
+    }
+
+    .dark #environmentFormModal .text-slate-700,
+    .dark #environmentFormModal .font-medium.text-slate-700 {
+        color: #e2e8f0 !important;
+    }
+
+    .dark #environmentFormModal .text-slate-500,
+    .dark #environmentFormModal .text-slate-600,
+    .dark #environmentFormModal .text-slate-400 {
+        color: #cbd5e1 !important;
+    }
+
     .dark input,
     .dark select {
         background: rgba(15, 23, 42, 0.92);
@@ -85,6 +207,54 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
         outline: none;
     }
+
+    .dark #environmentFormModal input::placeholder,
+    .dark #environmentFormModal textarea::placeholder {
+        color: #94a3b8;
+    }
+
+    .dark #environmentFormModal select option {
+        background: #0f172a;
+        color: #f8fafc;
+    }
+
+    .dark #environmentFormModal .pointer-events-none.text-slate-400,
+    .dark #environmentFormModal .pointer-events-none .text-slate-400 {
+        color: #94a3b8 !important;
+    }
+
+    .dark #environmentFormModal .button-highlight-primary {
+        color: #ffffff;
+    }
+
+    .dark #environmentFormModal .button-highlight-secondary {
+        color: #dbeafe;
+    }
+
+    .dark #environmentFormModal .button-highlight-neutral {
+        color: #ffffff;
+    }
+
+    .dark .button-highlight-secondary {
+        background: rgba(37, 99, 235, 0.16);
+        border-color: rgba(96, 165, 250, 0.28);
+        color: #dbeafe;
+    }
+
+    .dark .button-highlight-secondary:hover {
+        background: rgba(37, 99, 235, 0.24);
+        border-color: rgba(147, 197, 253, 0.38);
+    }
+
+    .dark .button-highlight-neutral {
+        background: rgba(15, 23, 42, 0.9);
+        border-color: rgba(71, 85, 105, 0.85);
+    }
+
+    .dark .button-highlight-neutral:hover {
+        background: rgba(30, 41, 59, 0.96);
+    }
+
 </style>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300">
@@ -106,13 +276,15 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                     <span class="font-semibold">{{ user.username }}</span>
                     <span class="text-slate-300">| {{ user.role }}</span>
                 </div>
-                <button id="themeToggle" type="button" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
-                    Tema escuro
-                </button>
-                <a href="/" class="inline-flex h-10 items-center rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/20">
+                <label class="theme-switch">
+                    <input id="themeToggle" type="checkbox" class="sr-only" aria-label="Alternar tema">
+                    <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
+                    <span id="themeToggleLabel" class="theme-switch-label">Claro</span>
+                </label>
+                <a href="/" class="button-highlight-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">
                     Voltar ao Monitor
                 </a>
-                <button onclick="logout()" class="inline-flex h-10 items-center rounded-xl border border-white/20 px-4 text-sm font-semibold text-white transition hover:bg-white/10">Sair</button>
+                <button onclick="logout()" class="button-highlight-neutral inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Sair</button>
             </div>
         </div>
     </div>
@@ -120,9 +292,9 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     <div class="grid gap-6 xl:grid-cols-[280px_1fr]">
         <aside class="surface-sidebar rounded-3xl bg-white p-5 shadow-sm">
             <div class="space-y-2">
-                <button onclick="setAdminTab('security')" id="tab-security" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-left text-sm font-semibold text-white">Segurança</button>
-                <button onclick="setAdminTab('users')" id="tab-users" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-left text-sm font-semibold text-slate-700">Usuários</button>
-                <button onclick="setAdminTab('environments')" id="tab-environments" class="w-full rounded-2xl bg-slate-100 px-4 py-3 text-left text-sm font-semibold text-slate-700">Ambientes</button>
+                <button onclick="setAdminTab('security')" id="tab-security" class="w-full rounded-2xl button-highlight-primary px-4 py-3 text-left text-sm font-semibold">Segurança</button>
+                <button onclick="setAdminTab('users')" id="tab-users" class="w-full rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">Usuários</button>
+                <button onclick="setAdminTab('environments')" id="tab-environments" class="w-full rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">Ambientes</button>
             </div>
         </aside>
 
@@ -169,7 +341,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                         </select>
                     </label>
                     <div class="flex items-end">
-                        <button type="submit" class="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Cadastrar usuário</button>
+                        <button type="submit" class="button-highlight-primary rounded-xl px-3 py-2 text-sm font-semibold">Cadastrar usuário</button>
                     </div>
                 </form>
 
@@ -212,7 +384,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                                 <option value="">Todos os ambientes</option>
                             </select>
                         </div>
-                        <button type="button" onclick="openNewEnvironmentForm()" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">
+                        <button type="button" onclick="openNewEnvironmentForm()" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">
                             Cadastrar novo ambiente
                         </button>
                     </div>
@@ -226,7 +398,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 
     <footer class="surface-panel mt-6 rounded-3xl bg-white px-6 py-5 shadow-sm">
         <div class="flex items-center justify-between gap-4 overflow-x-auto whitespace-nowrap">
-            <div class="text-sm text-slate-500 dark:text-slate-400 md:text-left">Desenvolvido por Leonel Diniz</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400 md:text-left">GAMB | Developed by leonel.diniz | 2026</div>
             <div class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Versão {{ app_version }}</div>
             <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300">
                 <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Flask</span>
@@ -255,8 +427,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             <p id="confirmModalInputHint" class="mt-1 text-xs text-slate-500"></p>
         </div>
         <div class="flex flex-wrap justify-end gap-2">
-            <button type="button" onclick="resolveConfirmModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
-            <button id="confirmModalConfirmButton" type="button" onclick="resolveConfirmModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Confirmar</button>
+            <button type="button" onclick="resolveConfirmModal(false)" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Cancelar</button>
+            <button id="confirmModalConfirmButton" type="button" onclick="resolveConfirmModal(true)" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Confirmar</button>
         </div>
     </div>
 </div>
@@ -282,8 +454,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             </div>
         </div>
         <div class="flex flex-wrap justify-end gap-2">
-            <button type="button" onclick="resolveHostPromptModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
-            <button type="button" onclick="resolveHostPromptModal(true)" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Continuar</button>
+            <button type="button" onclick="resolveHostPromptModal(false)" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Cancelar</button>
+            <button type="button" onclick="resolveHostPromptModal(true)" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Continuar</button>
         </div>
     </div>
 </div>
@@ -320,9 +492,9 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             </label>
 
             <div class="flex flex-wrap justify-end gap-2 pt-2">
-                <button id="deleteUserButton" type="button" onclick="removeUser(editingUserUsername)" class="mr-auto rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50">Excluir usuário</button>
-                <button type="button" onclick="toggleUserEditModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancelar</button>
-                <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar alterações</button>
+                <button id="deleteUserButton" type="button" onclick="removeUser(editingUserUsername)" class="mr-auto rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50">Excluir usuário</button>
+                <button type="button" onclick="toggleUserEditModal(false)" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Cancelar</button>
+                <button type="submit" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Salvar alterações</button>
             </div>
         </form>
     </div>
@@ -336,9 +508,9 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e metadados (TCP Port, WebApp Port, IP, log e prioridade) de cada serviço.</p>
             </div>
             <div class="flex gap-2">
-                <button type="button" onclick="autoDiscoverServices()" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50">Busca automática</button>
-                <button type="submit" form="environmentForm" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
-                <button type="button" onclick="closeEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
+                <button type="button" onclick="autoDiscoverServices()" class="button-highlight-secondary rounded-xl px-3 py-2 text-xs font-semibold">Busca automática</button>
+                <button type="submit" form="environmentForm" class="button-highlight-primary rounded-xl px-3 py-2 text-xs font-semibold">Salvar ambiente</button>
+                <button type="button" onclick="closeEnvironmentForm()" class="button-highlight-neutral rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
             </div>
         </div>
 
@@ -371,6 +543,17 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <input id="environmentRestUrl" placeholder="Link de acesso do serviço REST" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
                 <p class="mt-1 text-xs text-slate-500">Exemplo: `http://10.10.1.68:8081/rest` ou outra URL do endpoint REST.</p>
             </div>
+            <div class="grid gap-3 md:grid-cols-2">
+                <label class="space-y-1 text-sm">
+                    <span class="font-medium text-slate-700">Versão do ERP</span>
+                    <input id="environmentErpVersion" placeholder="Ex.: 12.1.2410" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                </label>
+                <label class="space-y-1 text-sm">
+                    <span class="font-medium text-slate-700">Data da atualização da base</span>
+                    <input id="environmentDatabaseUpdateDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    <p id="environmentDatabaseUpdateHint" class="mt-1 text-xs text-slate-500">Informe manualmente a data da atualização da base.</p>
+                </label>
+            </div>
 
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                 <label class="space-y-1 text-sm">
@@ -391,7 +574,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             <div>
                 <div class="mb-2 flex items-center justify-between">
                     <span class="text-sm font-medium text-slate-700">Serviços</span>
-                    <button type="button" onclick="addServiceRow()" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Adicionar serviço</button>
+                    <button type="button" onclick="addServiceRow()" class="button-highlight-primary rounded-xl px-3 py-2 text-xs font-semibold">Adicionar serviço</button>
                 </div>
                 <div id="serviceRows" class="space-y-2"></div>
             </div>
@@ -399,16 +582,16 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             <div>
                 <div class="mb-2 flex items-center justify-between">
                     <span class="text-sm font-medium text-slate-700">Infra</span>
-                    <button type="button" onclick="addInfraRow()" class="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Adicionar infra</button>
+                    <button type="button" onclick="addInfraRow()" class="button-highlight-primary rounded-xl px-3 py-2 text-xs font-semibold">Adicionar infra</button>
                 </div>
-                <p class="mb-2 text-xs text-slate-500">Cadastre serviços de infraestrutura como `dbaccess`, `broker`, `license` e `webagent`.</p>
+                <p class="mb-2 text-xs text-slate-500">Cadastre serviços de infraestrutura como `dbaccess`, `broker`, `balance master`, `license` e `webagent`.</p>
                 <div id="infraRows" class="space-y-2"></div>
             </div>
 
             <div class="sticky bottom-0 z-10 flex flex-wrap gap-2 border-t border-slate-200 bg-white/95 pt-4 backdrop-blur">
-                <button type="submit" class="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Salvar ambiente</button>
-                <button type="button" onclick="resetEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Limpar</button>
-                <button type="button" onclick="closeEnvironmentForm()" class="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700">Fechar</button>
+                <button type="submit" class="button-highlight-primary rounded-xl px-3 py-2 text-sm font-semibold">Salvar ambiente</button>
+                <button type="button" onclick="resetEnvironmentForm()" class="button-highlight-secondary rounded-xl px-4 py-2 font-semibold">Limpar</button>
+                <button type="button" onclick="closeEnvironmentForm()" class="button-highlight-neutral rounded-xl px-4 py-2 font-semibold">Fechar</button>
             </div>
         </form>
     </div>
@@ -424,8 +607,8 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                 <p id="autoDiscoverSubtitle" class="text-sm text-slate-500">Acompanhamento da descoberta de serviços e leitura do appserver.ini.</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="clearAutoDiscoverLog()" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Limpar</button>
-                <button onclick="toggleAutoDiscoverModal(false)" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Fechar</button>
+                <button onclick="clearAutoDiscoverLog()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar</button>
+                <button onclick="toggleAutoDiscoverModal(false)" class="button-highlight-neutral rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
             </div>
         </div>
         <div id="autoDiscoverTerminal" class="h-[55vh] overflow-y-auto border-t border-slate-200 bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300"></div>
@@ -495,14 +678,18 @@ function applyEnvironmentServiceFilter() {
 }
 
 function getSavedTheme() {
-    return localStorage.getItem(THEME_STORAGE_KEY) || "light";
+    return localStorage.getItem(THEME_STORAGE_KEY) || "dark";
 }
 
 function applyTheme(theme) {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    const button = document.getElementById("themeToggle");
-    if (button) {
-        button.textContent = theme === "dark" ? "Tema claro" : "Tema escuro";
+    const toggle = document.getElementById("themeToggle");
+    const label = document.getElementById("themeToggleLabel");
+    if (toggle) {
+        toggle.checked = theme === "dark";
+    }
+    if (label) {
+        label.textContent = theme === "dark" ? "Escuro" : "Claro";
     }
 }
 
@@ -692,13 +879,13 @@ async function autoDiscoverServices() {
     document.getElementById("infraRows").innerHTML = "";
 
     if (mergedServices.list.length) {
-        mergedServices.list.forEach((service) => addServiceRow(service));
+        mergedServices.list.sort(compareServicePresentation).forEach((service) => addServiceRow(service));
     } else {
         addServiceRow();
     }
 
     if (mergedInfra.list.length) {
-        mergedInfra.list.forEach((service) => addInfraRow(service));
+        mergedInfra.list.sort(compareServicePresentation).forEach((service) => addInfraRow(service));
     } else {
         addInfraRow({ name: "dbaccess" });
         addInfraRow({ name: "broker" });
@@ -750,7 +937,7 @@ function getConfirmButtonClass(tone) {
     if (tone === "success") {
         return "rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500";
     }
-    return "rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700";
+    return "button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold";
 }
 
 function showConfirmModal({ title, message, confirmLabel = "Confirmar", tone = "default", confirmationText = "", inputLabel = "Digite a confirmação" }) {
@@ -832,10 +1019,8 @@ function setAdminTab(tabName) {
     ["security", "users", "environments"].forEach((tab) => {
         document.getElementById(`panel-${tab}`).classList.toggle("hidden", tab !== tabName);
         const button = document.getElementById(`tab-${tab}`);
-        button.classList.toggle("bg-slate-900", tab === tabName);
-        button.classList.toggle("text-white", tab === tabName);
-        button.classList.toggle("bg-slate-100", tab !== tabName);
-        button.classList.toggle("text-slate-700", tab !== tabName);
+        button.classList.toggle("button-highlight-primary", tab === tabName);
+        button.classList.toggle("button-highlight-secondary", tab !== tabName);
     });
 }
 
@@ -951,8 +1136,8 @@ function renderUsersList() {
                         <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${activeBadgeClass}">${activeLabel}</span>
                     </div>
                     <div class="flex gap-2 md:justify-self-end">
-                        <button type="button" onclick="openUserEditModal('${encodeURIComponent(user.username)}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700">Editar</button>
-                        <button type="button" ${user.username === currentUser.username ? "disabled" : ""} onclick="removeUser('${encodeURIComponent(user.username)}')" class="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50">Excluir</button>
+                        <button type="button" onclick="openUserEditModal('${encodeURIComponent(user.username)}')" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Editar</button>
+                        <button type="button" ${user.username === currentUser.username ? "disabled" : ""} onclick="removeUser('${encodeURIComponent(user.username)}')" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50">Excluir</button>
                     </div>
                 </div>
             </div>
@@ -1127,6 +1312,19 @@ function addInfraRow(service = {}) {
     addRow("infraRows", "infra", service);
 }
 
+function compareServicePresentation(left, right) {
+    const leftIp = String(left.service_ip || "").trim();
+    const rightIp = String(right.service_ip || "").trim();
+    const ipComparison = leftIp.localeCompare(rightIp, "pt-BR", { sensitivity: "base" });
+    if (ipComparison !== 0) {
+        return ipComparison;
+    }
+
+    const leftLabel = String(left.display_name || left.name || "").trim();
+    const rightLabel = String(right.display_name || right.name || "").trim();
+    return leftLabel.localeCompare(rightLabel, "pt-BR", { sensitivity: "base" });
+}
+
 function addRow(containerId, prefix, service = {}) {
     const container = document.getElementById(containerId);
     const row = document.createElement("div");
@@ -1138,7 +1336,7 @@ function addRow(containerId, prefix, service = {}) {
     const restPort = service.rest_port || "";
     const serviceIp = service.service_ip || "";
     const consoleLogFile = service.console_log_file || "";
-    const priority = prefix === "infra" ? "alta" : (service.priority || "media");
+    const priority = prefix === "infra" ? (service.priority || "alta") : (service.priority || "media");
 
     row.className = "grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-2 xl:grid-cols-4";
     row.innerHTML = `
@@ -1156,7 +1354,7 @@ function addRow(containerId, prefix, service = {}) {
         </label>
         <label class="space-y-1 text-sm">
             <span class="font-medium text-slate-700">Prioridade</span>
-            <select class="${prefix}-priority w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" ${prefix === "infra" ? "disabled" : ""}>
+            <select class="${prefix}-priority w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
                 <option value="baixa" ${priority === "baixa" ? "selected" : ""}>Baixa</option>
                 <option value="media" ${priority === "media" ? "selected" : ""}>Média</option>
                 <option value="alta" ${priority === "alta" ? "selected" : ""}>Alta</option>
@@ -1182,7 +1380,7 @@ function addRow(containerId, prefix, service = {}) {
             <span class="font-medium text-slate-700">Console log file</span>
             <input value="${escapeHtml(consoleLogFile)}" placeholder="Caminho do log" class="${prefix}-console-log-file w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
         </label>
-        <button type="button" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 md:col-span-2 xl:col-span-4">Remover</button>
+        <button type="button" class="button-highlight-secondary rounded-xl px-3 py-2 text-sm font-semibold md:col-span-2 xl:col-span-4">Remover</button>
     `;
     const nameInput = row.querySelector(`.${prefix}-name`);
     const displayInput = row.querySelector(`.${prefix}-display-name`);
@@ -1249,7 +1447,7 @@ function readInfraServices() {
         name: row.querySelector(".infra-name").value.trim(),
         display_name: row.querySelector(".infra-display-name").value.trim(),
         path_executable: row.querySelector(".infra-path-executable").value.trim(),
-        priority: "alta",
+        priority: row.querySelector(".infra-priority").value,
         service_ip: row.querySelector(".infra-service-ip").value.trim(),
         tcp_port: row.querySelector(".infra-tcp-port").value.trim(),
         webapp_port: row.querySelector(".infra-webapp-port").value.trim(),
@@ -1273,6 +1471,8 @@ function resetEnvironmentForm() {
     editingEnvironmentId = null;
     document.getElementById("environmentForm").reset();
     document.getElementById("environmentType").value = "homologacao";
+    document.getElementById("environmentErpVersion").value = "";
+    document.getElementById("environmentDatabaseUpdateDate").value = "";
     document.getElementById("environmentServiceFilter").value = "";
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
@@ -1281,6 +1481,7 @@ function resetEnvironmentForm() {
     addInfraRow({ name: "broker" });
     addInfraRow({ name: "license" });
     addInfraRow({ name: "webagent" });
+    applyEnvironmentTypeDefaults();
     updateEnvironmentServiceNamesDatalist();
     applyEnvironmentServiceFilter();
 }
@@ -1294,14 +1495,37 @@ function fillEnvironmentForm(environment) {
     document.getElementById("environmentType").value = environment.environment_type || "homologacao";
     document.getElementById("environmentAppUrl").value = environment.app_url || "";
     document.getElementById("environmentRestUrl").value = environment.rest_url || "";
+    document.getElementById("environmentErpVersion").value = environment.erp_version || "";
+    document.getElementById("environmentDatabaseUpdateDate").value = environment.database_update_date || "";
     document.getElementById("environmentServiceFilter").value = "";
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
-    environment.services.forEach((service) => addServiceRow(service));
-    (environment.infra_services || []).forEach((service) => addInfraRow(service));
+    [...(environment.services || [])].sort(compareServicePresentation).forEach((service) => addServiceRow(service));
+    [...(environment.infra_services || [])].sort(compareServicePresentation).forEach((service) => addInfraRow(service));
+    applyEnvironmentTypeDefaults();
     updateEnvironmentServiceNamesDatalist();
     applyEnvironmentServiceFilter();
     setAdminTab("environments");
+}
+
+function getTodayDateISO() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function applyEnvironmentTypeDefaults() {
+    const environmentType = document.getElementById("environmentType")?.value || "homologacao";
+    const dateInput = document.getElementById("environmentDatabaseUpdateDate");
+    const hint = document.getElementById("environmentDatabaseUpdateHint");
+    if (!dateInput || !hint) return;
+
+    if (environmentType === "producao") {
+        if (!dateInput.value) {
+            dateInput.value = getTodayDateISO();
+        }
+        hint.textContent = "Em produção, a data atual é sugerida automaticamente como padrão.";
+    } else {
+        hint.textContent = "Em homologação e desenvolvimento, informe manualmente a data da atualização da base.";
+    }
 }
 
 async function loadEnvironmentAdmin() {
@@ -1353,14 +1577,16 @@ async function loadEnvironmentAdmin() {
                             <span class="rounded-full px-3 py-1 text-xs font-semibold ${environmentType.badgeClass}">${environmentType.label}</span>
                         </div>
                         <div class="mt-1 text-sm text-slate-500">IP: ${escapeHtml(environment.host)}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">ERP:</span> ${escapeHtml(environment.erp_version || "Não informado")}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Base atualizada em:</span> ${escapeHtml(environment.database_update_date || "Não informado")}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Aplicação:</span> ${appLinkLabel}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">REST:</span> ${restLinkLabel}</div>
                         <div class="mt-2 text-sm text-slate-600"><span class="font-semibold">Serviços cadastrados:</span> ${totalServicesCount}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Resumo:</span> Aplicação ${appServicesCount} | Infra ${infraServicesCount}</div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="editEnvironment('${environment.id}')" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Editar</button>
-                        <button onclick="removeEnvironment('${environment.id}')" class="rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600">Excluir</button>
+                        <button onclick="editEnvironment('${environment.id}')" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Editar</button>
+                        <button onclick="removeEnvironment('${environment.id}')" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100">Excluir</button>
                     </div>
                 </div>
             </div>
@@ -1461,6 +1687,8 @@ document.getElementById("environmentForm").addEventListener("submit", async (eve
         host: document.getElementById("environmentHost").value.trim(),
         app_url: document.getElementById("environmentAppUrl").value.trim(),
         rest_url: document.getElementById("environmentRestUrl").value.trim(),
+        erp_version: document.getElementById("environmentErpVersion").value.trim(),
+        database_update_date: document.getElementById("environmentDatabaseUpdateDate").value,
         services: readEnvironmentServices(),
         infra_services: readInfraServices(),
     };
@@ -1503,10 +1731,13 @@ document.getElementById("environmentForm").addEventListener("submit", async (eve
 setAdminTab("security");
 resetEnvironmentForm();
 closeEnvironmentForm();
-document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+document.getElementById("themeToggle").addEventListener("change", toggleTheme);
 document.getElementById("environmentFilterSelect").addEventListener("change", (event) => {
     environmentFilterId = String(event.target.value || "");
     loadEnvironmentAdmin();
+});
+document.getElementById("environmentType").addEventListener("change", () => {
+    applyEnvironmentTypeDefaults();
 });
 document.getElementById("environmentServiceFilter").addEventListener("input", () => {
     applyEnvironmentServiceFilter();

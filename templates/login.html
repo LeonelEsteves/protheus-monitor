@@ -8,13 +8,125 @@
 window.tailwind = window.tailwind || {};
 window.tailwind.config = { darkMode: "class" };
 const THEME_STORAGE_KEY = "monitor-theme";
-if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
+if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     document.documentElement.classList.add("dark");
 }
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
 <title>Login | Monitor Protheus</title>
 <style>
+    .button-highlight-primary {
+        background: #2563eb;
+        border: 1px solid #1d4ed8;
+        color: #ffffff;
+    }
+
+    .button-highlight-primary:hover {
+        background: #1d4ed8;
+        border-color: #1e40af;
+    }
+
+    .button-highlight-secondary {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        color: #ffffff;
+    }
+
+    .button-highlight-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .login-shell {
+        background: rgba(255, 255, 255, 0.78);
+        border-color: rgba(148, 163, 184, 0.24);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+    }
+
+    .login-side {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.94));
+    }
+
+    .login-footer {
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        background: rgba(255, 255, 255, 0.82);
+        color: #334155;
+    }
+
+    .login-footer-muted {
+        color: #64748b;
+    }
+
+    .login-footer-stack {
+        color: #475569;
+    }
+
+    .login-footer-chip {
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: rgba(248, 250, 252, 0.95);
+    }
+
+    .theme-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+    }
+
+    .theme-switch-track {
+        position: relative;
+        display: inline-flex;
+        width: 3.25rem;
+        height: 1.8rem;
+        border-radius: 9999px;
+        background: rgba(148, 163, 184, 0.45);
+        transition: background-color 0.2s ease;
+    }
+
+    .theme-switch-thumb {
+        position: absolute;
+        top: 0.2rem;
+        left: 0.22rem;
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 9999px;
+        background: #ffffff;
+        transition: transform 0.2s ease;
+    }
+
+    .theme-switch input:checked + .theme-switch-track {
+        background: #2563eb;
+    }
+
+    .theme-switch input:checked + .theme-switch-track .theme-switch-thumb {
+        transform: translateX(1.42rem);
+    }
+
+    .theme-switch-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.82);
+    }
+
+    button {
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+        transform: translateY(-1px);
+    }
+
+    button:focus-visible,
+    .theme-switch input:focus-visible + .theme-switch-track {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
     .dark body {
         background:
             radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 34%),
@@ -57,21 +169,43 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
         background: rgba(59, 130, 246, 0.14);
         color: #dbeafe;
     }
+
+    .dark .login-footer {
+        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .dark .login-footer-muted {
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .dark .login-footer-stack {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .dark .login-footer-chip {
+        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+    }
 </style>
 </head>
-<body class="min-h-screen bg-[radial-gradient(circle_at_top,_#1e293b,_#020617_60%)] text-white transition-colors duration-300">
+<body class="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300">
 <div class="flex min-h-screen flex-col justify-between p-6">
 <div class="flex flex-1 items-center justify-center">
     <div class="login-shell relative grid w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/10 bg-white/10 shadow-2xl backdrop-blur md:grid-cols-[1.2fr_0.8fr]">
-        <button id="themeToggle" type="button" class="absolute right-4 top-4 z-10 inline-flex h-10 items-center rounded-2xl border border-white/15 bg-white/10 px-4 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
-            Tema escuro
-        </button>
+        <label class="theme-switch absolute right-4 top-4 z-10">
+            <input id="themeToggle" type="checkbox" class="sr-only" aria-label="Alternar tema">
+            <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
+            <span id="themeToggleLabel" class="theme-switch-label">Claro</span>
+        </label>
         <section class="login-side hidden bg-slate-900/60 p-10 md:block">
             <div class="flex items-center gap-3">
                 <img src="{{ url_for('static', filename='logo/gamb-logo.png') }}" alt="Logo GAMB" class="h-20 w-20 rounded-full border border-white/15 bg-white/5 p-1 object-cover">
                 <div>
                     <p class="text-sm uppercase tracking-[0.35em] text-slate-300">GAMB</p>
-                    <p class="mt-1 text-sm font-semibold text-slate-200">GAMB - Gerenciador de Ambientes</p>
+                    <p class="mt-1 text-sm font-semibold text-slate-200">Gerenciador de Ambientes</p>
+                    <p class="mt-2 text-xs uppercase tracking-[0.25em] text-slate-400">Controle simples. Operação segura.</p>
                 </div>
             </div>
             <h1 class="mt-6 text-4xl font-bold leading-tight">Acesso restrito para operação e administração do ambiente</h1>
@@ -80,9 +214,9 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
             </p--->
 
             <div class="mt-10 space-y-4 text-sm text-slate-200">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">Autenticação obrigatória para todas as rotas sensíveis.</div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">Registro de logs com o usuário autenticado da sessão.</div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">Administração de cadastros disponível apenas para perfil administrador.</div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">Gerencie ambientes e serviços.</div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">Monitore logs de execução e alertas de falhas.</div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">Administre todo o seu ambiente em um único lugar.</div>
             </div>
         </section>
 
@@ -103,7 +237,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
                         <input id="password" name="password" type="password" class="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-slate-400" autocomplete="current-password">
                     </div>
 
-                    <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white transition hover:bg-slate-700">Acessar aplicação</button>
+                    <button type="submit" class="button-highlight-primary w-full rounded-2xl px-4 py-3 font-semibold">Acessar aplicação</button>
                 </form>
 
                 <!--div class="login-tip mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">
@@ -114,15 +248,15 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
     </div>
 </div>
 
-<footer class="mx-auto mt-8 w-full max-w-5xl rounded-[28px] border border-white/10 bg-white/10 px-6 py-5 text-white/90 backdrop-blur">
+<footer class="login-footer mx-auto mt-8 w-full max-w-5xl rounded-[28px] px-6 py-5 backdrop-blur">
     <div class="flex items-center justify-between gap-4 overflow-x-auto whitespace-nowrap">
-        <div class="text-sm text-white/75 md:text-left">Desenvolvido por Leonel Diniz</div>
-        <div class="text-xs uppercase tracking-[0.18em] text-white/60">Versão {{ app_version }}</div>
-        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80">
-            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">Flask</span>
-            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">Tailwind CSS</span>
-            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">PyWin32</span>
-            <span class="rounded-full border border-white/10 bg-white/10 px-3 py-2">JSON</span>
+        <div class="login-footer-muted text-sm md:text-left">GAMB | Developed by leonel.diniz | 2026</div>
+        <div class="login-footer-muted text-xs uppercase tracking-[0.18em]">Versão {{ app_version }}</div>
+        <div class="login-footer-stack flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
+            <span class="login-footer-chip rounded-full px-3 py-2">Flask</span>
+            <span class="login-footer-chip rounded-full px-3 py-2">Tailwind CSS</span>
+            <span class="login-footer-chip rounded-full px-3 py-2">PyWin32</span>
+            <span class="login-footer-chip rounded-full px-3 py-2">JSON</span>
           
         </div>
     </div>
@@ -133,14 +267,18 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "light") === "dark") {
 
 <script>
 function getSavedTheme() {
-    return localStorage.getItem(THEME_STORAGE_KEY) || "light";
+    return localStorage.getItem(THEME_STORAGE_KEY) || "dark";
 }
 
 function applyTheme(theme) {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    const button = document.getElementById("themeToggle");
-    if (button) {
-        button.textContent = theme === "dark" ? "Tema claro" : "Tema escuro";
+    const toggle = document.getElementById("themeToggle");
+    const label = document.getElementById("themeToggleLabel");
+    if (toggle) {
+        toggle.checked = theme === "dark";
+    }
+    if (label) {
+        label.textContent = theme === "dark" ? "Escuro" : "Claro";
     }
 }
 
@@ -157,7 +295,7 @@ function showToast(message) {
     setTimeout(() => toast.classList.add("hidden"), 4000);
 }
 
-document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+document.getElementById("themeToggle").addEventListener("change", toggleTheme);
 applyTheme(getSavedTheme());
 
 document.getElementById("loginForm").addEventListener("submit", async (event) => {

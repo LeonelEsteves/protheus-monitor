@@ -1,5 +1,110 @@
 [
   {
+    "datetime": "2026-04-13 21:36:08",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 21:35:35",
+    "service": "AMBIENTE :: APEX-HML4",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 21:34:36",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 21:34:10",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 21:32:59",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:44",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.177",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:44",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:31",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.176",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:31",
+    "service": "AMBIENTE :: APEX-HML4",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:16",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.173",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:16",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:04",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.172",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:44:04",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:43:43",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.68",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-13 20:43:43",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-13 19:49:26",
     "service": "SERVICO :: APEX-PRD :: Aplicacao :: .22 TOTVS | Microsiga Protheus 12 PRD - Web Service :: 10.10.1.197",
     "action": "SERVICE_CREATE",

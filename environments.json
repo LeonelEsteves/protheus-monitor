@@ -6,6 +6,8 @@
     "host": "10.10.1.173",
     "app_url": "https://webprotheushml3.apexbrasil.com.br/webapp",
     "rest_url": "https://api173.apexbrasil.com.br/rest",
+    "erp_version": "Protheus 12.1.2410",
+    "database_update_date": "2026-01-19",
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML3",
@@ -16,17 +18,6 @@
         "rest_port": "",
         "service_ip": "10.10.1.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML3.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-APEX-HML3-REST",
-        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML3 - REST",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
-        "tcp_port": "13001",
-        "webapp_port": "",
-        "rest_port": "9103",
-        "service_ip": "10.10.1.173",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML3_rest.log",
         "priority": "media"
       },
       {
@@ -63,6 +54,17 @@
         "priority": "baixa"
       },
       {
+        "name": "TOTVS-Appserver12-APEX-HML3-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML3 - REST",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
+        "tcp_port": "13001",
+        "webapp_port": "",
+        "rest_port": "9103",
+        "service_ip": "10.10.1.173",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML3_rest.log",
+        "priority": "media"
+      },
+      {
         "name": "TOTVS-Appserver12-APEX-HML3-WS2",
         "display_name": ".09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws2\\appserver.exe",
@@ -75,17 +77,6 @@
       }
     ],
     "infra_services": [
-      {
-        "name": "licenseVirtual",
-        "display_name": "TOTVS | License Server Virtual",
-        "path_executable": "C:\\TOTVS\\TOTVSLicenseVirtual\\bin\\appserver\\appserver.exe",
-        "tcp_port": "2234",
-        "webapp_port": "8020",
-        "rest_port": "",
-        "service_ip": "10.10.1.173",
-        "console_log_file": "",
-        "priority": "alta"
-      },
       {
         "name": "TOTVSDBAccess64",
         "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
@@ -106,6 +97,17 @@
         "rest_port": "",
         "service_ip": "10.10.1.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML3.log",
+        "priority": "baixa"
+      },
+      {
+        "name": "licenseVirtual",
+        "display_name": "TOTVS | License Server Virtual",
+        "path_executable": "C:\\TOTVS\\TOTVSLicenseVirtual\\bin\\appserver\\appserver.exe",
+        "tcp_port": "2234",
+        "webapp_port": "8020",
+        "rest_port": "",
+        "service_ip": "10.10.1.173",
+        "console_log_file": "",
         "priority": "alta"
       }
     ]
@@ -117,6 +119,8 @@
     "host": "10.10.1.68",
     "app_url": "https://webprotheushml1.apexbrasil.com.br/webapp/",
     "rest_url": "https://api68.apexbrasil.com.br/rest",
+    "erp_version": "Protheus 12.1.2410",
+    "database_update_date": "2026-01-19",
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML1",
@@ -127,17 +131,6 @@
         "rest_port": "",
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-APEX-HML1-REST",
-        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
-        "tcp_port": "13001",
-        "webapp_port": "",
-        "rest_port": "9103",
-        "service_ip": "10.10.1.68",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1_rest.log",
         "priority": "media"
       },
       {
@@ -174,6 +167,17 @@
         "priority": "baixa"
       },
       {
+        "name": "TOTVS-Appserver12-APEX-HML1-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
+        "tcp_port": "13001",
+        "webapp_port": "",
+        "rest_port": "9103",
+        "service_ip": "10.10.1.68",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1_rest.log",
+        "priority": "media"
+      },
+      {
         "name": "TOTVS-Appserver12-APEX-HML1-WS-TAF",
         "display_name": ".08 TOTVS | Microsiga Protheus 12 APEX-HML1 - WS TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
@@ -198,6 +202,28 @@
     ],
     "infra_services": [
       {
+        "name": "TOTVSDBAccess64",
+        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
+        "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
+        "tcp_port": "12210",
+        "webapp_port": "8099",
+        "rest_port": "",
+        "service_ip": "10.10.1.68",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
+        "priority": "alta"
+      },
+      {
+        "name": "TOTVSDBAccess64TSS",
+        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
+        "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
+        "tcp_port": "12210",
+        "webapp_port": "8099",
+        "rest_port": "",
+        "service_ip": "10.10.1.68",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
+        "priority": "baixa"
+      },
+      {
         "name": "TOTVS-Appserver12-P2410-HML1-BROKER",
         "display_name": ".10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_broker_webapp\\appserver.exe",
@@ -218,28 +244,6 @@
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-HML1_BROKER_REST.log",
         "priority": "alta"
-      },
-      {
-        "name": "TOTVSDBAccess64",
-        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
-        "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
-        "tcp_port": "12210",
-        "webapp_port": "8099",
-        "rest_port": "",
-        "service_ip": "10.10.1.68",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
-        "priority": "alta"
-      },
-      {
-        "name": "TOTVSDBAccess64TSS",
-        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
-        "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
-        "tcp_port": "12210",
-        "webapp_port": "8099",
-        "rest_port": "",
-        "service_ip": "10.10.1.68",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
-        "priority": "alta"
       }
     ]
   },
@@ -250,6 +254,8 @@
     "host": "10.10.1.172",
     "app_url": "https://webprotheushml1.apexbrasil.com.br/webapp",
     "rest_url": "https://api172.apexbrasil.com.br/rest",
+    "erp_version": "Protheus 12.1.2410",
+    "database_update_date": "2026-01-29",
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML2",
@@ -263,17 +269,6 @@
         "priority": "media"
       },
       {
-        "name": "TOTVS-Appserver12-APEX-HML2-FIS",
-        "display_name": ".10 TOTVS | Microsiga Protheus 12 APEX-HML2-FISC",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_fiscal\\appserver.exe",
-        "tcp_port": "12220",
-        "webapp_port": "8090",
-        "rest_port": "",
-        "service_ip": "10.10.1.172",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2-fisc.log",
-        "priority": "baixa"
-      },
-      {
         "name": "TOTVS-Appserver12-APEX-HML2-NGF",
         "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML2-NGF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ngf\\appserver.exe",
@@ -282,17 +277,6 @@
         "rest_port": "",
         "service_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2-NGF.log",
-        "priority": "baixa"
-      },
-      {
-        "name": "TOTVS-Appserver12-APEX-HML2-REST",
-        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML2 - REST",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
-        "tcp_port": "13001",
-        "webapp_port": "8015",
-        "rest_port": "9103",
-        "service_ip": "10.10.1.172",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2_rest.log",
         "priority": "baixa"
       },
       {
@@ -329,6 +313,17 @@
         "priority": "baixa"
       },
       {
+        "name": "TOTVS-Appserver12-APEX-HML2-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML2 - REST",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
+        "tcp_port": "13001",
+        "webapp_port": "8015",
+        "rest_port": "9103",
+        "service_ip": "10.10.1.172",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2_rest.log",
+        "priority": "baixa"
+      },
+      {
         "name": "TOTVS-Appserver12-APEX-HML2-WS-TAF",
         "display_name": ".08 TOTVS | Microsiga Protheus 12 APEX-HML2 - WS TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
@@ -348,6 +343,17 @@
         "rest_port": "9103",
         "service_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML2_WS2.log",
+        "priority": "baixa"
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML2-FIS",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12 APEX-HML2-FISC",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_fiscal\\appserver.exe",
+        "tcp_port": "12220",
+        "webapp_port": "8090",
+        "rest_port": "",
+        "service_ip": "10.10.1.172",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2-fisc.log",
         "priority": "baixa"
       }
     ],
@@ -372,7 +378,7 @@
         "rest_port": "",
         "service_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\TSS\\logs\\console_tss.log",
-        "priority": "alta"
+        "priority": "baixa"
       }
     ]
   },
@@ -383,6 +389,8 @@
     "host": "10.10.1.176",
     "app_url": "https://webprotheushml4.apexbrasil.com.br/webapp/",
     "rest_url": "https://api176.apexbrasil.com.br/rest",
+    "erp_version": "Protheus 12.1.2510",
+    "database_update_date": "2026-01-27",
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML4",
@@ -393,28 +401,6 @@
         "rest_port": "",
         "service_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-APEX-HML4_SVW",
-        "display_name": ".09 TOTVS | Microsiga Protheus 12 APEX-HML4 - SMARTVIEW",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_smartview\\appserver.exe",
-        "tcp_port": "13006",
-        "webapp_port": "",
-        "rest_port": "9104",
-        "service_ip": "10.10.1.176",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4_SVW.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-APEX-HML4-REST",
-        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML4 - REST",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
-        "tcp_port": "13001",
-        "webapp_port": "",
-        "rest_port": "9103",
-        "service_ip": "10.10.1.176",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4_rest.log",
         "priority": "media"
       },
       {
@@ -451,6 +437,17 @@
         "priority": "baixa"
       },
       {
+        "name": "TOTVS-Appserver12-APEX-HML4-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML4 - REST",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
+        "tcp_port": "13001",
+        "webapp_port": "",
+        "rest_port": "9103",
+        "service_ip": "10.10.1.176",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4_rest.log",
+        "priority": "media"
+      },
+      {
         "name": "TOTVS-Appserver12-APEX-HML4-WS-TAF",
         "display_name": ".08 TOTVS | Microsiga Protheus 12 APEX-HML4 - WS TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
@@ -460,9 +457,42 @@
         "service_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML4_TAF.log",
         "priority": "baixa"
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML4_SVW",
+        "display_name": ".09 TOTVS | Microsiga Protheus 12 APEX-HML4 - SMARTVIEW",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_smartview\\appserver.exe",
+        "tcp_port": "13006",
+        "webapp_port": "",
+        "rest_port": "9104",
+        "service_ip": "10.10.1.176",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4_SVW.log",
+        "priority": "media"
       }
     ],
     "infra_services": [
+      {
+        "name": "TOTVSDBAccess64",
+        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
+        "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
+        "tcp_port": "6001",
+        "webapp_port": "4001",
+        "rest_port": "",
+        "service_ip": "10.10.1.176",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4.log",
+        "priority": "alta"
+      },
+      {
+        "name": "TOTVSDBAccess64TSS",
+        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
+        "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
+        "tcp_port": "6001",
+        "webapp_port": "4001",
+        "rest_port": "",
+        "service_ip": "10.10.1.176",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4.log",
+        "priority": "baixa"
+      },
       {
         "name": "TOTVS-Appserver12-P2410-HML1-BROKER",
         "display_name": ".10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker",
@@ -484,28 +514,6 @@
         "service_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-HML4_BROKER_REST.log",
         "priority": "alta"
-      },
-      {
-        "name": "TOTVSDBAccess64",
-        "display_name": ".01 TOTVS | DBAccess 64 bits ERP",
-        "path_executable": "E:\\TOTVS\\DBAccessERP\\dbaccess64.exe",
-        "tcp_port": "6001",
-        "webapp_port": "4001",
-        "rest_port": "",
-        "service_ip": "10.10.1.176",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4.log",
-        "priority": "alta"
-      },
-      {
-        "name": "TOTVSDBAccess64TSS",
-        "display_name": ".02 TOTVS | DBAccess 64 bits TSS",
-        "path_executable": "E:\\TOTVS\\DBAccessTSS\\dbaccess64.exe",
-        "tcp_port": "6001",
-        "webapp_port": "4001",
-        "rest_port": "",
-        "service_ip": "10.10.1.176",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4.log",
-        "priority": "alta"
       }
     ]
   },
@@ -516,6 +524,8 @@
     "host": "10.10.1.177",
     "app_url": "https://webprotheushml5.apexbrasil.com.br/webapp/",
     "rest_url": "https://api177.apexbrasil.com.br/rest",
+    "erp_version": "Protheus 12.1.2410",
+    "database_update_date": "2026-01-29",
     "services": [
       {
         "name": "TOTVS-Appserver12-APEX-HML5",
@@ -526,17 +536,6 @@
         "rest_port": "",
         "service_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML5.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-APEX-HML5-REST",
-        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML5 - REST",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
-        "tcp_port": "13001",
-        "webapp_port": "",
-        "rest_port": "9103",
-        "service_ip": "10.10.1.177",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML5_rest.log",
         "priority": "media"
       },
       {
@@ -573,6 +572,17 @@
         "priority": "baixa"
       },
       {
+        "name": "TOTVS-Appserver12-APEX-HML5-REST",
+        "display_name": ".07 TOTVS | Microsiga Protheus 12 APEX-HML5 - REST",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest\\appserver.exe",
+        "tcp_port": "13001",
+        "webapp_port": "",
+        "rest_port": "9103",
+        "service_ip": "10.10.1.177",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML5_rest.log",
+        "priority": "media"
+      },
+      {
         "name": "TOTVS-Appserver12-APEX-HML5-WS-TAF",
         "display_name": ".08 TOTVS | Microsiga Protheus 12 APEX-HML5 - WS TAF",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ws_taf\\appserver.exe",
@@ -605,7 +615,7 @@
         "rest_port": "",
         "service_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\TSS\\logs\\console_tss.log",
-        "priority": "alta"
+        "priority": "baixa"
       }
     ]
   },
@@ -616,29 +626,9 @@
     "host": "10.10.1.197",
     "app_url": "https://webprotheus.apexbrasil.com.br/webapp/",
     "rest_url": "https://api90.apexbrasil.com.br/rest",
+    "erp_version": "",
+    "database_update_date": "2026-04-13",
     "services": [
-      {
-        "name": "TOTVS-Appserver12-P241-PRD-REST-MASTER",
-        "display_name": ".10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_master\\appserver.exe",
-        "tcp_port": "",
-        "webapp_port": "",
-        "rest_port": "",
-        "service_ip": "10.10.1.90",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_Master.log",
-        "priority": "media"
-      },
-      {
-        "name": "TOTVS-Appserver12-PRD-BAL",
-        "display_name": ".10 TOTVS | Microsiga Protheus 12 PRD - Balance Master",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
-        "tcp_port": "12200",
-        "webapp_port": "8099",
-        "rest_port": "",
-        "service_ip": "10.10.1.197",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_BAL.log",
-        "priority": "media"
-      },
       {
         "name": "TOTVS-Appserver12-PRD-COMPILA",
         "display_name": ".11 TOTVS | Microsiga Protheus 12 PRD - Compila‡ao",
@@ -839,6 +829,28 @@
       }
     ],
     "infra_services": [
+      {
+        "name": "TOTVS-Appserver12-PRD-BAL",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12 PRD - Balance Master",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver\\appserver.exe",
+        "tcp_port": "12200",
+        "webapp_port": "8099",
+        "rest_port": "",
+        "service_ip": "10.10.1.197",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_BAL.log",
+        "priority": "media"
+      },
+      {
+        "name": "TOTVS-Appserver12-P241-PRD-REST-MASTER",
+        "display_name": ".10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_rest_broker\\appserver_rest_master\\appserver.exe",
+        "tcp_port": "",
+        "webapp_port": "",
+        "rest_port": "",
+        "service_ip": "10.10.1.90",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_Master.log",
+        "priority": "media"
+      },
       {
         "name": "licenseVirtual",
         "display_name": "TOTVS | License Server Virtual",
