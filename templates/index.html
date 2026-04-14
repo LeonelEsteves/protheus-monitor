@@ -961,12 +961,18 @@ function renderTabs() {
     tabs.innerHTML = "";
     filtered.forEach((env, index) => {
         const environmentType = getEnvironmentTypeMeta(env.environment_type);
-    const bulkStopRunning = isBulkActionRunning(env.id, "stop");
-    const bulkStartRunning = isBulkActionRunning(env.id, "start");
-        const selectedClass = activeTab === index ? "bg-slate-900 text-white border-slate-900" : `${environmentType.tabClass} border`;
+        const icon = env.environment_type === "producao"
+            ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/><path d="M9.5 12.5l1.5 1.5 3.5-4"/></svg>'
+            : env.environment_type === "homologacao"
+                ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4"/><path d="M15 21h4a2 2 0 0 0 2-2v-4"/><path d="M21 9V5a2 2 0 0 0-2-2h-4"/><path d="M3 15v4a2 2 0 0 0 2 2h4"/></svg>';
+        const selectedClass = activeTab === index
+            ? "border-slate-900 bg-slate-900 text-white shadow-sm dark:border-blue-400 dark:bg-blue-500 dark:text-white"
+            : `${environmentType.tabClass} border hover:brightness-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100`;
         tabs.innerHTML += `
-            <button data-tab-index="${index}" class="monitor-tab rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedClass}">
-                ${escapeHtml(env.environment)}
+            <button data-tab-index="${index}" class="monitor-tab inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${selectedClass}">
+                ${icon}
+                <span>${escapeHtml(env.environment)}</span>
             </button>
         `;
     });
