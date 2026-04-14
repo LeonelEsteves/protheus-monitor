@@ -924,6 +924,41 @@ function getCollectorSyncMeta(environment) {
     };
 }
 
+function formatNumberBr(value, decimals = 2) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return "";
+    return num.toLocaleString("pt-BR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function parseCollectorDiskUnits(diskSpaceRaw) {
+    const text = String(diskSpaceRaw || "").trim();
+    if (!text) return [];
+    return text
+        .split(";")
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .map((part) => {
+            const match = part.match(/([A-Za-z]):\s*([\d.,]+)\s*GB\s*livres?\s*de\s*([\d.,]+)\s*GB/i);
+            if (!match) return null;
+            const unit = `${match[1].toUpperCase()}:`;
+            const free = Number(String(match[2]).replace(",", "."));
+            const total = Number(String(match[3]).replace(",", "."));
+            if (!Number.isFinite(free) || !Number.isFinite(total) || total <= 0) return null;
+            const used = Math.max(0, total - free);
+            const usedPercent = Math.max(0, Math.min(100, (used * 100) / total));
+            const freePercent = Math.max(0, Math.min(100, (free * 100) / total));
+            return {
+                unit,
+                free,
+                total,
+                used,
+                usedPercent,
+                freePercent,
+            };
+        })
+        .filter(Boolean);
+}
+
 function getServiceStatusFromEnvironmentState(environmentId, serviceName, serviceIp = "") {
     const environment = getEnvironmentById(environmentId);
     if (!environment) return "";
@@ -1094,6 +1129,36 @@ function renderContent() {
     const bulkStartRunning = isBulkActionRunning(env.id, "start");
     const serviceSummary = getEnvironmentServiceSummary(env);
     const collectorSyncMeta = getCollectorSyncMeta(env);
+    const collectorServer = env.collector_server || {};
+    const pendingUpdates = Number(collectorServer.windows_updates_pending);
+    const pendingUpdatesLabel = Number.isFinite(pendingUpdates) ? String(pendingUpdates) : "N/D";
+    const diskTotalGb = Number(collectorServer.disk_total_gb);
+    const diskFreeGb = Number(collectorServer.disk_free_gb);
+    const diskUsedGb = (Number.isFinite(diskTotalGb) && Number.isFinite(diskFreeGb)) ? Math.max(0, diskTotalGb - diskFreeGb) : NaN;
+    const diskUsedPercent = (Number.isFinite(diskTotalGb) && diskTotalGb > 0 && Number.isFinite(diskUsedGb))
+        ? Math.max(0, Math.min(100, (diskUsedGb * 100) / diskTotalGb))
+        : NaN;
+    const diskUnits = parseCollectorDiskUnits(collectorServer.disk_space);
+    const lowDiskThresholdPercent = 15;
+    const lowDiskUnits = diskUnits.filter((unitData) => unitData.freePercent <= lowDiskThresholdPercent);
+    const diskUnitsSummary = diskUnits.length
+        ? `
+            <span class="inline-flex items-center rounded-lg border border-sky-300 bg-sky-100 px-2 py-1 text-[11px] text-sky-800" title="${escapeHtml(diskUnits.map((unitData) => `${unitData.unit} ${formatNumberBr(unitData.free)} GB livres (${formatNumberBr(unitData.freePercent, 1)}%) de ${formatNumberBr(unitData.total)} GB`).join(" | "))}">
+                <span><strong class="font-semibold">Unidades de disco</strong> ${escapeHtml(diskUnits.map((unitData) => `${unitData.unit} ${formatNumberBr(unitData.freePercent, 1)}% livre`).join(" | "))}</span>
+            </span>
+        `
+        : (
+            Number.isFinite(diskUsedPercent)
+                ? `
+                    <span class="inline-flex items-center rounded-lg border border-sky-300 bg-sky-100 px-2 py-1 text-[11px] text-sky-800" title="${escapeHtml(`${formatNumberBr(diskUsedGb)} GB usados (${formatNumberBr(diskUsedPercent, 1)}%) de ${formatNumberBr(diskTotalGb)} GB`)}">
+                        <span><strong class="font-semibold">Unidades de disco</strong> ${formatNumberBr(Math.max(0, 100 - diskUsedPercent), 1)}% livre</span>
+                    </span>
+                `
+                : ""
+        );
+    const lowDiskWarning = lowDiskUnits.length
+        ? `<span class="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-100 px-2 py-1 text-[11px] font-semibold text-rose-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg><span>Pouco espaço em disco</span></span>`
+        : "";
     let html = `
         <div class="mb-4 rounded-2xl border p-4 text-sm text-slate-600 ${environmentType.headerClass}">
             <div class="mb-2 flex flex-wrap items-center gap-2">
@@ -1121,6 +1186,16 @@ function renderContent() {
                 </div>
                 ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold text-blue-600 underline underline-offset-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg><span>Acessar aplicação</span></a>` : ""}
                 ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold text-cyan-700 underline underline-offset-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8"/><path d="M12 8v8"/><circle cx="12" cy="12" r="9"/></svg><span>Acessar serviço REST</span></a>` : ""}
+            </div>
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-700">
+                    <span class="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-100 px-2 py-1 text-amber-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>
+                        </svg>
+                        <span>Updates pendentes: <strong class="text-amber-900">${escapeHtml(pendingUpdatesLabel)}</strong></span>
+                    </span>
+                    ${diskUnitsSummary || `<span class="text-[11px] text-slate-500">Disco indisponível</span>`}
+                    ${lowDiskWarning}
             </div>
             <div class="mt-3 flex flex-wrap gap-2">
                 <button ${bulkStartRunning ? "disabled" : ""} data-bulk-action="start" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStartRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-600 hover:bg-emerald-500"}">

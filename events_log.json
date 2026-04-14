@@ -1,5 +1,54 @@
 [
   {
+    "datetime": "2026-04-14 17:43:38",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:43:35",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:41:37",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:41:29",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:38:48",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:38:34",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:36:44",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:36:23",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:34:49",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:34:27",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:30:12",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:30:12",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 17:27:12",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 17:27:02",
+    "user": "system"
+  },
+  {
     "datetime": "2026-04-14 17:22:59",
     "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
     "action": "COLLECTOR_HEALTH",
@@ -1347,55 +1396,6 @@
     "datetime": "2026-04-13 20:44:04",
     "service": "AMBIENTE :: APEX-HML2",
     "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:43:43",
-    "service": "SERVICO :: APEX-HML1 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.68",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:43:43",
-    "service": "AMBIENTE :: APEX-HML1",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .22 TOTVS | Microsiga Protheus 12 PRD - Web Service :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .25 TOTVS | Microsiga Protheus 12 PRD - HUB Cielo :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .24 TOTVS | Microsiga Protheus 12 PRD - WS TAF :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .23 TOTVS | Microsiga Protheus 12 PRD - Workflow :: 10.10.1.197",
-    "action": "SERVICE_CREATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 19:49:26",
-    "service": "SERVICO :: APEX-PRD :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 PRD - Slave 05 :: 10.10.1.90",
-    "action": "SERVICE_CREATE",
     "result": "SUCCESS",
     "user": "admin"
   }

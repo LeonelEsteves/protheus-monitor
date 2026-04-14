@@ -45,6 +45,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Não quebrar o formato de `users.json` e `environments.json` (backward compatibility).
 - Ao alterar HTML/JS, manter a UI funcional sem depender de bundlers (projeto simples).
 - Padrão visual obrigatório: novas telas, modais e componentes devem seguir o mesmo layout/estilo já adotado no projeto (mesma linguagem visual, bordas, tipografia, espaçamento e comportamento em tema claro/escuro).
+- Bloco de informacoes do servidor no topo do ambiente deve permanecer compacto/minimalista; usar chips curtos e barra de disco por unidade (sem texto extenso de capacidade livre no corpo principal).
 
 - Regra adicional: exclusao de servico no formulario deve pedir confirmacao; incluir/alterar/excluir servico precisa gerar log em events_log.json.
 - Tela de servi�os monitorados deve ter filtro por nome do servi�o e por status (RUNNING/STOPPED/etc.).
@@ -71,3 +72,5 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Registrar em events_log.json transicoes de saude do coletor por host (COLLECTOR_HEALTH): PARADO quando sem sincronizacao recente e RODANDO quando retomar.
 - Quando o coletor estiver parado/desatualizado, status dos servicos deve ser exibido como COLETOR PARADO para evitar falsa impressao operacional.
 - Tempo de tolerancia para considerar coletor parado ajustado para janela confortavel (90s) no backend e UI.
+
+- Preferencia visual: em resumo de disco, exibir percentual livre por unidade (ex.: C: 18,4% livre) e alertar "Pouco espaco em disco" quando alguma unidade estiver abaixo do limite configurado.
