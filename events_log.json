@@ -1,5 +1,971 @@
 [
   {
+    "datetime": "2026-04-14 19:06:45",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 23
+  },
+  {
+    "datetime": "2026-04-14 19:06:33",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 34
+  },
+  {
+    "datetime": "2026-04-14 19:06:21",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 24
+  },
+  {
+    "datetime": "2026-04-14 19:06:09",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 33
+  },
+  {
+    "datetime": "2026-04-14 19:05:57",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 29
+  },
+  {
+    "datetime": "2026-04-14 19:05:45",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 38
+  },
+  {
+    "datetime": "2026-04-14 19:05:40",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 22
+  },
+  {
+    "datetime": "2026-04-14 19:05:33",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 27
+  },
+  {
+    "datetime": "2026-04-14 19:05:21",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 24
+  },
+  {
+    "datetime": "2026-04-14 19:05:09",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 24
+  },
+  {
+    "datetime": "2026-04-14 19:04:57",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 28
+  },
+  {
+    "datetime": "2026-04-14 19:04:45",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 33
+  },
+  {
+    "datetime": "2026-04-14 19:04:33",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 27
+  },
+  {
+    "datetime": "2026-04-14 19:04:29",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 24
+  },
+  {
+    "datetime": "2026-04-14 19:04:23",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 23
+  },
+  {
+    "datetime": "2026-04-14 19:04:23",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 19:04:21",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 23
+  },
+  {
+    "datetime": "2026-04-14 19:04:09",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 24
+  },
+  {
+    "datetime": "2026-04-14 19:04:01",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 22
+  },
+  {
+    "datetime": "2026-04-14 19:03:57",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 22
+  },
+  {
+    "datetime": "2026-04-14 19:03:57",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 23
+  },
+  {
+    "datetime": "2026-04-14 19:03:56",
+    "service": "ACESSO",
+    "action": "POST /action",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 121
+  },
+  {
+    "datetime": "2026-04-14 19:03:45",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 24
+  },
+  {
+    "datetime": "2026-04-14 19:03:45",
+    "service": "ACESSO",
+    "action": "GET /",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 141
+  },
+  {
+    "datetime": "2026-04-14 19:03:45",
+    "service": "ACESSO",
+    "action": "POST /login",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 235
+  },
+  {
+    "datetime": "2026-04-14 19:03:45",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-14 19:03:42",
+    "service": "ACESSO",
+    "action": "POST /login",
+    "result": "ERROR",
+    "user": "anonymous",
+    "ip": "10.85.0.173",
+    "http_status": 401,
+    "duration_ms": 173
+  },
+  {
+    "datetime": "2026-04-14 19:03:42",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "ERROR",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST",
+    "details": "Senha inválida."
+  },
+  {
+    "datetime": "2026-04-14 19:03:39",
+    "service": "ACESSO",
+    "action": "GET /login",
+    "result": "SUCCESS",
+    "user": "anonymous",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 138
+  },
+  {
+    "datetime": "2026-04-14 19:03:39",
+    "service": "ACESSO",
+    "action": "POST /logout",
+    "result": "SUCCESS",
+    "user": "anonymous",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 31
+  },
+  {
+    "datetime": "2026-04-14 19:03:39",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-14 19:03:31",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 25
+  },
+  {
+    "datetime": "2026-04-14 19:03:19",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 37
+  },
+  {
+    "datetime": "2026-04-14 19:03:09",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 23
+  },
+  {
+    "datetime": "2026-04-14 19:03:07",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 22
+  },
+  {
+    "datetime": "2026-04-14 19:03:06",
+    "service": "ACESSO",
+    "action": "GET /",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 139
+  },
+  {
+    "datetime": "2026-04-14 19:03:06",
+    "service": "ACESSO",
+    "action": "POST /login",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 223
+  },
+  {
+    "datetime": "2026-04-14 19:03:06",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-14 19:03:03",
+    "service": "ACESSO",
+    "action": "POST /login",
+    "result": "ERROR",
+    "user": "anonymous",
+    "ip": "10.85.0.173",
+    "http_status": 401,
+    "duration_ms": 183
+  },
+  {
+    "datetime": "2026-04-14 19:03:03",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "ERROR",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST",
+    "details": "Senha inválida."
+  },
+  {
+    "datetime": "2026-04-14 19:02:56",
+    "service": "ACESSO",
+    "action": "GET /login",
+    "result": "SUCCESS",
+    "user": "anonymous",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 158
+  },
+  {
+    "datetime": "2026-04-14 19:02:56",
+    "service": "ACESSO",
+    "action": "POST /logout",
+    "result": "SUCCESS",
+    "user": "anonymous",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 29
+  },
+  {
+    "datetime": "2026-04-14 19:02:56",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-14 19:02:48",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 31
+  },
+  {
+    "datetime": "2026-04-14 19:02:44",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 27
+  },
+  {
+    "datetime": "2026-04-14 19:02:36",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 25
+  },
+  {
+    "datetime": "2026-04-14 19:02:25",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 26
+  },
+  {
+    "datetime": "2026-04-14 19:02:24",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 30
+  },
+  {
+    "datetime": "2026-04-14 19:02:24",
+    "service": "ACESSO",
+    "action": "GET /",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 163
+  },
+  {
+    "datetime": "2026-04-14 19:02:08",
+    "service": "ACESSO",
+    "action": "GET /admin",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 195
+  },
+  {
+    "datetime": "2026-04-14 19:01:59",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 30
+  },
+  {
+    "datetime": "2026-04-14 19:01:59",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 19:01:49",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 19:01:58",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 28
+  },
+  {
+    "datetime": "2026-04-14 19:01:58",
+    "service": "ACESSO",
+    "action": "GET /",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 184
+  },
+  {
+    "datetime": "2026-04-14 19:01:57",
+    "service": "ACESSO",
+    "action": "GET /logs",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "http_status": 200,
+    "duration_ms": 26
+  },
+  {
+    "datetime": "2026-04-14 19:01:57",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 19:01:48",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:58:55",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:58:29",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:58:15",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:58:04",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.85.0.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML1 - Web Service :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML1 - HUB Cielo :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML1 - WS TAF :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML1 - Workflow :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML1 - Schedule :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:53:29",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:52:18",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:52:17",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:52:18",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:52:13",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:52:09",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:49:45",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:35",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:14",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.85.0.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML1 - Web Service :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML1 - HUB Cielo :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML1 - WS TAF :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML1 - Workflow :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML1 - Schedule :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: webagent :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: license :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: dbaccess :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: broker :: 10.10.1.68",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:47:13",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:23",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.85.0.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:23",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML1 - Web Service :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML1 - HUB Cielo :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML1 - WS TAF :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML1 - Workflow :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML1 - Schedule :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:43:22",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:40:55",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:39:18",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:38:52",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:38:39",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:33:54",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-14 18:33:39",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:33:39",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: webagent :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:33:39",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: license :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:33:39",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: dbaccess :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:33:39",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: broker :: 10.10.1.68",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:33:39",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-14 18:32:45",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "RODANDO - sincronizado em 2026-04-14 18:32:42",
+    "user": "system"
+  },
+  {
     "datetime": "2026-04-14 18:27:51",
     "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
     "action": "COLLECTOR_HEALTH",
@@ -983,419 +1949,6 @@
     "datetime": "2026-04-14 16:19:43",
     "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
     "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 16:19:43",
-    "service": "SERVICO :: APEX-HML1 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.68",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 16:19:43",
-    "service": "SERVICO :: APEX-HML1 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.68",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 16:19:43",
-    "service": "SERVICO :: APEX-HML1 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.68",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 16:19:43",
-    "service": "SERVICO :: APEX-HML1 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.68",
-    "action": "SERVICE_DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 16:19:43",
-    "service": "AMBIENTE :: APEX-HML1",
-    "action": "DELETE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:34:11",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:32:16",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "start",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:29:59",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:27:06",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "restart",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:25:05",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "start",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:24:04",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:21:23",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "start",
-    "result": "ERROR",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:17:40",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "start",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:16:38",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:11:59",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "start",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:11:44",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "stop",
-    "result": "ERROR",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:09:06",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "stop",
-    "result": "ERROR",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:08:26",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "stop",
-    "result": "SUCCESS_FORCED",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:07:12",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
-    "action": "start",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 12:06:41",
-    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-REST",
-    "action": "start",
-    "result": "ERROR",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:15:32",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:15:27",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:15:21",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:15:03",
-    "service": "SERVERS",
-    "action": "ALERTS",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:12:53",
-    "service": "SERVERS",
-    "action": "ALERTS",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:12:21",
-    "service": "SERVERS",
-    "action": "ALERTS",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:12:14",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:11:56",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:11:50",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:11:02",
-    "service": "SERVERS",
-    "action": "ALERTS",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:07:30",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:06:17",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 11:01:29",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:57:44",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:46:30",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:45:53",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:41:10",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:34:42",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:31:31",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:30:27",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:28:37",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:27:41",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "WARNING",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:25:44",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:25:10",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:22:01",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:20:50",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "WARNING",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:19:55",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "WARNING",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:19:29",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:18:11",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:08:32",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 10:04:08",
-    "service": "SERVERS",
-    "action": "INVENTORY",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-14 09:44:10",
-    "service": "SERVERS",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 21:51:46",
-    "service": "AMBIENTE :: APEX-PRD",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 21:36:08",
-    "service": "AMBIENTE :: APEX-HML5",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 21:35:35",
-    "service": "AMBIENTE :: APEX-HML4",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 21:34:36",
-    "service": "AMBIENTE :: APEX-HML3",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 21:34:10",
-    "service": "AMBIENTE :: APEX-HML2",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 21:32:59",
-    "service": "AMBIENTE :: APEX-HML1",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-13 20:44:44",
-    "service": "SERVICO :: APEX-HML5 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.177",
-    "action": "SERVICE_UPDATE",
     "result": "SUCCESS",
     "user": "admin"
   }

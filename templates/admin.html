@@ -561,18 +561,18 @@ document.documentElement.classList.add("dark");
 <datalist id="serviceNamesDatalist"></datalist>
 
 <div id="autoDiscoverModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/70 p-4">
-    <div class="w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+    <div class="w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl text-slate-100">
+        <div class="flex items-center justify-between border-b border-slate-700 bg-slate-900 px-5 py-4">
             <div>
-                <h2 id="autoDiscoverTitle" class="text-lg font-semibold text-slate-900">Busca automática</h2>
-                <p id="autoDiscoverSubtitle" class="text-sm text-slate-500">Acompanhamento da descoberta de serviços e leitura do appserver.ini.</p>
+                <h2 id="autoDiscoverTitle" class="text-lg font-semibold text-slate-100">Busca automática</h2>
+                <p id="autoDiscoverSubtitle" class="text-sm text-slate-300">Acompanhamento da descoberta de serviços e leitura do appserver.ini.</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="clearAutoDiscoverLog()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar</button>
                 <button onclick="toggleAutoDiscoverModal(false)" class="button-highlight-neutral rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
             </div>
         </div>
-        <div id="autoDiscoverTerminal" class="h-[55vh] overflow-y-auto border-t border-slate-200 bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300"></div>
+        <div id="autoDiscoverTerminal" class="h-[55vh] overflow-y-auto border-t border-slate-700 bg-slate-950 px-5 py-4 font-mono text-sm text-emerald-300"></div>
     </div>
 </div>
 
@@ -751,12 +751,7 @@ async function autoDiscoverServices() {
     toggleAutoDiscoverModal(true);
     appendAutoDiscoverLog(`Iniciando busca automática em: ${hosts.join(", ")}.`);
     appendAutoDiscoverLog("Sem credenciais explícitas; tentando resolver hostname automaticamente quando você informar IP.", "warn");
-    appendAutoDiscoverLog("Coletando serviços já preenchidos no formulário...");
-
-    const existingServices = readEnvironmentServices();
-    const existingInfra = readInfraServices();
-
-    appendAutoDiscoverLog(`Serviços no formulário: ${existingServices.length}. Infra no formulário: ${existingInfra.length}.`);
+    appendAutoDiscoverLog("Aplicando regra: carregar somente serviços presentes no JSON do coletor.");
     appendAutoDiscoverLog("Chamando endpoint /discover-services ...");
 
     const result = await apiFetch("/discover-services", {
@@ -810,29 +805,20 @@ async function autoDiscoverServices() {
         `Campos preenchidos via INI: TCP=${withTcp}, WEBAPP=${withWebapp}, REST=${withRest}, ConsoleFile=${withConsole}.`
     );
 
-    const mergedServices = mergeDiscoveredServices(existingServices, discoveredServices);
-    const mergedInfra = mergeDiscoveredServices(existingInfra, discoveredInfra);
-    appendAutoDiscoverLog(`Merge: Serviços +${mergedServices.added}/~${mergedServices.updated}. Infra +${mergedInfra.added}/~${mergedInfra.updated}.`);
-
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
 
-    if (mergedServices.list.length) {
-        mergedServices.list.sort(compareServicePresentation).forEach((service) => addServiceRow(service));
+    if (discoveredServices.length) {
+        discoveredServices.forEach((service) => addServiceRow(service));
     } else {
         addServiceRow();
     }
 
-    if (mergedInfra.list.length) {
-        mergedInfra.list.sort(compareServicePresentation).forEach((service) => addInfraRow(service));
-    } else {
-        addInfraRow({ name: "dbaccess" });
-        addInfraRow({ name: "broker" });
-        addInfraRow({ name: "license" });
-        addInfraRow({ name: "webagent" });
+    if (discoveredInfra.length) {
+        discoveredInfra.forEach((service) => addInfraRow(service));
     }
 
-    const summary = `Busca automática concluída (Serviços: +${mergedServices.added}/~${mergedServices.updated}; Infra: +${mergedInfra.added}/~${mergedInfra.updated}).`;
+    const summary = `Busca automática concluída (Serviços do coletor: ${discoveredServices.length}; Infra do coletor: ${discoveredInfra.length}).`;
     showToast(summary, "success");
     appendAutoDiscoverLog(summary);
 
@@ -1685,5 +1671,6 @@ loadEnvironmentAdmin();
 
 </body>
 </html>
+
 
 

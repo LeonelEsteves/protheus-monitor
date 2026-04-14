@@ -10,7 +10,7 @@ window.tailwind.config = { darkMode: "class" };
 document.documentElement.classList.add("dark");
 </script>
 <script src="{{ url_for('static', filename='vendor/tailwindcss.js') }}"></script>
-<title>InventÃ¡rio de Servidores | GAMB</title>
+<title>Inventário de Servidores | GAMB</title>
 <style>
     .button-highlight-primary { background: #2563eb; border: 1px solid #1d4ed8; color: #fff; }
     .button-highlight-primary:hover { background: #1d4ed8; border-color: #1e40af; }
@@ -41,7 +41,7 @@ async function apiFetch(url, options = {}) {
     const contentType = String(response.headers.get("content-type") || "").toLowerCase();
     if (!contentType.includes("application/json")) {
         const text = await response.text().catch(() => "");
-        return { response, data: { success: false, error: "Resposta invÃ¡lida do servidor.", details: text.slice(0, 1500) } };
+        return { response, data: { success: false, error: "Resposta inválida do servidor.", details: text.slice(0, 1500) } };
     }
     return { response, data: await response.json() };
 }
@@ -52,7 +52,7 @@ async function logout() {
 function normalizeSearchText(value) {
     return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
-function formatInventoryDate(value) { return String(value || "").trim() || "NÃ£o informado"; }
+function formatInventoryDate(value) { return String(value || "").trim() || "Não informado"; }
 function formatBytesToGb(value) {
     const numericValue = Number(value);
     if (!Number.isFinite(numericValue) || numericValue < 0) return "-";
@@ -60,7 +60,7 @@ function formatBytesToGb(value) {
 }
 function buildInventoryDiskList(disks) {
     if (!Array.isArray(disks) || !disks.length) {
-        return '<div class="rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500">Nenhuma unidade de disco disponÃ­vel foi retornada.</div>';
+        return '<div class="rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500">Nenhuma unidade de disco disponível foi retornada.</div>';
     }
     return disks.map((disk) => {
         return `
@@ -100,19 +100,19 @@ function renderInventory() {
     const items = getFilteredItems();
 
     if (!servers.length) {
-        summary.textContent = "Nenhum servidor cadastrado. Cadastre os IPs na Ã¡rea administrativa antes de usar esta tela.";
+        summary.textContent = "Nenhum servidor cadastrado. Cadastre os IPs na área administrativa antes de usar esta tela.";
         tabs.innerHTML = "";
         content.innerHTML = "";
         return;
     }
     if (inventoryState.loading && !inventoryState.payload) {
-        summary.textContent = "Coletando inventÃ¡rio dos servidores cadastrados...";
-        content.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">Consulta em execuÃ§Ã£o. Aguarde alguns instantes...</div>';
+        summary.textContent = "Coletando inventário dos servidores cadastrados...";
+        content.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">Consulta em execução. Aguarde alguns instantes...</div>';
         tabs.innerHTML = "";
         return;
     }
     if (!inventoryState.payload) {
-        summary.textContent = "Clique em atualizar inventÃ¡rio para consultar os servidores cadastrados.";
+        summary.textContent = "Clique em atualizar inventário para consultar os servidores cadastrados.";
         content.innerHTML = "";
         tabs.innerHTML = "";
         return;
@@ -125,7 +125,7 @@ function renderInventory() {
     summary.innerHTML = `<div class="flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
         <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">${successCount} servidor(es) consultado(s)</span>
         <span class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">${errorCount} falha(s)</span>
-        <span class="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">Ãšltima coleta: ${escapeHtml(formatInventoryDate(payload.generated_at))}</span>
+        <span class="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">Última coleta: ${escapeHtml(formatInventoryDate(payload.generated_at))}</span>
     </div>`;
 
     if (!items.length) {
@@ -144,7 +144,7 @@ function renderInventory() {
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <div class="text-lg font-semibold text-rose-700 dark:text-rose-300">${escapeHtml(item.server || item.connect_host || "Servidor")}</div>
-                        <div class="mt-1 text-sm text-rose-600 dark:text-rose-200">Falha ao coletar o inventÃ¡rio remoto.</div>
+                        <div class="mt-1 text-sm text-rose-600 dark:text-rose-200">Falha ao coletar o inventário remoto.</div>
                     </div>
                     <span class="inline-flex rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/20 dark:text-rose-200">Erro</span>
                 </div>
@@ -157,17 +157,17 @@ function renderInventory() {
         return;
     }
 
-    const ipAddresses = Array.isArray(item.ip_addresses) && item.ip_addresses.length ? item.ip_addresses.map((ip) => escapeHtml(ip)).join(", ") : escapeHtml(item.server || "NÃ£o informado");
+    const ipAddresses = Array.isArray(item.ip_addresses) && item.ip_addresses.length ? item.ip_addresses.map((ip) => escapeHtml(ip)).join(", ") : escapeHtml(item.server || "Não informado");
     const pendingBadge = item.has_pending_updates === null
-        ? '<span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">PendÃªncia nÃ£o verificada</span>'
+        ? '<span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">Pendência não verificada</span>'
         : item.has_pending_updates
-            ? `<span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">${Number(item.pending_update_count || 0)} atualizaÃ§Ã£o(Ãµes) pendente(s)</span>`
-            : '<span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">Sem atualizaÃ§Ãµes pendentes</span>';
+            ? `<span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">${Number(item.pending_update_count || 0)} atualização(ões) pendente(s)</span>`
+            : '<span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">Sem atualizações pendentes</span>';
 
     const statusUpdatesText = item.has_pending_updates === null
-        ? escapeHtml(item.pending_updates_error || "NÃ£o foi possÃ­vel verificar atualizaÃ§Ãµes pendentes.")
+        ? escapeHtml(item.pending_updates_error || "Não foi possível verificar atualizações pendentes.")
         : item.has_pending_updates
-            ? `${Number(item.pending_update_count || 0)} atualizaÃ§Ã£o(Ãµes) aguardando instalaÃ§Ã£o`
+            ? `${Number(item.pending_update_count || 0)} atualização(ões) aguardando instalação`
             : "Windows atualizado";
 
     content.innerHTML = `
@@ -190,13 +190,13 @@ function renderInventory() {
                         <div class="mt-1">${ipAddresses}</div>
                     </div>
                     <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800/80 md:col-span-2">
-                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">AtualizaÃ§Ãµes pendentes</div>
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Atualizações pendentes</div>
                         <div class="mt-1">${statusUpdatesText}</div>
                     </div>
                 </div>
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/70">
-                <div class="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">EspaÃ§o livre em disco</div>
+                <div class="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Espaço livre em disco</div>
                 <div class="space-y-3">${buildInventoryDiskList(item.disks)}</div>
             </div>
         </div>`;
@@ -224,20 +224,20 @@ async function loadInventory(forceRefresh = false) {
         if (inventoryPageLeaving) return;
         inventoryState.payload = {
             items: Array.isArray(result.data?.items) ? result.data.items : [],
-            steps: Array.isArray(result.data?.steps) && result.data.steps.length ? result.data.steps : [result.data?.error || "NÃ£o foi possÃ­vel carregar o inventÃ¡rio dos servidores."],
+            steps: Array.isArray(result.data?.steps) && result.data.steps.length ? result.data.steps : [result.data?.error || "Não foi possível carregar o inventário dos servidores."],
             generated_at: result.data?.generated_at || "",
             cached: false,
         };
         renderInventory();
         if (forceRefresh) {
-            showToast(result.data?.error || "NÃ£o foi possÃ­vel carregar o inventÃ¡rio dos servidores.");
+            showToast(result.data?.error || "Não foi possível carregar o inventário dos servidores.");
         }
         return;
     }
     inventoryState.payload = result.data || {};
     activeTab = 0;
     renderInventory();
-    if (forceRefresh) showToast("InventÃ¡rio dos servidores atualizado com sucesso.", "success");
+    if (forceRefresh) showToast("Inventário dos servidores atualizado com sucesso.", "success");
 }
 document.getElementById("serverFilter").addEventListener("input", function () { activeTab = 0; renderInventory(); });
 window.addEventListener("beforeunload", function () {
@@ -257,4 +257,5 @@ loadServers().then(function () { return loadInventory(false); });
 </script>
 </body>
 </html>
+
 

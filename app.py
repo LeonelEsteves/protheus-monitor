@@ -14,7 +14,7 @@ import threading
 import uuid
 
 from email.mime.text import MIMEText
-from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for
 try:
     from werkzeug.middleware.proxy_fix import ProxyFix
 except Exception:  # pragma: no cover
@@ -30,6 +30,7 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = False
 
 LOG_FILE = "events_log.json"
+LOG_MAX_ENTRIES = 2000
 USERS_FILE = "users.json"
 ENVIRONMENTS_FILE = "environments.json"
 SERVERS_FILE = "servers.json"
@@ -153,7 +154,7 @@ def normalize_service_priority(value):
         "baixa": "baixa",
         "low": "baixa",
         "media": "media",
-        "mÃ©dia": "media",
+        "média": "media",
         "medium": "media",
         "alta": "alta",
         "high": "alta",
@@ -163,7 +164,7 @@ def normalize_service_priority(value):
 
 def infer_environment_type(name):
     normalized = (name or "").strip().lower()
-    if any(token in normalized for token in ["prd", "prod", "producao", "produÃ§Ã£o"]):
+    if any(token in normalized for token in ["prd", "prod", "producao", "produção"]):
         return "producao"
     if any(token in normalized for token in ["hml", "homolog", "qa", "teste"]):
         return "homologacao"
@@ -174,10 +175,10 @@ def normalize_environment_type(value, fallback_name=""):
     normalized = (value or "").strip().lower()
     mapping = {
         "producao": "producao",
-        "produÃ§Ã£o": "producao",
+        "produção": "producao",
         "prod": "producao",
         "homologacao": "homologacao",
-        "homologaÃ§Ã£o": "homologacao",
+        "homologação": "homologacao",
         "hml": "homologacao",
         "desenvolvimento": "desenvolvimento",
         "dev": "desenvolvimento",
@@ -452,7 +453,7 @@ def parse_appserver_ini(text):
         return {}
 
     def extract_section_value(section_name, key_name):
-        # Busca robusta por seÃ§Ã£o+chave sem depender de parser INI estrito
+        # Busca robusta por seção+chave sem depender de parser INI estrito
         section_pattern = re.compile(
             rf"(?ims)^\s*\[{re.escape(section_name)}\]\s*$" rf"(.*?)(?=^\s*\[.*?\]\s*$|\Z)"
         )
@@ -523,7 +524,7 @@ def run_powershell(script):
 def build_remote_targets(hosts):
     normalized_hosts = [host.strip() for host in (hosts or []) if is_valid_remote_host(host)]
     if not normalized_hosts:
-        return [], ["Nenhum host vÃ¡lido informado."]
+        return [], ["Nenhum host válido informado."]
 
     targets = []
     step_logs = []
@@ -537,14 +538,14 @@ def build_remote_targets(hosts):
         if connect != host:
             step_logs.append(f"[{host}] Hostname resolvido automaticamente para {connect}.")
         else:
-            step_logs.append(f"[{host}] Usando destino de conexÃ£o {connect}.")
+            step_logs.append(f"[{host}] Usando destino de conexão {connect}.")
     return targets, step_logs
 
 
 def get_winrm_troubleshooting_hint(server, raw_error):
     if "TrustedHosts" in raw_error and "WinRM" in raw_error and "IP address" in raw_error:
         return (
-            "Use hostname (nÃ£o IP) se possÃ­vel, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
+            "Use hostname (não IP) se possível, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
             f"(ex.: `Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value \"{server}\" -Concatenate -Force`) "
             "e garanta que o WinRM/PSRemoting esteja habilitado no destino (ex.: `Enable-PSRemoting -Force`)."
         )
@@ -614,7 +615,7 @@ def build_server_alerts_payload(force_refresh=False):
                     "server_name": server_name,
                     "server_ip": server_ip,
                     "type": "updates",
-                    "message": f"{server_name or server_ip} possui {int(item.get('pending_update_count') or 0)} atualizaÃ§Ã£o(Ãµes) pendente(s).",
+                    "message": f"{server_name or server_ip} possui {int(item.get('pending_update_count') or 0)} atualização(ões) pendente(s).",
                 }
             )
 
@@ -635,7 +636,7 @@ def build_server_alerts_payload(force_refresh=False):
                         "type": "disk",
                         "drive": drive_name,
                         "free_percent": free_percent,
-                        "message": f"{server_name or server_ip} estÃ¡ com {free_percent:.2f}% livre no disco {drive_name}.",
+                        "message": f"{server_name or server_ip} está com {free_percent:.2f}% livre no disco {drive_name}.",
                     }
                 )
 
@@ -728,7 +729,7 @@ function Get-ServerInventoryByWmi($computerName) {{
         last_windows_update = $lastUpdateDate
         has_pending_updates = $null
         pending_update_count = $null
-        pending_updates_error = 'NÃ£o foi possÃ­vel verificar atualizaÃ§Ãµes pendentes sem acesso remoto via WinRM.'
+        pending_updates_error = 'Não foi possível verificar atualizações pendentes sem acesso remoto via WinRM.'
         last_restart = $lastRestart
         collection_method = 'WMI'
     }}
@@ -866,7 +867,7 @@ if ($results.Count -eq 0) {{
 
     raw = (stdout or "").strip()
     if not raw:
-        step_logs.append("ExecuÃ§Ã£o concluÃ­da sem retorno dos servidores.")
+        step_logs.append("Execução concluída sem retorno dos servidores.")
         return {"success": True, "items": [], "steps": step_logs, "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
     try:
@@ -874,7 +875,7 @@ if ($results.Count -eq 0) {{
     except Exception:
         return {
             "success": False,
-            "error": "NÃ£o foi possÃ­vel interpretar o retorno do inventÃ¡rio de servidores.",
+            "error": "Não foi possível interpretar o retorno do inventário de servidores.",
             "details": raw[:5000],
             "items": [],
             "steps": step_logs,
@@ -899,7 +900,7 @@ if ($results.Count -eq 0) {{
             if isinstance(tried_hosts, str):
                 tried_hosts = [tried_hosts]
             tried_hosts = [str(item).strip() for item in tried_hosts if str(item).strip()]
-            step_logs.append(f"[{server}] Falha ao consultar inventÃ¡rio: {raw_error}")
+            step_logs.append(f"[{server}] Falha ao consultar inventário: {raw_error}")
             items.append(
                 {
                     "server": server,
@@ -964,11 +965,11 @@ if ($results.Count -eq 0) {{
         }
         items.append(item)
         step_logs.append(
-            f"[{server}] InventÃ¡rio carregado: dispositivo {item['device_name']}, {len(normalized_disks)} disco(s), "
-            f"Ãºltima atualizaÃ§Ã£o {item['last_windows_update'] or 'nÃ£o informada'}."
+            f"[{server}] Inventário carregado: dispositivo {item['device_name']}, {len(normalized_disks)} disco(s), "
+            f"última atualização {item['last_windows_update'] or 'não informada'}."
         )
         if item["collection_method"] == "WMI" and item["fallback_reason"]:
-            step_logs.append(f"[{server}] Coleta obtida via fallback WMI apÃ³s falha WinRM: {item['fallback_reason']}")
+            step_logs.append(f"[{server}] Coleta obtida via fallback WMI após falha WinRM: {item['fallback_reason']}")
 
     return {
         "success": True,
@@ -982,10 +983,10 @@ if ($results.Count -eq 0) {{
 def discover_services_on_hosts(hosts, credential=None):
     normalized_hosts = [host.strip() for host in (hosts or []) if is_valid_remote_host(host)]
     if not normalized_hosts:
-        return [], {"error": "Nenhum host vÃ¡lido informado."}
+        return [], {"error": "Nenhum host válido informado."}
 
-    # Descoberta via PowerShell Remoting (Invoke-Command). Usa as credenciais do usuÃ¡rio que estÃ¡ executando o app.
-    # Se WinRM nÃ£o estiver habilitado nos servidores, retornarÃ¡ erro.
+    # Descoberta via PowerShell Remoting (Invoke-Command). Usa as credenciais do usuário que está executando o app.
+    # Se WinRM não estiver habilitado nos servidores, retornará erro.
     targets = []
     step_logs = []
     for host in normalized_hosts:
@@ -998,7 +999,7 @@ def discover_services_on_hosts(hosts, credential=None):
         if connect != host:
             step_logs.append(f"[{host}] Hostname resolvido automaticamente para {connect}.")
         else:
-            step_logs.append(f"[{host}] Usando destino de conexÃ£o {connect}.")
+            step_logs.append(f"[{host}] Usando destino de conexão {connect}.")
 
     discovered = []
     discovered_keys = set()
@@ -1018,7 +1019,7 @@ def discover_services_on_hosts(hosts, credential=None):
                     continue
                 path_executable = (service.get("path_executable") or "").strip()
                 if not path_executable:
-                    step_logs.append(f"[{source_host}] ServiÃ§o ignorado sem path_executable no JSON do coletor: {name}.")
+                    step_logs.append(f"[{source_host}] Serviço ignorado sem path_executable no JSON do coletor: {name}.")
                     continue
 
                 service_ip = (service.get("service_ip") or source_host).strip()
@@ -1101,7 +1102,7 @@ foreach ($t in $targets) {{
         $invokeParams = @{{
             ComputerName = $connectHost
             ScriptBlock  = {{
-            # ServiÃ§os TOTVS por DisplayName OU Name (contains), excluindo desabilitados.
+            # Serviços TOTVS por DisplayName OU Name (contains), excluindo desabilitados.
             $cimServices = Get-CimInstance Win32_Service | Where-Object {{
                 $nameText = ([string]$_.Name).ToLowerInvariant()
                 $displayText = ([string]$_.DisplayName).ToLowerInvariant()
@@ -1125,7 +1126,7 @@ foreach ($t in $targets) {{
                         $any = $all | Select-Object -First 1
                         if ($any) {{ return $any.FullName }}
                     }} catch {{
-                        # Ignorar erros de permissÃ£o/pastas inacessÃ­veis
+                        # Ignorar erros de permissão/pastas inacessíveis
                     }}
                 }}
 
@@ -1227,21 +1228,21 @@ if ($results.Count -eq 0) {{
 
     code, stdout, stderr = run_powershell(script)
     if code != 0:
-        step_logs.append("ExecuÃ§Ã£o do script de descoberta finalizada com erro no PowerShell.")
+        step_logs.append("Execução do script de descoberta finalizada com erro no PowerShell.")
         return [], {"error": (stderr or stdout or "Falha ao executar PowerShell.").strip(), "steps": step_logs}
 
     raw = (stdout or "").strip()
     if not raw:
-        # Em alguns cenÃ¡rios o PowerShell pode nÃ£o emitir saÃ­da mesmo com execuÃ§Ã£o bem-sucedida.
-        # Tratamos como "nenhum serviÃ§o encontrado" para nÃ£o quebrar o fluxo da busca automÃ¡tica.
-        step_logs.append("ExecuÃ§Ã£o concluÃ­da sem saÃ­da do script remoto.")
+        # Em alguns cenários o PowerShell pode não emitir saída mesmo com execução bem-sucedida.
+        # Tratamos como "nenhum serviço encontrado" para não quebrar o fluxo da busca automática.
+        step_logs.append("Execução concluída sem saída do script remoto.")
         return [], {"errors": [], "steps": step_logs}
 
     try:
         data = json.loads(raw)
     except Exception:
-        step_logs.append("Falha ao interpretar saÃ­da JSON da descoberta.")
-        return [], {"error": "NÃ£o foi possÃ­vel interpretar o retorno da descoberta.", "details": raw[:5000], "steps": step_logs}
+        step_logs.append("Falha ao interpretar saída JSON da descoberta.")
+        return [], {"error": "Não foi possível interpretar o retorno da descoberta.", "details": raw[:5000], "steps": step_logs}
 
     if isinstance(data, dict):
         data = [data]
@@ -1255,7 +1256,7 @@ if ($results.Count -eq 0) {{
             if "TrustedHosts" in raw_error and "WinRM" in raw_error and "IP address" in raw_error:
                 server = (row.get("server") or "").strip()
                 hint = (
-                    "Use hostname (nÃ£o IP) se possÃ­vel, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
+                    "Use hostname (não IP) se possível, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
                     f"(ex.: `Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value \"{server}\" -Concatenate -Force`) "
                     "e garanta que o WinRM/PSRemoting esteja habilitado no destino (ex.: `Enable-PSRemoting -Force`)."
                 )
@@ -1270,7 +1271,7 @@ if ($results.Count -eq 0) {{
             exe_path = (row.get("exe_path") or "").strip()
             reason = str(row.get("skip_reason") or "Skipped").strip()
             step_logs.append(
-                f"[{server}] ServiÃ§o ignorado ({reason}): {service_name}. ExecutÃ¡vel informado: {exe_path or '-'}."
+                f"[{server}] Serviço ignorado ({reason}): {service_name}. Executável informado: {exe_path or '-'}."
             )
             continue
 
@@ -1279,7 +1280,7 @@ if ($results.Count -eq 0) {{
         start_mode = str(row.get("start_mode") or "").strip()
         if start_mode.lower() == "disabled":
             step_logs.append(
-                f"[{row.get('server')}] ServiÃ§o ignorado por startup type desabilitado: {(row.get('service_name') or '').strip()}."
+                f"[{row.get('server')}] Serviço ignorado por startup type desabilitado: {(row.get('service_name') or '').strip()}."
             )
             continue
         if ini_b64:
@@ -1297,17 +1298,17 @@ if ($results.Count -eq 0) {{
         exe_dir = (row.get("exe_dir") or "").strip()
         service_state = (row.get("service_state") or "").strip()
         normalized_state = service_state.upper()
-        running_label = "SIM" if normalized_state in {"RUNNING", "RODANDO"} else "NÃƒO"
+        running_label = "SIM" if normalized_state in {"RUNNING", "RODANDO"} else "NÃO"
 
-        step_logs.append(f"[{server}] ServiÃ§o detectado: {service_name}.")
+        step_logs.append(f"[{server}] Serviço detectado: {service_name}.")
         if exe_path:
-            step_logs.append(f"[{server}] ExecutÃ¡vel: {exe_path}")
+            step_logs.append(f"[{server}] Executável: {exe_path}")
         if exe_dir:
-            step_logs.append(f"[{server}] Pasta do serviÃ§o: {exe_dir}")
+            step_logs.append(f"[{server}] Pasta do serviço: {exe_dir}")
         if ini_path:
             step_logs.append(f"[{server}] appserver.ini localizado: {ini_path}")
         else:
-            step_logs.append(f"[{server}] appserver.ini nÃ£o localizado para {service_name}.")
+            step_logs.append(f"[{server}] appserver.ini não localizado para {service_name}.")
 
         step_logs.append(
             f"[{server}] Campos lidos para {service_name}: TCP={ini_payload.get('tcp_port', '') or '-'}, "
@@ -1315,11 +1316,11 @@ if ($results.Count -eq 0) {{
             f"ConsoleFile={ini_payload.get('console_log_file', '') or '-'}."
         )
         step_logs.append(
-            f"[{server}] Status atual do serviÃ§o {service_name}: {normalized_state or 'UNKNOWN'} (Rodando: {running_label})."
+            f"[{server}] Status atual do serviço {service_name}: {normalized_state or 'UNKNOWN'} (Rodando: {running_label})."
         )
 
         if not exe_path:
-            step_logs.append(f"[{server}] ServiÃ§o ignorado: {service_name} sem path executable vÃ¡lido.")
+            step_logs.append(f"[{server}] Serviço ignorado: {service_name} sem path executable válido.")
             continue
 
         row_data = {
@@ -1350,12 +1351,12 @@ if ($results.Count -eq 0) {{
         discovered.append(row_data)
 
     if not discovered and not errors:
-        step_logs.append("Nenhum serviÃ§o TOTVS elegÃ­vel foi encontrado nos hosts informados.")
+        step_logs.append("Nenhum serviço TOTVS elegível foi encontrado nos hosts informados.")
     elif discovered:
-        step_logs.append("Resumo final de execuÃ§Ã£o (serviÃ§o estÃ¡ rodando?):")
+        step_logs.append("Resumo final de execução (serviço está rodando?):")
         for item in discovered:
             meta_state = str((item.get("_meta") or {}).get("service_state") or "").upper()
-            running_label = "SIM" if meta_state in {"RUNNING", "RODANDO"} else "NÃƒO"
+            running_label = "SIM" if meta_state in {"RUNNING", "RODANDO"} else "NÃO"
             step_logs.append(
                 f"[{item.get('service_ip')}] {item.get('name')}: {meta_state or 'UNKNOWN'} (Rodando: {running_label})."
             )
@@ -1900,7 +1901,7 @@ def _get_service_pid_via_sc(service_name, host):
 def _force_kill_service_process(service_name, host):
     pid = _get_service_pid_via_sc(service_name, host)
     if pid <= 0:
-        return False, "PID do serviÃ§o nÃ£o encontrado para forÃ§ar parada."
+        return False, "PID do serviço não encontrado para forçar parada."
 
     command = ["taskkill"]
     if not _is_local_machine_host(host):
@@ -1910,7 +1911,7 @@ def _force_kill_service_process(service_name, host):
     if completed.returncode != 0:
         details = (completed.stderr or completed.stdout or "").strip()
         return False, details or f"Falha ao executar taskkill para PID {pid}."
-    return True, f"Parada forÃ§ada executada via taskkill no PID {pid}."
+    return True, f"Parada forçada executada via taskkill no PID {pid}."
 
 
 def stop_service_with_force(service_name, host, timeout_seconds=8):
@@ -2026,7 +2027,7 @@ def wait_for_collector_service_status(service_name, host, expected_statuses, tim
 
 def read_local_console_log_tail(log_path, max_lines=300):
     if not os.path.exists(log_path):
-        return {"success": False, "error": "Arquivo de log nÃ£o encontrado para o serviÃ§o.", "exists": False}
+        return {"success": False, "error": "Arquivo de log não encontrado para o serviço.", "exists": False}
 
     stats = os.stat(log_path)
     with open(log_path, "r", encoding="utf-8", errors="replace") as file:
@@ -2056,9 +2057,9 @@ def local_path_to_unc(host, path_value):
 
 def read_unc_console_log_tail(unc_path, max_lines=300):
     if not unc_path:
-        return {"success": False, "error": "Caminho UNC invÃ¡lido."}
+        return {"success": False, "error": "Caminho UNC inválido."}
     if not os.path.exists(unc_path):
-        return {"success": False, "error": "Arquivo UNC nÃ£o encontrado.", "exists": False}
+        return {"success": False, "error": "Arquivo UNC não encontrado.", "exists": False}
 
     stats = os.stat(unc_path)
     with open(unc_path, "r", encoding="utf-8", errors="replace") as file:
@@ -2075,7 +2076,7 @@ def read_unc_console_log_tail(unc_path, max_lines=300):
 
 def read_remote_console_log_tail(host, log_path, max_lines=300):
     if not is_valid_remote_host(host):
-        return {"success": False, "error": "Host remoto invÃ¡lido para leitura do log."}
+        return {"success": False, "error": "Host remoto inválido para leitura do log."}
 
     candidate_hosts = [host]
     if is_ipv4_address(host):
@@ -2100,7 +2101,7 @@ try {{
             return [PSCustomObject]@{{
                 success = $false
                 exists = $false
-                error = 'Arquivo de log nÃ£o encontrado para o serviÃ§o.'
+                error = 'Arquivo de log não encontrado para o serviço.'
             }}
         }}
 
@@ -2138,7 +2139,7 @@ try {{
         try:
             data = json.loads(raw)
         except Exception:
-            errors.append(f"[{current_host}] Retorno invÃ¡lido na leitura do log remoto.")
+            errors.append(f"[{current_host}] Retorno inválido na leitura do log remoto.")
             continue
 
         if isinstance(data, list):
@@ -2152,7 +2153,7 @@ try {{
 
         errors.append(f"[{current_host}] {data.get('error', 'Falha ao ler log remoto via WinRM.')}")
 
-    # Fallback sem WinRM: tentativa via SMB/UNC para evitar exigir autenticaÃ§Ã£o explÃ­cita.
+    # Fallback sem WinRM: tentativa via SMB/UNC para evitar exigir autenticação explícita.
     for current_host in candidate_hosts:
         unc_path = local_path_to_unc(current_host, log_path)
         if not unc_path:
@@ -2172,6 +2173,29 @@ def current_user():
     if not username:
         return None
     return find_user(username)
+
+
+def get_request_client_ip():
+    forwarded_for = request.headers.get("X-Forwarded-For", "")
+    if forwarded_for:
+        first_ip = forwarded_for.split(",")[0].strip()
+        if first_ip:
+            return first_ip
+    real_ip = request.headers.get("X-Real-IP", "").strip()
+    if real_ip:
+        return real_ip
+    return (request.remote_addr or "").strip() or "unknown"
+
+
+def should_audit_request(path, method):
+    if not path or path.startswith("/static/"):
+        return False
+    if path in {"/favicon.ico"}:
+        return False
+    if method in {"POST", "PUT", "PATCH", "DELETE"}:
+        return True
+    # GETs relevantes de navegação/consulta de tela para trilha de acesso.
+    return path in {"/", "/admin", "/server-inventory", "/login", "/logout", "/session", "/logs"}
 
 
 def can_user_access_environment(user, environment):
@@ -2194,8 +2218,17 @@ def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
         if not current_user():
+            save_log(
+                "AUTENTICACAO",
+                "ACCESS_DENIED_LOGIN_REQUIRED",
+                "ERROR",
+                session.get("username") or "anonymous",
+                ip=get_request_client_ip(),
+                path=request.path,
+                method=request.method,
+            )
             if request.path != "/":
-                return jsonify({"success": False, "error": "SessÃ£o expirada."}), 401
+                return jsonify({"success": False, "error": "Sessão expirada."}), 401
             return redirect(url_for("login"))
         return view(*args, **kwargs)
 
@@ -2207,8 +2240,27 @@ def admin_required(view):
     def wrapped_view(*args, **kwargs):
         user = current_user()
         if not user:
-            return jsonify({"success": False, "error": "SessÃ£o expirada."}), 401
+            save_log(
+                "AUTENTICACAO",
+                "ACCESS_DENIED_ADMIN_REQUIRED",
+                "ERROR",
+                "anonymous",
+                ip=get_request_client_ip(),
+                path=request.path,
+                method=request.method,
+            )
+            return jsonify({"success": False, "error": "Sessão expirada."}), 401
         if user.get("role") != "admin":
+            save_log(
+                "AUTORIZACAO",
+                "ACCESS_DENIED_ADMIN_REQUIRED",
+                "ERROR",
+                user.get("username", "unknown"),
+                ip=get_request_client_ip(),
+                path=request.path,
+                method=request.method,
+                details=f"Perfil atual: {user.get('role')}",
+            )
             return jsonify({"success": False, "error": "Acesso negado."}), 403
         return view(*args, **kwargs)
 
@@ -2281,7 +2333,7 @@ def get_service_status_for_host(service_name, host, display_name="", snapshot=No
     return "NOT FOUND"
 
 
-def save_log(service, action, result, user):
+def save_log(service, action, result, user, **extra):
     log = {
         "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "service": service,
@@ -2289,6 +2341,12 @@ def save_log(service, action, result, user):
         "result": result,
         "user": user,
     }
+    for key, value in (extra or {}).items():
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        log[key] = value
 
     if not os.path.exists(LOG_FILE):
         with open(LOG_FILE, "w", encoding="utf-8") as file:
@@ -2303,7 +2361,7 @@ def save_log(service, action, result, user):
             data = []
         data.insert(0, log)
         file.seek(0)
-        json.dump(data[:200], file, indent=2, ensure_ascii=False)
+        json.dump(data[:LOG_MAX_ENTRIES], file, indent=2, ensure_ascii=False)
         file.truncate()
 
 
@@ -2426,13 +2484,13 @@ def _run_service_action(environment, resolved_host, service, action_type, userna
     elif action_type == "stop":
         stop_result = stop_service_with_force(service, resolved_host)
         if not stop_result.get("success"):
-            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviÃ§o.")
+            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço.")
         forced_stop = bool(stop_result.get("forced"))
         final_status = str(stop_result.get("status") or "PARADO")
     elif action_type == "restart":
         stop_result = stop_service_with_force(service, resolved_host)
         if not stop_result.get("success"):
-            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviÃ§o para reinÃ­cio.")
+            raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço para reinício.")
         forced_stop = bool(stop_result.get("forced"))
         win32serviceutil.StartService(service, machine=machine)
         ok, collector_status = wait_for_collector_service_status(
@@ -2448,7 +2506,7 @@ def _run_service_action(environment, resolved_host, service, action_type, userna
             )
         final_status = collector_status
     else:
-        raise ValueError("AÃ§Ã£o invÃ¡lida.")
+        raise ValueError("Ação inválida.")
 
     invalidate_service_status_cache(resolved_host)
     invalidate_environment_status_cache(environment.get("id"))
@@ -2459,7 +2517,7 @@ def _run_service_action(environment, resolved_host, service, action_type, userna
 
 def _normalize_bulk_priority(value):
     normalized = (value or "").strip().lower()
-    normalized = normalized.replace("Ã¡", "a").replace("Ã©", "e").replace("Ã­", "i").replace("Ã³", "o").replace("Ãº", "u")
+    normalized = normalized.replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
     if normalized in {"1", "p1", "prioridade 1"}:
         return "p1"
     if normalized in {"2", "p2", "prioridade 2", "media", "medio", "medium"}:
@@ -2541,13 +2599,56 @@ def enforce_https():
 
 @app.before_request
 def sync_session_user():
+    g.request_start_ts = time.time()
     username = session.get("username")
     if not username:
         return
 
     user = find_user(username)
     if not user or not user.get("active", True):
+        save_log(
+            "AUTENTICACAO",
+            "SESSION_INVALIDATED",
+            "SUCCESS",
+            username or "anonymous",
+            ip=get_request_client_ip(),
+            path=request.path,
+            method=request.method,
+            details="Sessão removida por usuário inexistente/inativo.",
+        )
         session.clear()
+
+
+@app.after_request
+def audit_user_requests(response):
+    try:
+        method = request.method
+        path = request.path or ""
+        if not should_audit_request(path, method):
+            return response
+
+        user = current_user()
+        username = (user or {}).get("username") or session.get("username") or "anonymous"
+        status_code = int(response.status_code or 0)
+        result = "SUCCESS" if status_code < 400 else "ERROR"
+        duration_ms = None
+        started = getattr(g, "request_start_ts", None)
+        if started:
+            duration_ms = int((time.time() - started) * 1000)
+
+        save_log(
+            "ACESSO",
+            f"{method} {path}",
+            result,
+            username,
+            ip=get_request_client_ip(),
+            http_status=status_code,
+            duration_ms=duration_ms,
+            query_string=(request.query_string.decode("utf-8", errors="ignore")[:500] if request.query_string else ""),
+        )
+    except Exception:
+        pass
+    return response
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -2563,13 +2664,42 @@ def login():
 
     user = find_user(username)
     if not user or not user.get("active", True):
-        return jsonify({"success": False, "error": "UsuÃ¡rio ou senha invÃ¡lidos."}), 401
+        save_log(
+            "AUTENTICACAO",
+            "LOGIN",
+            "ERROR",
+            username or "anonymous",
+            ip=get_request_client_ip(),
+            path=request.path,
+            method=request.method,
+            details="Usuário inexistente ou inativo.",
+        )
+        return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401
 
     if not check_password_hash(user["password_hash"], password):
-        return jsonify({"success": False, "error": "UsuÃ¡rio ou senha invÃ¡lidos."}), 401
+        save_log(
+            "AUTENTICACAO",
+            "LOGIN",
+            "ERROR",
+            username or "anonymous",
+            ip=get_request_client_ip(),
+            path=request.path,
+            method=request.method,
+            details="Senha inválida.",
+        )
+        return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401
 
     session.clear()
     session["username"] = user["username"]
+    save_log(
+        "AUTENTICACAO",
+        "LOGIN",
+        "SUCCESS",
+        user["username"],
+        ip=get_request_client_ip(),
+        path=request.path,
+        method=request.method,
+    )
 
     return jsonify({"success": True, "user": serialize_user(user)})
 
@@ -2577,6 +2707,16 @@ def login():
 @app.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    user = current_user()
+    save_log(
+        "AUTENTICACAO",
+        "LOGOUT",
+        "SUCCESS",
+        (user or {}).get("username", "anonymous"),
+        ip=get_request_client_ip(),
+        path=request.path,
+        method=request.method,
+    )
     session.clear()
     return jsonify({"success": True})
 
@@ -2673,9 +2813,9 @@ def status():
     if environment_id:
         environment = find_environment(environment_id)
         if not environment:
-            return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
+            return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
         if not can_user_access_environment(user, environment):
-            return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
+            return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
         cached_environment = get_cached_environment_status(environment_id)
         if cached_environment:
             return jsonify(cached_environment)
@@ -2715,26 +2855,26 @@ def action():
     environment = find_environment(environment_id)
 
     if not environment_id or not service or not action_type:
-        return jsonify({"success": False, "error": "Ambiente, serviÃ§o e aÃ§Ã£o sÃ£o obrigatÃ³rios."}), 400
+        return jsonify({"success": False, "error": "Ambiente, serviço e ação são obrigatórios."}), 400
 
     if not environment:
-        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
 
     if not can_user_access_environment(user, environment):
-        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
 
     all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
     if not any(item["name"] == service for item in all_environment_services):
-        return jsonify({"success": False, "error": "ServiÃ§o nÃ£o cadastrado para o ambiente."}), 404
+        return jsonify({"success": False, "error": "Serviço não cadastrado para o ambiente."}), 404
 
     resolved_service = find_service_in_environment(environment, service, service_ip=service_ip)
 
     if not resolved_service:
-        return jsonify({"success": False, "error": "ServiÃ§o nÃ£o cadastrado para o IP informado."}), 404
+        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
 
     resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
     if action_type not in {"start", "stop", "restart"}:
-        return jsonify({"success": False, "error": "AÃ§Ã£o invÃ¡lida."}), 400
+        return jsonify({"success": False, "error": "Ação inválida."}), 400
 
     if (
         action_type in {"stop", "restart"}
@@ -2743,7 +2883,7 @@ def action():
         and is_license_service(service, resolved_service.get("display_name"))
     ):
         action_label = "parar" if action_type == "stop" else "reiniciar"
-        return jsonify({"success": False, "error": f"Somente administrador pode {action_label} o serviÃ§o de license em produÃ§Ã£o."}), 403
+        return jsonify({"success": False, "error": f"Somente administrador pode {action_label} o serviço de license em produção."}), 403
 
     if async_requested:
         job_id = uuid.uuid4().hex
@@ -2807,7 +2947,7 @@ def action_job(job_id):
         job = dict(ACTION_JOBS.get(job_id) or {})
 
     if not job:
-        return jsonify({"success": False, "error": "AÃ§Ã£o nÃ£o encontrada."}), 404
+        return jsonify({"success": False, "error": "Ação não encontrada."}), 404
 
     if job.get("requested_by") != user.get("username") and user.get("role") != "admin":
         return jsonify({"success": False, "error": "Acesso negado."}), 403
@@ -2825,13 +2965,13 @@ def action_bulk():
     environment = find_environment(environment_id)
 
     if not environment_id or action_type not in {"start", "stop"}:
-        return jsonify({"success": False, "error": "Ambiente e aÃ§Ã£o (start/stop) sÃ£o obrigatÃ³rios."}), 400
+        return jsonify({"success": False, "error": "Ambiente e ação (start/stop) são obrigatórios."}), 400
 
     if not environment:
-        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
 
     if not can_user_access_environment(user, environment):
-        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
 
     # Regra operacional: toda ação deve consultar o gamb-coletor antes de executar.
     environment = hydrate_environment_from_collector(environment, use_cache=False)
@@ -2844,7 +2984,7 @@ def action_bulk():
         ]
 
     if not ordered_services:
-        return jsonify({"success": False, "error": "Nenhum serviÃ§o elegÃ­vel para execuÃ§Ã£o em lote."}), 400
+        return jsonify({"success": False, "error": "Nenhum serviço elegível para execução em lote."}), 400
 
     job_id = uuid.uuid4().hex
     _set_action_job(
@@ -2905,25 +3045,25 @@ def service_console_log():
     max_lines = int(data.get("max_lines") or 300)
 
     if not environment_id or not service_name:
-        return jsonify({"success": False, "error": "Ambiente e serviÃ§o sÃ£o obrigatÃ³rios."}), 400
+        return jsonify({"success": False, "error": "Ambiente e serviço são obrigatórios."}), 400
 
     user = current_user()
     environment = find_environment(environment_id)
     if not environment:
-        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
     if not can_user_access_environment(user, environment):
-        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produÃ§Ã£o."}), 403
+        return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
 
     # Regra operacional: toda ação deve consultar o gamb-coletor antes de executar.
     environment = hydrate_environment_from_collector(environment, use_cache=False)
 
     resolved_service = find_service_in_environment(environment, service_name, service_ip=service_ip)
     if not resolved_service:
-        return jsonify({"success": False, "error": "ServiÃ§o nÃ£o cadastrado para o IP informado."}), 404
+        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
 
     log_path = (resolved_service.get("console_log_file") or "").strip()
     if not log_path:
-        return jsonify({"success": False, "error": "Console log file nÃ£o cadastrado para este serviÃ§o."}), 400
+        return jsonify({"success": False, "error": "Console log file não cadastrado para este serviço."}), 400
 
     resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
     if resolve_service_machine(resolved_host) is None:
@@ -2932,7 +3072,7 @@ def service_console_log():
         read_result = read_remote_console_log_tail(resolved_host, log_path, max_lines=max_lines)
 
     if not read_result.get("success"):
-        return jsonify({"success": False, "error": read_result.get("error", "Falha ao ler log do serviÃ§o."), "details": read_result.get("details")}), 400
+        return jsonify({"success": False, "error": read_result.get("error", "Falha ao ler log do serviço."), "details": read_result.get("details")}), 400
 
     signature = f"{read_result.get('size','0')}::{read_result.get('last_write_utc','')}"
     changed = signature != last_signature
@@ -2981,17 +3121,17 @@ def create_user():
     role = data.get("role", "operator")
 
     if not username or not password:
-        return jsonify({"success": False, "error": "UsuÃ¡rio e senha sÃ£o obrigatÃ³rios."}), 400
+        return jsonify({"success": False, "error": "Usuário e senha são obrigatórios."}), 400
 
     if not is_valid_username(username):
-        return jsonify({"success": False, "error": "UsuÃ¡rio deve ter de 3 a 40 caracteres: letras, nÃºmeros, ponto, hÃ­fen ou underscore."}), 400
+        return jsonify({"success": False, "error": "Usuário deve ter de 3 a 40 caracteres: letras, números, ponto, hífen ou underscore."}), 400
 
     if role not in ALLOWED_ROLES:
-        return jsonify({"success": False, "error": "Perfil invÃ¡lido."}), 400
+        return jsonify({"success": False, "error": "Perfil inválido."}), 400
 
     users_data = load_users()
     if any(normalize_username(item["username"]) == username for item in users_data):
-        return jsonify({"success": False, "error": "UsuÃ¡rio jÃ¡ cadastrado."}), 409
+        return jsonify({"success": False, "error": "Usuário já cadastrado."}), 409
 
     new_user = {
         "username": username,
@@ -3022,10 +3162,10 @@ def update_user(username):
         new_active = bool(data["active"]) if "active" in data else user.get("active", True)
 
         if new_role not in ALLOWED_ROLES:
-            return jsonify({"success": False, "error": "Perfil invÃ¡lido."}), 400
+            return jsonify({"success": False, "error": "Perfil inválido."}), 400
 
         if normalize_username(actor["username"]) == target_username and not new_active:
-            return jsonify({"success": False, "error": "VocÃª nÃ£o pode desativar o prÃ³prio usuÃ¡rio."}), 400
+            return jsonify({"success": False, "error": "Você não pode desativar o próprio usuário."}), 400
 
         simulated_users = []
         for item in users_data:
@@ -3049,7 +3189,7 @@ def update_user(username):
         save_users(users_data)
         return jsonify({"success": True, "user": serialize_user(user)})
 
-    return jsonify({"success": False, "error": "UsuÃ¡rio nÃ£o encontrado."}), 404
+    return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
 
 
 @app.route("/users/<username>", methods=["DELETE"])
@@ -3060,11 +3200,11 @@ def delete_user(username):
     actor = current_user()
 
     if normalize_username(actor["username"]) == target_username:
-        return jsonify({"success": False, "error": "VocÃª nÃ£o pode excluir o prÃ³prio usuÃ¡rio."}), 400
+        return jsonify({"success": False, "error": "Você não pode excluir o próprio usuário."}), 400
 
     deleted_user = next((item for item in users_data if normalize_username(item.get("username")) == target_username), None)
     if not deleted_user:
-        return jsonify({"success": False, "error": "UsuÃ¡rio nÃ£o encontrado."}), 404
+        return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
 
     filtered_users = [item for item in users_data if normalize_username(item.get("username")) != target_username]
     active_admins = sum(1 for item in filtered_users if item.get("role") == "admin" and item.get("active", True))
@@ -3090,7 +3230,7 @@ def create_environment():
     actor = current_user()
 
     if not environment["name"] or not environment["host"]:
-        return jsonify({"success": False, "error": "Nome do ambiente e endereÃ§o IP sÃ£o obrigatÃ³rios."}), 400
+        return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
 
     environments_data = load_environments()
     existing_ids = {item["id"] for item in environments_data}
@@ -3121,7 +3261,7 @@ def update_environment(environment_id):
 
         updated = sanitize_environment(data, existing_id=environment_id)
         if not updated["name"] or not updated["host"]:
-            return jsonify({"success": False, "error": "Nome do ambiente e endereÃ§o IP sÃ£o obrigatÃ³rios."}), 400
+            return jsonify({"success": False, "error": "Nome do ambiente e endereço IP são obrigatórios."}), 400
 
         environments_data[index] = updated
         save_environments(environments_data)
@@ -3129,7 +3269,7 @@ def update_environment(environment_id):
         save_service_registry_changes_log(updated["name"], environment, updated, actor["username"])
         return jsonify({"success": True, "environment": updated})
 
-    return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
+    return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
 
 
 @app.route("/environments/<environment_id>", methods=["DELETE"])
@@ -3141,7 +3281,7 @@ def delete_environment(environment_id):
     filtered = [environment_item for environment_item in environments_data if environment_item["id"] != environment_id]
 
     if len(filtered) == len(environments_data):
-        return jsonify({"success": False, "error": "Ambiente nÃ£o encontrado."}), 404
+        return jsonify({"success": False, "error": "Ambiente não encontrado."}), 404
 
     save_environments(filtered)
     if environment:
@@ -3188,7 +3328,7 @@ def discover_services():
         save_log("DISCOVER", "AUTO_DISCOVER", "SUCCESS", actor["username"])
         return jsonify({"success": True, "services": services, "infra_services": infra, **extra})
     except Exception as exc:
-        return jsonify({"success": False, "error": "Erro inesperado na busca automÃ¡tica.", "details": str(exc)}), 500
+        return jsonify({"success": False, "error": "Erro inesperado na busca automática.", "details": str(exc)}), 500
 
 
 if __name__ == "__main__":
@@ -3198,4 +3338,5 @@ if __name__ == "__main__":
     if GAMB_SSL_CERT_FILE and GAMB_SSL_KEY_FILE and os.path.exists(GAMB_SSL_CERT_FILE) and os.path.exists(GAMB_SSL_KEY_FILE):
         ssl_context = (GAMB_SSL_CERT_FILE, GAMB_SSL_KEY_FILE)
     app.run(host="0.0.0.0", port=5000, debug=False, ssl_context=ssl_context)
+
 

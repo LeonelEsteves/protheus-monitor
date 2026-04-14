@@ -1154,19 +1154,7 @@ function renderContent() {
 function renderServiceSection(env, services, sectionLabel, filters = { nameFilter: "", statusFilter: "" }) {
     let html = `<div class="grid gap-3">`;
 
-    const sortedServices = [...services].sort((left, right) => {
-        const leftIp = String(left.service_ip || env.host || "");
-        const rightIp = String(right.service_ip || env.host || "");
-        const ipComparison = leftIp.localeCompare(rightIp, "pt-BR", { sensitivity: "base" });
-        if (ipComparison !== 0) {
-            return ipComparison;
-        }
-        const leftLabel = String(left.display_name || left.name || "");
-        const rightLabel = String(right.display_name || right.name || "");
-        return leftLabel.localeCompare(rightLabel, "pt-BR", { sensitivity: "base" });
-    });
-
-    const visibleServices = sortedServices.filter((service) => matchesServiceFilters(service, filters));
+    const visibleServices = [...services].filter((service) => matchesServiceFilters(service, filters));
     if (!visibleServices.length) {
         html += `<div class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Nenhum serviço encontrado para os filtros em ${escapeHtml(sectionLabel)}.</div>`;
     }
@@ -1517,5 +1505,6 @@ refreshLogsBadge();
 
 </body>
 </html>
+
 
 

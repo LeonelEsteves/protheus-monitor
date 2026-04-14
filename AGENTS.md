@@ -80,3 +80,9 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Preferencia de UX: remover seletor de tema e manter somente tema escuro nas telas (login, operacao, admin e inventario).
 
 - Cadastro de servidores removido do painel administrativo; manter apenas consulta/inventario dos servidores ja existentes.
+
+- Busca automatica do admin deve carregar somente servicos retornados pelo JSON do gamb-coletor (sem merge com formulario e sem incluir servicos padrao nao descobertos).
+
+- Tela de servicos monitorados deve manter a mesma ordem de cadastro dos servicos (sem reordenacao por IP/nome na exibicao).
+
+- Auditoria: registrar em events_log.json os acessos/autenticacao dos usuarios (login, logout, negacoes) e trilha de chamadas HTTP de acoes da aplicacao com metodo, rota, status e IP.
