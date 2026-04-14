@@ -12,7 +12,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     document.documentElement.classList.add("dark");
 }
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="{{ url_for('static', filename='vendor/tailwindcss.js') }}"></script>
 <title>Login | Monitor Protheus</title>
 <style>
     .button-highlight-primary {

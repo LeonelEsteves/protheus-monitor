@@ -1,19 +1,15 @@
-# Memória do Projeto (Protheus Monitor)
+# Project Memory (GAMB / Protheus Monitor)
 
-Use este arquivo para registrar decisões e instruções duráveis sem precisar reler o código inteiro.
+## HTTPS / TLS
 
-## Decisões / instruções (adicione em ordem cronológica)
+- `GAMB_FORCE_HTTPS=1`: redirects `http://` to `https://` (302). Use only when HTTPS is actually available (reverse proxy or TLS enabled).
+- `GAMB_BEHIND_PROXY=1`: enables `ProxyFix` so `X-Forwarded-Proto`/`X-Forwarded-Host` are respected (typical when running behind IIS/Nginx/Apache).
+- `GAMB_SSL_CERT_FILE` + `GAMB_SSL_KEY_FILE`: enables TLS directly on Flask `app.run(..., ssl_context=(cert, key))`.
 
-- 2026-04-13: Criado `AGENTS.md` para funcionar como “CLAUDE.md” do Codex e manter contexto persistente.
-- 2026-04-13: Schema de serviços atualizado (`tcp_port`, `webapp_port`, `service_ip`, `console_log_file`, `priority`) + novo perfil `technical` + operador bloqueado de `producao`.
-- 2026-04-13: Adicionada “Busca automática” no admin (`POST /discover-services`) via PowerShell Remoting para descobrir serviços TOTVS e ler `appserver.ini`.
+Notes:
+- Browser “Not secure” disappears only with a certificate trusted by the client (corporate CA / Let’s Encrypt / proper PKI). A self-signed certificate will still show a warning.
 
-## Comandos úteis (preencher quando confirmado)
+## Frontend Offline
 
-- Executar o app (exemplo): `py -m flask --app app.py run --host 0.0.0.0 --port 5000`
-- Dependências (exemplo): `pip install flask werkzeug pywin32`
-
-## Checklist de contexto (manter curto)
-
-- O app controla serviços do Windows com `win32serviceutil` (start/stop/restart).
-- Dados ficam em `users.json`, `environments.json`, `events_log.json`.
+- Tailwind is vendored locally at `static/vendor/tailwindcss.js`.
+- Main templates use the local script instead of `https://cdn.tailwindcss.com`, so the layout still renders without internet access.

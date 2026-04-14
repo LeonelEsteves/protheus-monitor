@@ -12,7 +12,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     document.documentElement.classList.add("dark");
 }
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="{{ url_for('static', filename='vendor/tailwindcss.js') }}"></script>
 <title>Painel Administrativo | Monitor Protheus</title>
 <style>
     .button-highlight-primary {
@@ -300,6 +300,10 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Usuários</span>
                 </button>
+                <button onclick="setAdminTab('servers')" id="tab-servers" class="inline-flex w-full items-center gap-2 rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><path d="M7 6v12"/><path d="M17 6v12"/></svg>
+                    <span>Servidores</span>
+                </button>
                 <button onclick="setAdminTab('environments')" id="tab-environments" class="inline-flex w-full items-center gap-2 rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/><path d="M15 13h1"/><path d="M15 17h1"/></svg>
                     <span>Ambientes</span>
@@ -376,6 +380,33 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
                 </div>
 
                 <div id="usersList" class="mt-5 space-y-3"></div>
+            </section>
+
+            <section id="panel-servers" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
+                <div class="mb-4">
+                    <h2 class="inline-flex items-center gap-2 text-2xl font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><path d="M7 6v12"/><path d="M17 6v12"/></svg>
+                        <span>Servidores</span>
+                    </h2>
+                    <p class="text-sm text-slate-500">Cadastre a lista de IPs ou hostnames dos seus servidores, separados por vírgula.</p>
+                </div>
+
+                <form id="serversForm" class="space-y-4">
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Lista de servidores</span>
+                        <textarea id="serversInput" rows="5" placeholder="Ex.: 10.10.1.10, 10.10.1.11, srv-app-01" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"></textarea>
+                        <p class="text-xs text-slate-500">Você pode usar vírgula, ponto e vírgula ou quebra de linha. Os valores duplicados serão removidos.</p>
+                    </label>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="submit" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Salvar servidores</button>
+                        <button type="button" onclick="loadServers()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Recarregar</button>
+                    </div>
+                </form>
+
+                <div class="mt-5">
+                    <div class="mb-2 text-sm font-medium text-slate-700">Servidores cadastrados</div>
+                    <div id="serversList" class="flex flex-wrap gap-2"></div>
+                </div>
             </section>
 
             <section id="panel-environments" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
@@ -637,6 +668,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
 const currentUser = {{ user|tojson }};
 let adminEnvironments = [];
 let adminUsers = [];
+let adminServers = [];
 let activeAdminTab = "security";
 let editingEnvironmentId = null;
 let editingUserUsername = "";
@@ -716,6 +748,7 @@ function toggleTheme() {
     localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     applyTheme(nextTheme);
 }
+
 
 function showToast(message, type = "error") {
     const toast = document.getElementById("toast");
@@ -1034,7 +1067,7 @@ function resolveHostPromptModal(confirmed) {
 
 function setAdminTab(tabName) {
     activeAdminTab = tabName;
-    ["security", "users", "environments"].forEach((tab) => {
+    ["security", "users", "servers", "environments"].forEach((tab) => {
         document.getElementById(`panel-${tab}`).classList.toggle("hidden", tab !== tabName);
         const button = document.getElementById(`tab-${tab}`);
         button.classList.toggle("button-highlight-primary", tab === tabName);
@@ -1168,6 +1201,30 @@ async function loadUsers() {
     if (!result) return;
     adminUsers = Array.isArray(result.data) ? result.data : [];
     renderUsersList();
+}
+
+function renderServersList() {
+    const container = document.getElementById("serversList");
+    if (!container) return;
+    if (!adminServers.length) {
+        container.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500">Nenhum servidor cadastrado.</div>';
+        return;
+    }
+    container.innerHTML = adminServers
+        .map((server) => `<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">${escapeHtml(server)}</span>`)
+        .join("");
+}
+
+async function loadServers() {
+    const result = await apiFetch("/servers");
+    if (!result) return;
+    const payload = result.data || {};
+    adminServers = Array.isArray(payload.servers) ? payload.servers : [];
+    const input = document.getElementById("serversInput");
+    if (input) {
+        input.value = payload.raw || adminServers.join(", ");
+    }
+    renderServersList();
 }
 
 function toggleUserEditModal(forceOpen = null) {
@@ -1685,6 +1742,39 @@ document.getElementById("userForm").addEventListener("submit", async (event) => 
     await loadUsers();
 });
 
+document.getElementById("serversForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const rawServers = document.getElementById("serversInput").value.trim();
+
+    const confirmed = await showConfirmModal({
+        title: "Salvar servidores",
+        message: "Confirma a atualização da lista de servidores do ambiente administrativo?",
+        confirmLabel: "Salvar servidores",
+        tone: "success",
+    });
+    if (!confirmed) {
+        showToast("Salvamento cancelado.");
+        return;
+    }
+
+    const result = await apiFetch("/servers", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ servers: rawServers })
+    });
+
+    if (!result) return;
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível salvar os servidores.");
+        return;
+    }
+
+    adminServers = Array.isArray(result.data.servers) ? result.data.servers : [];
+    document.getElementById("serversInput").value = result.data.raw || adminServers.join(", ");
+    renderServersList();
+    showToast("Lista de servidores salva com sucesso.", "success");
+});
+
 document.getElementById("userFilterInput").addEventListener("input", () => {
     renderUsersList();
 });
@@ -1695,7 +1785,6 @@ document.getElementById("userEditModal").addEventListener("click", (event) => {
         toggleUserEditModal(false);
     }
 });
-
 document.getElementById("environmentForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -1762,6 +1851,7 @@ document.getElementById("environmentServiceFilter").addEventListener("input", ()
 });
 applyTheme(getSavedTheme());
 loadUsers();
+loadServers();
 loadEnvironmentAdmin();
 </script>
 

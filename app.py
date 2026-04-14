@@ -15,6 +15,10 @@ import uuid
 
 from email.mime.text import MIMEText
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+try:
+    from werkzeug.middleware.proxy_fix import ProxyFix
+except Exception:  # pragma: no cover
+    ProxyFix = None
 from werkzeug.security import check_password_hash, generate_password_hash
 import win32service
 import win32serviceutil
@@ -23,10 +27,12 @@ app = Flask(__name__, template_folder="templates")
 app.secret_key = os.getenv("APP_SECRET_KEY", "protheus-monitor-change-this-secret")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = False
 
 LOG_FILE = "events_log.json"
 USERS_FILE = "users.json"
 ENVIRONMENTS_FILE = "environments.json"
+SERVERS_FILE = "servers.json"
 
 # ===== CONFIG =====
 TEAMS_WEBHOOK = ""
@@ -86,6 +92,32 @@ SERVICE_STATUS_MONITOR_THREAD = None
 SERVICE_STATUS_MONITOR_LOCK = threading.Lock()
 ENVIRONMENT_STATUS_CACHE = {}
 ENVIRONMENT_STATUS_CACHE_LOCK = threading.Lock()
+SERVER_INVENTORY_CACHE = {}
+SERVER_INVENTORY_CACHE_LOCK = threading.Lock()
+SERVER_INVENTORY_CACHE_TTL_SECONDS = 300
+
+_FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
+GAMB_BEHIND_PROXY = os.getenv("GAMB_BEHIND_PROXY", "0").strip() == "1"
+GAMB_SSL_CERT_FILE = (os.getenv("GAMB_SSL_CERT_FILE") or "").strip()
+GAMB_SSL_KEY_FILE = (os.getenv("GAMB_SSL_KEY_FILE") or "").strip()
+
+_HAS_TLS_FILES = bool(
+    GAMB_SSL_CERT_FILE
+    and GAMB_SSL_KEY_FILE
+    and os.path.exists(GAMB_SSL_CERT_FILE)
+    and os.path.exists(GAMB_SSL_KEY_FILE)
+)
+
+if _FORCE_HTTPS_ENV is None:
+    GAMB_FORCE_HTTPS = bool(GAMB_BEHIND_PROXY or _HAS_TLS_FILES)
+else:
+    GAMB_FORCE_HTTPS = _FORCE_HTTPS_ENV.strip() == "1"
+
+app.config["SESSION_COOKIE_SECURE"] = GAMB_FORCE_HTTPS
+app.config["PREFERRED_URL_SCHEME"] = "https" if GAMB_FORCE_HTTPS else "http"
+
+if GAMB_BEHIND_PROXY and ProxyFix:
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 
 def normalize_username(username):
@@ -243,6 +275,48 @@ def ensure_environments_file():
     if os.path.exists(ENVIRONMENTS_FILE):
         return
     save_environments(DEFAULT_ENVIRONMENTS)
+
+
+def normalize_server_list(raw_value):
+    if isinstance(raw_value, list):
+        raw_items = raw_value
+    else:
+        raw_items = re.split(r"[\r\n,;]+", str(raw_value or ""))
+
+    normalized = []
+    seen = set()
+    for item in raw_items:
+        value = str(item or "").strip()
+        if not value:
+            continue
+        key = value.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        normalized.append(value)
+    return normalized
+
+
+def ensure_servers_file():
+    if os.path.exists(SERVERS_FILE):
+        return
+    save_servers([])
+
+
+def load_servers():
+    ensure_servers_file()
+    with open(SERVERS_FILE, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    if isinstance(data, dict):
+        data = data.get("servers", [])
+    return normalize_server_list(data)
+
+
+def save_servers(servers):
+    normalized = normalize_server_list(servers)
+    with open(SERVERS_FILE, "w", encoding="utf-8") as file:
+        json.dump({"servers": normalized}, file, indent=2, ensure_ascii=False)
+    invalidate_server_inventory_cache()
 
 
 def load_users():
@@ -434,6 +508,465 @@ def run_powershell(script):
         text=True,
     )
     return completed.returncode, completed.stdout, completed.stderr
+
+
+def build_remote_targets(hosts):
+    normalized_hosts = [host.strip() for host in (hosts or []) if is_valid_remote_host(host)]
+    if not normalized_hosts:
+        return [], ["Nenhum host válido informado."]
+
+    targets = []
+    step_logs = []
+    for host in normalized_hosts:
+        connect = host
+        if is_ipv4_address(host):
+            resolved = resolve_hostname_for_ip(host)
+            if resolved:
+                connect = resolved
+        targets.append({"input": host, "connect": connect})
+        if connect != host:
+            step_logs.append(f"[{host}] Hostname resolvido automaticamente para {connect}.")
+        else:
+            step_logs.append(f"[{host}] Usando destino de conexão {connect}.")
+    return targets, step_logs
+
+
+def get_winrm_troubleshooting_hint(server, raw_error):
+    if "TrustedHosts" in raw_error and "WinRM" in raw_error and "IP address" in raw_error:
+        return (
+            "Use hostname (não IP) se possível, ou adicione o destino em TrustedHosts no servidor que executa o monitor "
+            f"(ex.: `Set-Item WSMan:\\localhost\\Client\\TrustedHosts -Value \"{server}\" -Concatenate -Force`) "
+            "e garanta que o WinRM/PSRemoting esteja habilitado no destino (ex.: `Enable-PSRemoting -Force`)."
+        )
+    return ""
+
+
+def get_cached_server_inventory(hosts):
+    normalized_hosts = normalize_server_list(hosts)
+    with SERVER_INVENTORY_CACHE_LOCK:
+        generated_at = float(SERVER_INVENTORY_CACHE.get("generated_at") or 0)
+        cached_hosts = normalize_server_list(SERVER_INVENTORY_CACHE.get("hosts") or [])
+        if not generated_at or cached_hosts != normalized_hosts:
+            return None
+        if (time.time() - generated_at) > SERVER_INVENTORY_CACHE_TTL_SECONDS:
+            return None
+        return dict(SERVER_INVENTORY_CACHE)
+
+
+def set_cached_server_inventory(hosts, payload):
+    with SERVER_INVENTORY_CACHE_LOCK:
+        SERVER_INVENTORY_CACHE.clear()
+        SERVER_INVENTORY_CACHE.update(
+            {
+                "hosts": normalize_server_list(hosts),
+                "generated_at": time.time(),
+                **payload,
+            }
+        )
+
+
+def invalidate_server_inventory_cache():
+    with SERVER_INVENTORY_CACHE_LOCK:
+        SERVER_INVENTORY_CACHE.clear()
+
+
+def build_server_alerts_payload(force_refresh=False):
+    servers = load_servers()
+    if not servers:
+        return {
+            "success": True,
+            "alerts": [],
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "cached": False,
+        }
+
+    payload = None
+    if not force_refresh:
+        payload = get_cached_server_inventory(servers)
+    if not payload:
+        payload = collect_server_inventory(servers)
+        payload["cached"] = False
+        if payload.get("success"):
+            set_cached_server_inventory(servers, payload)
+
+    items = list(payload.get("items") or [])
+    alerts = []
+    for item in items:
+        if not isinstance(item, dict) or item.get("status") != "success":
+            continue
+
+        server_name = str(item.get("device_name") or item.get("server") or "").strip()
+        server_ip = ", ".join([str(ip).strip() for ip in (item.get("ip_addresses") or []) if str(ip).strip()]) or str(item.get("server") or "").strip()
+
+        if item.get("has_pending_updates") is True:
+            alerts.append(
+                {
+                    "server_name": server_name,
+                    "server_ip": server_ip,
+                    "type": "updates",
+                    "message": f"{server_name or server_ip} possui {int(item.get('pending_update_count') or 0)} atualização(ões) pendente(s).",
+                }
+            )
+
+        for disk in (item.get("disks") or []):
+            if not isinstance(disk, dict):
+                continue
+            total_bytes = float(disk.get("total_bytes") or 0)
+            free_bytes = float(disk.get("free_bytes") or 0)
+            if total_bytes <= 0:
+                continue
+            free_percent = round((free_bytes * 100.0) / total_bytes, 2)
+            if free_percent <= 50:
+                drive_name = str(disk.get("drive") or "").strip() or "Disco"
+                alerts.append(
+                    {
+                        "server_name": server_name,
+                        "server_ip": server_ip,
+                        "type": "disk",
+                        "drive": drive_name,
+                        "free_percent": free_percent,
+                        "message": f"{server_name or server_ip} está com {free_percent:.2f}% livre no disco {drive_name}.",
+                    }
+                )
+
+    return {
+        "success": True,
+        "alerts": alerts,
+        "generated_at": payload.get("generated_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "cached": bool(payload.get("cached")),
+    }
+
+
+def collect_server_inventory(hosts):
+    targets, step_logs = build_remote_targets(hosts)
+    if not targets:
+        return {"success": True, "items": [], "steps": step_logs, "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+    targets_literal = ",".join(
+        [
+            "@{ input='" + item["input"].replace("'", "''") + "'; connect='" + item["connect"].replace("'", "''") + "' }"
+            for item in targets
+        ]
+    )
+
+    script = rf"""
+$ErrorActionPreference = 'Stop'
+$targets = @({targets_literal})
+$results = @()
+
+function Get-ServerInventoryByWmi($computerName) {{
+    $computerSystem = Get-WmiObject -Class Win32_ComputerSystem -ComputerName $computerName -ErrorAction Stop
+    $os = Get-WmiObject -Class Win32_OperatingSystem -ComputerName $computerName -ErrorAction Stop
+
+    $diskRows = @()
+    try {{
+        $disks = Get-WmiObject -Class Win32_LogicalDisk -ComputerName $computerName -Filter "DriveType = 3" -ErrorAction Stop | Sort-Object DeviceID
+        foreach ($disk in $disks) {{
+            $size = [int64]($disk.Size | ForEach-Object {{ $_ }})
+            $free = [int64]($disk.FreeSpace | ForEach-Object {{ $_ }})
+            $used = $size - $free
+            $percentUsed = if ($size -gt 0) {{ [Math]::Round((($used * 100.0) / $size), 2) }} else {{ 0 }}
+            $diskRows += [PSCustomObject]@{{
+                drive = [string]$disk.DeviceID
+                volume_name = [string]$disk.VolumeName
+                total_bytes = $size
+                used_bytes = $used
+                free_bytes = $free
+                percent_used = $percentUsed
+            }}
+        }}
+    }} catch {{
+        $diskRows = @()
+    }}
+
+    $ipAddresses = @()
+    try {{
+        $ipAddresses = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -ComputerName $computerName -Filter "IPEnabled = True" -ErrorAction Stop |
+            ForEach-Object {{ $_.IPAddress }} |
+            Where-Object {{ $_ -match '^\d{{1,3}}(\.\d{{1,3}}){{3}}$' -and $_ -ne '127.0.0.1' }} |
+            Select-Object -Unique
+    }} catch {{
+        $ipAddresses = @()
+    }}
+
+    $lastUpdateDate = ''
+    try {{
+        $lastHotfix = Get-WmiObject -Class Win32_QuickFixEngineering -ComputerName $computerName -ErrorAction Stop |
+            Where-Object {{ $_.InstalledOn }} |
+            Sort-Object InstalledOn -Descending |
+            Select-Object -First 1
+        if ($lastHotfix -and $lastHotfix.InstalledOn) {{
+            $lastUpdateDate = (Get-Date $lastHotfix.InstalledOn).ToString('yyyy-MM-dd')
+        }}
+    }} catch {{
+        $lastUpdateDate = ''
+    }}
+
+    $lastRestart = ''
+    try {{
+        if ($os.LastBootUpTime) {{
+            $lastRestart = ([System.Management.ManagementDateTimeConverter]::ToDateTime($os.LastBootUpTime)).ToString('yyyy-MM-dd HH:mm:ss')
+        }}
+    }} catch {{
+        $lastRestart = ''
+    }}
+
+    return [PSCustomObject]@{{
+        device_name = [string]($computerSystem.Name)
+        ip_addresses = @($ipAddresses)
+        disks = @($diskRows)
+        last_windows_update = $lastUpdateDate
+        has_pending_updates = $null
+        pending_update_count = $null
+        pending_updates_error = 'Não foi possível verificar atualizações pendentes sem acesso remoto via WinRM.'
+        last_restart = $lastRestart
+        collection_method = 'WMI'
+    }}
+}}
+
+foreach ($t in $targets) {{
+    $inputHost = $t.input
+    $connectHost = $t.connect
+    $candidateHosts = @($connectHost, $inputHost) | Where-Object {{ $_ }} | Select-Object -Unique
+    $lastError = $null
+    $connectedBy = $null
+    foreach ($candidateHost in $candidateHosts) {{
+        try {{
+            $rows = Invoke-Command -ComputerName $candidateHost -ScriptBlock {{
+            $computerSystem = Get-CimInstance Win32_ComputerSystem
+            $os = Get-CimInstance Win32_OperatingSystem
+            $diskRows = @()
+            try {{
+                $disks = Get-CimInstance Win32_LogicalDisk -Filter "DriveType = 3" | Sort-Object DeviceID
+                foreach ($disk in $disks) {{
+                    $size = [int64]($disk.Size | ForEach-Object {{ $_ }})
+                    $free = [int64]($disk.FreeSpace | ForEach-Object {{ $_ }})
+                    $used = $size - $free
+                    $percentUsed = if ($size -gt 0) {{ [Math]::Round((($used * 100.0) / $size), 2) }} else {{ 0 }}
+                    $diskRows += [PSCustomObject]@{{
+                        drive = [string]$disk.DeviceID
+                        volume_name = [string]$disk.VolumeName
+                        total_bytes = $size
+                        used_bytes = $used
+                        free_bytes = $free
+                        percent_used = $percentUsed
+                    }}
+                }}
+            }} catch {{
+                $diskRows = @()
+            }}
+
+            $ipAddresses = @()
+            try {{
+                $ipAddresses = Get-CimInstance Win32_NetworkAdapterConfiguration -Filter "IPEnabled = True" |
+                    ForEach-Object {{ $_.IPAddress }} |
+                    Where-Object {{ $_ -match '^\d{{1,3}}(\.\d{{1,3}}){{3}}$' -and $_ -ne '127.0.0.1' }} |
+                    Select-Object -Unique
+            }} catch {{
+                $ipAddresses = @()
+            }}
+
+            $lastUpdateDate = ''
+            try {{
+                $lastHotfix = Get-HotFix | Where-Object {{ $_.InstalledOn }} | Sort-Object InstalledOn -Descending | Select-Object -First 1
+                if ($lastHotfix -and $lastHotfix.InstalledOn) {{
+                    $lastUpdateDate = (Get-Date $lastHotfix.InstalledOn).ToString('yyyy-MM-dd')
+                }}
+            }} catch {{
+                $lastUpdateDate = ''
+            }}
+
+            $pendingCount = $null
+            $pendingError = ''
+            try {{
+                $updateSession = New-Object -ComObject Microsoft.Update.Session
+                $updateSearcher = $updateSession.CreateUpdateSearcher()
+                $searchResult = $updateSearcher.Search("IsInstalled=0")
+                $pendingCount = [int]$searchResult.Updates.Count
+            }} catch {{
+                $pendingError = $_.Exception.Message
+            }}
+
+            $lastRestart = ''
+            try {{
+                if ($os.LastBootUpTime) {{
+                    $lastRestart = ([System.Management.ManagementDateTimeConverter]::ToDateTime($os.LastBootUpTime)).ToString('yyyy-MM-dd HH:mm:ss')
+                }}
+            }} catch {{
+                $lastRestart = ''
+            }}
+
+            [PSCustomObject]@{{
+                device_name = [string]($computerSystem.Name)
+                ip_addresses = @($ipAddresses)
+                disks = @($diskRows)
+                last_windows_update = $lastUpdateDate
+                has_pending_updates = if ($pendingCount -eq $null) {{ $null }} else {{ [bool]($pendingCount -gt 0) }}
+                pending_update_count = $pendingCount
+                pending_updates_error = $pendingError
+                last_restart = $lastRestart
+                collection_method = 'WinRM'
+            }}
+            }}
+
+            foreach ($r in $rows) {{
+                $r | Add-Member -NotePropertyName 'server' -NotePropertyValue $inputHost -Force
+                $r | Add-Member -NotePropertyName 'connect_host' -NotePropertyValue $candidateHost -Force
+                $results += $r
+            }}
+            $connectedBy = $candidateHost
+            break
+        }} catch {{
+            $lastError = $_.Exception.Message
+            try {{
+                $wmiRow = Get-ServerInventoryByWmi $candidateHost
+                $wmiRow | Add-Member -NotePropertyName 'server' -NotePropertyValue $inputHost -Force
+                $wmiRow | Add-Member -NotePropertyName 'connect_host' -NotePropertyValue $candidateHost -Force
+                $wmiRow | Add-Member -NotePropertyName 'fallback_reason' -NotePropertyValue $lastError -Force
+                $results += $wmiRow
+                $connectedBy = $candidateHost
+                break
+            }} catch {{
+                $lastError = "$lastError | WMI fallback: $($_.Exception.Message)"
+            }}
+        }}
+    }}
+
+    if (-not $connectedBy) {{
+        $results += [PSCustomObject]@{{ server = $inputHost; connect_host = $connectHost; tried_hosts = @($candidateHosts); error = $lastError }}
+    }}
+}}
+
+if ($results.Count -eq 0) {{
+    Write-Output '[]'
+}} else {{
+    $results | ConvertTo-Json -Depth 8
+}}
+"""
+
+    code, stdout, stderr = run_powershell(script)
+    if code != 0:
+        return {
+            "success": False,
+            "error": (stderr or stdout or "Falha ao executar PowerShell.").strip(),
+            "items": [],
+            "steps": step_logs,
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+    raw = (stdout or "").strip()
+    if not raw:
+        step_logs.append("Execução concluída sem retorno dos servidores.")
+        return {"success": True, "items": [], "steps": step_logs, "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return {
+            "success": False,
+            "error": "Não foi possível interpretar o retorno do inventário de servidores.",
+            "details": raw[:5000],
+            "items": [],
+            "steps": step_logs,
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+    if isinstance(data, dict):
+        data = [data]
+
+    items = []
+    errors = []
+    for row in data:
+        if not isinstance(row, dict):
+            continue
+
+        server = str(row.get("server") or "").strip()
+        connect_host = str(row.get("connect_host") or "").strip()
+        if row.get("error"):
+            raw_error = str(row.get("error") or "").strip()
+            hint = get_winrm_troubleshooting_hint(server, raw_error)
+            tried_hosts = row.get("tried_hosts") or []
+            if isinstance(tried_hosts, str):
+                tried_hosts = [tried_hosts]
+            tried_hosts = [str(item).strip() for item in tried_hosts if str(item).strip()]
+            step_logs.append(f"[{server}] Falha ao consultar inventário: {raw_error}")
+            items.append(
+                {
+                    "server": server,
+                    "connect_host": connect_host,
+                    "status": "error",
+                    "error": raw_error,
+                    "hint": hint,
+                    "tried_hosts": tried_hosts,
+                }
+            )
+            errors.append({"server": server, "error": raw_error, "hint": hint})
+            continue
+
+        disks = row.get("disks") or []
+        if isinstance(disks, dict):
+            disks = [disks]
+        normalized_disks = []
+        for disk in disks:
+            if not isinstance(disk, dict):
+                continue
+            normalized_disks.append(
+                {
+                    "drive": str(disk.get("drive") or "").strip(),
+                    "volume_name": str(disk.get("volume_name") or "").strip(),
+                    "total_bytes": int(float(disk.get("total_bytes") or 0)),
+                    "used_bytes": int(float(disk.get("used_bytes") or 0)),
+                    "free_bytes": int(float(disk.get("free_bytes") or 0)),
+                    "percent_used": float(disk.get("percent_used") or 0),
+                }
+            )
+
+        ip_addresses = row.get("ip_addresses") or []
+        if isinstance(ip_addresses, str):
+            ip_addresses = [ip_addresses]
+        ip_addresses = [str(item).strip() for item in ip_addresses if str(item).strip()]
+        if server and server not in ip_addresses and is_ipv4_address(server):
+            ip_addresses.insert(0, server)
+
+        pending_count = row.get("pending_update_count")
+        if pending_count in ("", None):
+            pending_count = None
+        else:
+            try:
+                pending_count = int(pending_count)
+            except Exception:
+                pending_count = None
+
+        item = {
+            "server": server,
+            "connect_host": connect_host,
+            "status": "success",
+            "device_name": str(row.get("device_name") or "").strip() or connect_host or server,
+            "ip_addresses": ip_addresses,
+            "disks": normalized_disks,
+            "last_windows_update": str(row.get("last_windows_update") or "").strip(),
+            "has_pending_updates": row.get("has_pending_updates"),
+            "pending_update_count": pending_count,
+            "pending_updates_error": str(row.get("pending_updates_error") or "").strip(),
+            "last_restart": str(row.get("last_restart") or "").strip(),
+            "collection_method": str(row.get("collection_method") or "").strip() or "WinRM",
+            "fallback_reason": str(row.get("fallback_reason") or "").strip(),
+        }
+        items.append(item)
+        step_logs.append(
+            f"[{server}] Inventário carregado: dispositivo {item['device_name']}, {len(normalized_disks)} disco(s), "
+            f"última atualização {item['last_windows_update'] or 'não informada'}."
+        )
+        if item["collection_method"] == "WMI" and item["fallback_reason"]:
+            step_logs.append(f"[{server}] Coleta obtida via fallback WMI após falha WinRM: {item['fallback_reason']}")
+
+    return {
+        "success": True,
+        "items": items,
+        "errors": errors,
+        "steps": step_logs,
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
 
 
 def discover_services_on_hosts(hosts, credential=None):
@@ -1603,6 +2136,16 @@ def inject_app_version():
 
 
 @app.before_request
+def enforce_https():
+    if not GAMB_FORCE_HTTPS:
+        return
+    if request.is_secure:
+        return
+    url = request.url.replace("http://", "https://", 1)
+    return redirect(url, code=302)
+
+
+@app.before_request
 def sync_session_user():
     username = session.get("username")
     if not username:
@@ -1650,6 +2193,67 @@ def session_info():
     return jsonify({"authenticated": bool(user), "user": serialize_user(user) if user else None})
 
 
+@app.route("/servers", methods=["GET"])
+@admin_required
+def get_servers():
+    servers = load_servers()
+    return jsonify({"success": True, "servers": servers, "raw": ", ".join(servers)})
+
+
+@app.route("/servers", methods=["PUT"])
+@admin_required
+def update_servers():
+    data = request.get_json(silent=True) or request.form
+    raw_servers = data.get("servers", "")
+    servers = normalize_server_list(raw_servers)
+    save_servers(servers)
+    save_log("SERVERS", "UPDATE", "SUCCESS", current_user()["username"])
+    return jsonify({"success": True, "servers": servers, "raw": ", ".join(servers)})
+
+
+@app.route("/servers/inventory", methods=["GET"])
+@admin_required
+def get_servers_inventory():
+    refresh = _as_bool(request.args.get("refresh"))
+    servers = load_servers()
+    if not servers:
+        payload = {
+            "success": True,
+            "items": [],
+            "errors": [],
+            "steps": ["Nenhum servidor cadastrado para consulta."],
+            "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "cached": False,
+        }
+        return jsonify(payload)
+
+    if not refresh:
+        cached = get_cached_server_inventory(servers)
+        if cached:
+            cached_payload = dict(cached)
+            cached_payload["cached"] = True
+            cached_payload.pop("hosts", None)
+            return jsonify(cached_payload)
+
+    payload = collect_server_inventory(servers)
+    payload["cached"] = False
+    if payload.get("success"):
+        set_cached_server_inventory(servers, payload)
+    result_label = "SUCCESS" if payload.get("success") and not payload.get("errors") else "WARNING"
+    save_log("SERVERS", "INVENTORY", result_label, current_user()["username"])
+    return jsonify(payload)
+
+
+@app.route("/server-alerts", methods=["GET"])
+@admin_required
+def get_server_alerts():
+    refresh = _as_bool(request.args.get("refresh"))
+    payload = build_server_alerts_payload(force_refresh=refresh)
+    result_label = "SUCCESS" if payload.get("success") else "WARNING"
+    save_log("SERVERS", "ALERTS", result_label, current_user()["username"])
+    return jsonify(payload)
+
+
 @app.route("/")
 @login_required
 def index():
@@ -1669,6 +2273,12 @@ def index():
 @admin_required
 def admin_panel():
     return render_template("admin.html", user=current_user())
+
+
+@app.route("/server-inventory")
+@admin_required
+def server_inventory_page():
+    return render_template("server_inventory.html", user=current_user(), initial_servers=load_servers())
 
 
 @app.route("/status")
@@ -2195,4 +2805,7 @@ def discover_services():
 if __name__ == "__main__":
     ensure_users_file()
     ensure_environments_file()
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    ssl_context = None
+    if GAMB_SSL_CERT_FILE and GAMB_SSL_KEY_FILE and os.path.exists(GAMB_SSL_CERT_FILE) and os.path.exists(GAMB_SSL_KEY_FILE):
+        ssl_context = (GAMB_SSL_CERT_FILE, GAMB_SSL_KEY_FILE)
+    app.run(host="0.0.0.0", port=5000, debug=False, ssl_context=ssl_context)

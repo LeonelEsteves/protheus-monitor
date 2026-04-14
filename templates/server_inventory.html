@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo/gamb-logo.png') }}">
+<script>
+window.tailwind = window.tailwind || {};
+window.tailwind.config = { darkMode: "class" };
+const THEME_STORAGE_KEY = "monitor-theme";
+if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
+    document.documentElement.classList.add("dark");
+}
+</script>
+<script src="{{ url_for('static', filename='vendor/tailwindcss.js') }}"></script>
+<title>Inventário de Servidores | GAMB</title>
+<style>
+    .button-highlight-primary { background: #2563eb; border: 1px solid #1d4ed8; color: #fff; }
+    .button-highlight-primary:hover { background: #1d4ed8; border-color: #1e40af; }
+    .button-highlight-secondary { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+    .button-highlight-secondary:hover { background: #dbeafe; border-color: #93c5fd; }
+    .button-highlight-neutral { background: #0f172a; border: 1px solid #1e293b; color: #fff; }
+    .button-highlight-neutral:hover { background: #1e293b; border-color: #334155; }
+    .theme-switch { display:inline-flex; align-items:center; gap:.75rem; padding:.5rem .9rem; border-radius:9999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); color:#fff; }
+    .theme-switch-track { position:relative; display:inline-flex; width:3.25rem; height:1.8rem; border-radius:9999px; background:rgba(148,163,184,.45); transition:background-color .2s ease; }
+    .theme-switch-thumb { position:absolute; top:.2rem; left:.22rem; width:1.35rem; height:1.35rem; border-radius:9999px; background:#fff; transition:transform .2s ease; }
+    .theme-switch input:checked + .theme-switch-track { background:#2563eb; }
+    .theme-switch input:checked + .theme-switch-track .theme-switch-thumb { transform:translateX(1.42rem); }
+    .theme-switch-label { font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.82); }
+    button,a.inline-flex { transition: background-color .2s ease, border-color .2s ease, transform .2s ease; }
+    button:hover,a.inline-flex:hover { transform:translateY(-1px); }
+    .dark body { background: radial-gradient(circle at top, rgba(37,99,235,.18), transparent 34%), linear-gradient(180deg, #0f172a 0%, #020617 100%); color:#e2e8f0; }
+    .dark .surface-panel { background: linear-gradient(180deg, rgba(15,23,42,.96), rgba(10,15,28,.96)); color:#e2e8f0; border:1px solid rgba(148,163,184,.14); box-shadow:0 24px 60px rgba(2,6,23,.42); }
+    .dark .rounded-3xl.bg-slate-900 { background: linear-gradient(135deg, rgba(15,23,42,.96), rgba(30,41,59,.92)); border:1px solid rgba(148,163,184,.12); }
+    .dark .text-slate-500, .dark .text-slate-600, .dark .text-slate-400 { color:#94a3b8 !important; }
+    .dark .text-slate-900 { color:#f8fafc !important; }
+    .dark input, .dark select { background: rgba(15,23,42,.92); border-color:#334155; color:#f8fafc; }
+    .dark input:focus, .dark select:focus { border-color:#60a5fa; box-shadow:0 0 0 1px rgba(96,165,250,.25); outline:none; }
+    .dark .button-highlight-secondary { background: rgba(37,99,235,.16); border-color: rgba(96,165,250,.28); color:#dbeafe; }
+    .dark .button-highlight-secondary:hover { background: rgba(37,99,235,.24); border-color: rgba(147,197,253,.38); }
+    .dark .button-highlight-neutral { background: rgba(15,23,42,.9); border-color: rgba(71,85,105,.85); }
+    .dark .button-highlight-neutral:hover { background: rgba(30,41,59,.96); }
+    .dark .inventory-tab-active { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-color: rgba(96,165,250,.2); color:#fff; }
+    .dark .inventory-tab { background: rgba(15,23,42,.72); border-color: rgba(71,85,105,.65); color:#cbd5e1; }
+</style>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300">
+<div class="mx-auto max-w-7xl p-6">
+    <div class="mb-6 rounded-3xl bg-slate-900 px-6 py-5 text-white shadow-xl">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <div class="flex items-center gap-3">
+                    <img src="{{ url_for('static', filename='logo/gamb-logo.png') }}" alt="Logo GAMB" class="h-12 w-12 rounded-full border border-white/15 bg-white/10 p-1 object-cover">
+                    <p class="text-sm uppercase tracking-[0.3em] text-slate-300">GAMB</p>
+                </div>
+                <h1 class="text-3xl font-bold">Inventário de servidores</h1>
+                <p class="mt-2 text-sm text-slate-300">Uma visão exclusiva e objetiva para acompanhar nome, IP, atualizações pendentes e espaço livre em disco.</p>
+            </div>
+
+            <div class="flex flex-wrap gap-2 sm:items-center">
+                <div class="rounded-xl bg-white/10 px-4 py-2 text-sm">
+                    <span class="font-semibold">{{ user.username }}</span>
+                    <span class="text-slate-300">| {{ user.role }}</span>
+                </div>
+                <a href="/admin" class="button-highlight-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Painel Administrativo</a>
+                <a href="/" class="button-highlight-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Operação principal</a>
+                <label class="theme-switch">
+                    <input id="themeToggle" type="checkbox" class="sr-only" aria-label="Alternar tema">
+                    <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
+                    <span id="themeToggleLabel" class="theme-switch-label">Claro</span>
+                </label>
+                <button onclick="logout()" class="button-highlight-neutral inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Sair</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="surface-panel rounded-3xl bg-white p-5 shadow-sm">
+        <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-xl font-semibold">Servidores monitorados</h2>
+                <p class="text-sm text-slate-500">Cada servidor cadastrado aparece em uma aba própria com os dados essenciais do inventário.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <div class="relative">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+                    </span>
+                    <input id="serverFilter" type="text" placeholder="Filtrar servidor por nome ou IP" class="h-10 w-72 rounded-xl border border-slate-200 pl-10 pr-3 text-sm">
+                </div>
+                <button type="button" onclick="loadInventory(true)" class="button-highlight-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Atualizar inventário</button>
+            </div>
+        </div>
+
+        <div id="inventorySummary" class="mb-4 rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500">Carregando servidores cadastrados...</div>
+        <div id="inventoryTabs" class="mb-4 flex flex-wrap gap-2"></div>
+        <div id="inventoryContent"></div>
+    </section>
+
+    <footer class="surface-panel mt-6 rounded-3xl bg-white px-6 py-5 shadow-sm">
+        <div class="flex items-center justify-between gap-4 overflow-x-auto whitespace-nowrap">
+            <div class="text-sm text-slate-500 dark:text-slate-400 md:text-left">GAMB | Developed by leonel.diniz | 2026</div>
+            <div class="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Versão {{ app_version }}</div>
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300">
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Flask</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">Tailwind CSS</span>
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">WinRM</span>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<div id="toast" class="hidden fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
+
+<script>
+const currentUser = {{ user|tojson }};
+let servers = {{ initial_servers|tojson }};
+let inventoryState = { loading: false, payload: null };
+let activeTab = 0;
+let inventoryPageLeaving = false;
+let inventoryFetchController = null;
+
+function getSavedTheme() { return localStorage.getItem(THEME_STORAGE_KEY) || "dark"; }
+function applyTheme(theme) {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    const toggle = document.getElementById("themeToggle");
+    const label = document.getElementById("themeToggleLabel");
+    if (toggle) toggle.checked = theme === "dark";
+    if (label) label.textContent = theme === "dark" ? "Escuro" : "Claro";
+}
+function toggleTheme() {
+    const nextTheme = getSavedTheme() === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    applyTheme(nextTheme);
+}
+function showToast(message, type = "error") {
+    const toast = document.getElementById("toast");
+    toast.className = `fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg ${type === "success" ? "bg-emerald-600" : "bg-rose-600"}`;
+    toast.textContent = message;
+    toast.classList.remove("hidden");
+    setTimeout(() => toast.classList.add("hidden"), 4000);
+}
+function escapeHtml(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+async function apiFetch(url, options = {}) {
+    if (inventoryPageLeaving) {
+        return null;
+    }
+    let response;
+    try { response = await fetch(url, options); } catch (error) {
+        if (inventoryPageLeaving || (error && error.name === "AbortError")) {
+            return null;
+        }
+        return { response: { ok: false, status: 0 }, data: { success: false, error: "Falha de rede ao chamar a API.", details: String(error || "") } };
+    }
+    if (response.status === 401) { window.location.href = "/login"; return null; }
+    const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+    if (!contentType.includes("application/json")) {
+        const text = await response.text().catch(() => "");
+        return { response, data: { success: false, error: "Resposta inválida do servidor.", details: text.slice(0, 1500) } };
+    }
+    return { response, data: await response.json() };
+}
+async function logout() {
+    const result = await apiFetch("/logout", { method: "POST" });
+    if (result && result.data.success) window.location.href = "/login";
+}
+function normalizeSearchText(value) {
+    return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+function formatInventoryDate(value) { return String(value || "").trim() || "Não informado"; }
+function formatBytesToGb(value) {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue) || numericValue < 0) return "-";
+    return `${(numericValue / (1024 ** 3)).toFixed(1)} GB`;
+}
+function buildInventoryDiskList(disks) {
+    if (!Array.isArray(disks) || !disks.length) {
+        return '<div class="rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500">Nenhuma unidade de disco disponível foi retornada.</div>';
+    }
+    return disks.map((disk) => {
+        return `
+            <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900/70">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">${escapeHtml(disk.drive || "Disco")}${disk.volume_name ? ` - ${escapeHtml(disk.volume_name)}` : ""}</div>
+                    <div class="text-sm font-medium text-emerald-600 dark:text-emerald-300">Livre: ${formatBytesToGb(disk.free_bytes)}</div>
+                </div>
+            </div>`;
+    }).join("");
+}
+function getFilteredItems() {
+    const payload = inventoryState.payload || {};
+    const items = Array.isArray(payload.items) ? payload.items : [];
+    const filterValue = normalizeSearchText(document.getElementById("serverFilter").value || "");
+    return items.filter((item) => {
+        const text = `${item.device_name || ""} ${item.server || ""} ${(item.ip_addresses || []).join(" ")}`;
+        return !filterValue || normalizeSearchText(text).includes(filterValue);
+    });
+}
+function renderTabs(items) {
+    const container = document.getElementById("inventoryTabs");
+    if (!container) return;
+    if (!items.length) { container.innerHTML = ""; return; }
+    if (activeTab >= items.length) activeTab = 0;
+    container.innerHTML = items.map((item, index) => {
+        const isActive = index === activeTab;
+        const label = item.device_name || item.server || `Servidor ${index + 1}`;
+        const icon = item.status === "error" ? "!" : "Srv";
+        return `<button type="button" onclick="activeTab=${index}; renderInventory();" class="${isActive ? 'inventory-tab-active bg-slate-900 text-white' : 'inventory-tab bg-white text-slate-700'} inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold"><span>${icon}</span><span>${escapeHtml(label)}</span></button>`;
+    }).join("");
+}
+function renderInventory() {
+    const summary = document.getElementById("inventorySummary");
+    const content = document.getElementById("inventoryContent");
+    const tabs = document.getElementById("inventoryTabs");
+    const items = getFilteredItems();
+
+    if (!servers.length) {
+        summary.textContent = "Nenhum servidor cadastrado. Cadastre os IPs na área administrativa antes de usar esta tela.";
+        tabs.innerHTML = "";
+        content.innerHTML = "";
+        return;
+    }
+    if (inventoryState.loading && !inventoryState.payload) {
+        summary.textContent = "Coletando inventário dos servidores cadastrados...";
+        content.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">Consulta em execução. Aguarde alguns instantes...</div>';
+        tabs.innerHTML = "";
+        return;
+    }
+    if (!inventoryState.payload) {
+        summary.textContent = "Clique em atualizar inventário para consultar os servidores cadastrados.";
+        content.innerHTML = "";
+        tabs.innerHTML = "";
+        return;
+    }
+
+    const payload = inventoryState.payload;
+    const allItems = Array.isArray(payload.items) ? payload.items : [];
+    const successCount = allItems.filter((item) => item.status === "success").length;
+    const errorCount = allItems.filter((item) => item.status === "error").length;
+    summary.innerHTML = `<div class="flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+        <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">${successCount} servidor(es) consultado(s)</span>
+        <span class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">${errorCount} falha(s)</span>
+        <span class="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">Última coleta: ${escapeHtml(formatInventoryDate(payload.generated_at))}</span>
+    </div>`;
+
+    if (!items.length) {
+        tabs.innerHTML = "";
+        content.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500">Nenhum servidor encontrado para o filtro informado.</div>';
+        return;
+    }
+
+    renderTabs(items);
+    const item = items[activeTab] || items[0];
+    if (!item) return;
+
+    if (item.status === "error") {
+        content.innerHTML = `
+            <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 dark:border-rose-500/30 dark:bg-rose-500/10">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-lg font-semibold text-rose-700 dark:text-rose-300">${escapeHtml(item.server || item.connect_host || "Servidor")}</div>
+                        <div class="mt-1 text-sm text-rose-600 dark:text-rose-200">Falha ao coletar o inventário remoto.</div>
+                    </div>
+                    <span class="inline-flex rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/20 dark:text-rose-200">Erro</span>
+                </div>
+                <div class="mt-4 space-y-2 text-sm text-rose-700 dark:text-rose-100">
+                    <div><span class="font-semibold">Detalhe:</span> ${escapeHtml(item.error || "Falha desconhecida.")}</div>
+                    ${Array.isArray(item.tried_hosts) && item.tried_hosts.length ? `<div><span class="font-semibold">Tentativas:</span> ${escapeHtml(item.tried_hosts.join(", "))}</div>` : ""}
+                    ${item.hint ? `<div><span class="font-semibold">Dica:</span> ${escapeHtml(item.hint)}</div>` : ""}
+                </div>
+            </div>`;
+        return;
+    }
+
+    const ipAddresses = Array.isArray(item.ip_addresses) && item.ip_addresses.length ? item.ip_addresses.map((ip) => escapeHtml(ip)).join(", ") : escapeHtml(item.server || "Não informado");
+    const pendingBadge = item.has_pending_updates === null
+        ? '<span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">Pendência não verificada</span>'
+        : item.has_pending_updates
+            ? `<span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-200">${Number(item.pending_update_count || 0)} atualização(ões) pendente(s)</span>`
+            : '<span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">Sem atualizações pendentes</span>';
+
+    const statusUpdatesText = item.has_pending_updates === null
+        ? escapeHtml(item.pending_updates_error || "Não foi possível verificar atualizações pendentes.")
+        : item.has_pending_updates
+            ? `${Number(item.pending_update_count || 0)} atualização(ões) aguardando instalação`
+            : "Windows atualizado";
+
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/70">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                        <div class="text-lg font-semibold text-slate-900 dark:text-slate-100">${escapeHtml(item.device_name || item.server || "Servidor")}</div>
+                        <div class="mt-1 text-sm text-slate-500 dark:text-slate-400">IP do servidor: ${ipAddresses}</div>
+                    </div>
+                    ${pendingBadge}
+                </div>
+                <div class="mt-4 grid gap-3 text-sm text-slate-700 dark:text-slate-200 md:grid-cols-2">
+                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800/80">
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Nome do servidor</div>
+                        <div class="mt-1">${escapeHtml(item.device_name || item.server || "Servidor")}</div>
+                    </div>
+                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800/80">
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">IP do servidor</div>
+                        <div class="mt-1">${ipAddresses}</div>
+                    </div>
+                    <div class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800/80 md:col-span-2">
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Atualizações pendentes</div>
+                        <div class="mt-1">${statusUpdatesText}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/70">
+                <div class="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Espaço livre em disco</div>
+                <div class="space-y-3">${buildInventoryDiskList(item.disks)}</div>
+            </div>
+        </div>`;
+}
+async function loadServers() {
+    const result = await apiFetch("/servers");
+    if (!result) return;
+    const payload = result.data || {};
+    servers = Array.isArray(payload.servers) ? payload.servers : [];
+}
+async function loadInventory(forceRefresh = false) {
+    if (inventoryState.loading) return;
+    if (inventoryFetchController) {
+        try { inventoryFetchController.abort(); } catch (error) {}
+    }
+    inventoryFetchController = new AbortController();
+    inventoryState.loading = true;
+    renderInventory();
+    const query = forceRefresh ? "?refresh=1" : "";
+    const result = await apiFetch(`/servers/inventory${query}`, { signal: inventoryFetchController.signal });
+    inventoryState.loading = false;
+    inventoryFetchController = null;
+    if (!result) { renderInventory(); return; }
+    if (!result.response.ok || !result.data.success) {
+        if (inventoryPageLeaving) return;
+        inventoryState.payload = {
+            items: Array.isArray(result.data?.items) ? result.data.items : [],
+            steps: Array.isArray(result.data?.steps) && result.data.steps.length ? result.data.steps : [result.data?.error || "Não foi possível carregar o inventário dos servidores."],
+            generated_at: result.data?.generated_at || "",
+            cached: false,
+        };
+        renderInventory();
+        if (forceRefresh) {
+            showToast(result.data?.error || "Não foi possível carregar o inventário dos servidores.");
+        }
+        return;
+    }
+    inventoryState.payload = result.data || {};
+    activeTab = 0;
+    renderInventory();
+    if (forceRefresh) showToast("Inventário dos servidores atualizado com sucesso.", "success");
+}
+document.getElementById("themeToggle").addEventListener("change", function () { toggleTheme(); });
+document.getElementById("serverFilter").addEventListener("input", function () { activeTab = 0; renderInventory(); });
+window.addEventListener("beforeunload", function () {
+    inventoryPageLeaving = true;
+    if (inventoryFetchController) {
+        try { inventoryFetchController.abort(); } catch (error) {}
+    }
+});
+window.addEventListener("pagehide", function () {
+    inventoryPageLeaving = true;
+    if (inventoryFetchController) {
+        try { inventoryFetchController.abort(); } catch (error) {}
+    }
+});
+applyTheme(getSavedTheme());
+renderInventory();
+loadServers().then(function () { return loadInventory(false); });
+</script>
+</body>
+</html>

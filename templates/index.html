@@ -12,7 +12,7 @@ if ((localStorage.getItem(THEME_STORAGE_KEY) || "dark") === "dark") {
     document.documentElement.classList.add("dark");
 }
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="{{ url_for('static', filename='vendor/tailwindcss.js') }}"></script>
 <title>Monitor Protheus</title>
 <style>
     .button-highlight-primary {
@@ -425,6 +425,7 @@ function toggleTheme() {
     localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     applyTheme(nextTheme);
 }
+
 
 function compareEnvironmentNames(left, right) {
     return String(left.environment || "").localeCompare(String(right.environment || ""), "pt-BR", { sensitivity: "base" });
@@ -954,6 +955,7 @@ function updateBadge() {
     }
 }
 
+
 function renderTabs() {
     const tabs = document.getElementById("tabs");
     const filtered = getFilteredEnvironments();
@@ -1032,18 +1034,14 @@ function renderContent() {
                 ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold text-blue-600 underline underline-offset-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg><span>Acessar aplicação</span></a>` : ""}
                 ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold text-cyan-700 underline underline-offset-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8"/><path d="M12 8v8"/><circle cx="12" cy="12" r="9"/></svg><span>Acessar serviço REST</span></a>` : ""}
             </div>
-            <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
-                <span class="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Em execução: ${serviceSummary.runningCount}</span>
-                <span class="rounded-full bg-rose-100 px-3 py-1 text-rose-700">Parados: ${serviceSummary.stoppedCount}</span>
-            </div>
             <div class="mt-3 flex flex-wrap gap-2">
                 <button ${bulkStartRunning ? "disabled" : ""} data-bulk-action="start" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStartRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-600 hover:bg-emerald-500"}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l10.5-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z"/></svg>
-                    <span>${bulkStartRunning ? "Iniciando lote..." : "Iniciar todos"}</span>
+                    <span>${bulkStartRunning ? "Iniciando lote..." : `Iniciar todos (${serviceSummary.stoppedCount})`}</span>
                 </button>
                 <button ${bulkStopRunning ? "disabled" : ""} data-bulk-action="stop" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStopRunning ? "cursor-wait bg-rose-300" : "bg-rose-600 hover:bg-rose-500"}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
-                    <span>${bulkStopRunning ? "Parando lote..." : "Parar todos"}</span>
+                    <span>${bulkStopRunning ? "Parando lote..." : `Parar todos (${serviceSummary.runningCount})`}</span>
                 </button>
             </div>
         </div>
