@@ -14,7 +14,7 @@ import threading
 import uuid
 
 from email.mime.text import MIMEText
-from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 try:
     from werkzeug.middleware.proxy_fix import ProxyFix
 except Exception:  # pragma: no cover
@@ -34,6 +34,7 @@ LOG_MAX_ENTRIES = 2000
 USERS_FILE = "users.json"
 ENVIRONMENTS_FILE = "environments.json"
 SERVERS_FILE = "servers.json"
+ALERT_SETTINGS_FILE = "alert_settings.json"
 
 # ===== CONFIG =====
 TEAMS_WEBHOOK = ""
@@ -106,6 +107,13 @@ COLLECTOR_HEALTH_STATE_LOCK = threading.Lock()
 LOCAL_IP_CACHE = {"generated_at": 0.0, "values": {"127.0.0.1"}}
 LOCAL_IP_CACHE_LOCK = threading.Lock()
 LOCAL_IP_CACHE_TTL_SECONDS = 60
+
+DEFAULT_ALERT_SETTINGS = {
+    "disk_free_below_10": True,
+    "high_priority_services_stopped": True,
+    "windows_updates_pending": True,
+    "collector_json_missing": True,
+}
 
 _FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
 GAMB_BEHIND_PROXY = os.getenv("GAMB_BEHIND_PROXY", "0").strip() == "1"
@@ -314,6 +322,24 @@ def ensure_servers_file():
     save_servers([])
 
 
+def sanitize_alert_settings(settings):
+    merged = dict(DEFAULT_ALERT_SETTINGS)
+    if isinstance(settings, dict):
+        if "collector_json_missing" not in settings and "collector_sync_stale" in settings:
+            settings = dict(settings)
+            settings["collector_json_missing"] = bool(settings.get("collector_sync_stale"))
+        for key in DEFAULT_ALERT_SETTINGS:
+            if key in settings:
+                merged[key] = bool(settings.get(key))
+    return merged
+
+
+def ensure_alert_settings_file():
+    if os.path.exists(ALERT_SETTINGS_FILE):
+        return
+    save_alert_settings(DEFAULT_ALERT_SETTINGS)
+
+
 def load_servers():
     ensure_servers_file()
     with open(SERVERS_FILE, "r", encoding="utf-8") as file:
@@ -328,6 +354,23 @@ def save_servers(servers):
     with open(SERVERS_FILE, "w", encoding="utf-8") as file:
         json.dump({"servers": normalized}, file, indent=2, ensure_ascii=False)
     invalidate_server_inventory_cache()
+
+
+def load_alert_settings():
+    ensure_alert_settings_file()
+    with open(ALERT_SETTINGS_FILE, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    normalized = sanitize_alert_settings(data)
+    if normalized != data:
+        save_alert_settings(normalized)
+    return normalized
+
+
+def save_alert_settings(settings):
+    normalized = sanitize_alert_settings(settings)
+    with open(ALERT_SETTINGS_FILE, "w", encoding="utf-8") as file:
+        json.dump(normalized, file, indent=2, ensure_ascii=False)
+    return normalized
 
 
 def load_users():
@@ -645,6 +688,182 @@ def build_server_alerts_payload(force_refresh=False):
         "alerts": alerts,
         "generated_at": payload.get("generated_at") or datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "cached": bool(payload.get("cached")),
+    }
+
+
+def _parse_float_pt_br(value):
+    try:
+        return float(str(value or "").strip().replace(".", "").replace(",", "."))
+    except Exception:
+        return None
+
+
+def extract_collector_disk_units(collector_server):
+    units = []
+    seen = set()
+    raw_text = str((collector_server or {}).get("disk_space") or "").strip()
+    if raw_text:
+        for match in re.finditer(r"([A-Za-z]:)\s*([\d.,]+)\s*%\s*livre", raw_text, flags=re.IGNORECASE):
+            drive = match.group(1).upper()
+            free_percent = _parse_float_pt_br(match.group(2))
+            if free_percent is None:
+                continue
+            key = drive.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            units.append({"drive": drive, "free_percent": free_percent})
+
+    if units:
+        return units
+
+    disk_total_gb = collector_server.get("disk_total_gb")
+    disk_free_gb = collector_server.get("disk_free_gb")
+    try:
+        total = float(disk_total_gb or 0)
+        free = float(disk_free_gb or 0)
+    except Exception:
+        total = 0
+        free = 0
+    if total > 0:
+        units.append({"drive": "Disco", "free_percent": round((free * 100.0) / total, 2)})
+    return units
+
+
+def service_status_is_stopped(status_text):
+    normalized = str(status_text or "").strip().upper()
+    return normalized in {"PARADO", "STOPPED"}
+
+
+def collector_payload_missing(payload):
+    if not isinstance(payload, dict):
+        return True
+    server = payload.get("server") or {}
+    services_by_name = payload.get("services_by_name") or {}
+    return not server and not services_by_name
+
+
+def build_monitor_alerts_payload(user=None):
+    settings = load_alert_settings()
+    alerts = []
+    environments = load_environments()
+    accessible_environments = [
+        environment
+        for environment in environments
+        if can_user_access_environment(user, environment)
+    ]
+
+    severity_order = {"critical": 0, "warning": 1, "info": 2}
+
+    for environment in accessible_environments:
+        environment_status = build_environment_status(environment)
+        environment_name = str(environment_status.get("environment") or environment.get("name") or "").strip() or "Ambiente"
+        host = str(environment_status.get("host") or environment.get("host") or "").strip() or "local"
+        collector_server = environment_status.get("collector_server") or {}
+        collector_stale = is_collector_stale(collector_server)
+
+        if settings.get("collector_json_missing"):
+            checked_hosts = set()
+            collector_hosts = [host]
+            collector_hosts.extend(
+                str(service.get("service_ip") or "").strip()
+                for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or [])
+                if str(service.get("service_ip") or "").strip()
+            )
+            for collector_host in collector_hosts:
+                normalized_host = collector_host.lower()
+                if normalized_host in checked_hosts:
+                    continue
+                checked_hosts.add(normalized_host)
+                if not collector_payload_missing(load_collector_status_for_host(collector_host, use_cache=True)):
+                    continue
+                alerts.append(
+                    {
+                        "kind": "collector_json_missing",
+                        "severity": "critical",
+                        "environment_id": environment_status.get("id"),
+                        "environment_name": environment_name,
+                        "host": collector_host,
+                        "title": "JSON do coletor ausente",
+                        "message": f"{environment_name} não encontrou o arquivo status-servico.json no host {collector_host}.",
+                    }
+                )
+
+        if collector_stale:
+            continue
+
+        if settings.get("windows_updates_pending"):
+            pending_updates = collector_server.get("windows_updates_pending")
+            try:
+                pending_updates = int(pending_updates)
+            except Exception:
+                pending_updates = None
+            if pending_updates and pending_updates > 0:
+                alerts.append(
+                    {
+                        "kind": "windows_updates",
+                        "severity": "warning",
+                        "environment_id": environment_status.get("id"),
+                        "environment_name": environment_name,
+                        "host": host,
+                        "title": "Atualizações pendentes do Windows",
+                        "message": f"{environment_name} possui {pending_updates} atualização(ões) pendente(s) no Windows.",
+                    }
+                )
+
+        if settings.get("disk_free_below_10"):
+            for disk in extract_collector_disk_units(collector_server):
+                free_percent = float(disk.get("free_percent") or 0)
+                if free_percent > 10:
+                    continue
+                drive = str(disk.get("drive") or "Disco").strip() or "Disco"
+                alerts.append(
+                    {
+                        "kind": "disk",
+                        "severity": "critical",
+                        "environment_id": environment_status.get("id"),
+                        "environment_name": environment_name,
+                        "host": host,
+                        "drive": drive,
+                        "free_percent": round(free_percent, 2),
+                        "title": "Espaço em disco crítico",
+                        "message": f"{environment_name} está com {free_percent:.1f}% livre na unidade {drive}.",
+                    }
+                )
+
+        if settings.get("high_priority_services_stopped"):
+            for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
+                if normalize_service_priority(service.get("priority")) != "alta":
+                    continue
+                if not service_status_is_stopped(service.get("status")):
+                    continue
+                display_name = str(service.get("display_name") or service.get("name") or "Serviço").strip() or "Serviço"
+                alerts.append(
+                    {
+                        "kind": "high_priority_service",
+                        "severity": "critical",
+                        "environment_id": environment_status.get("id"),
+                        "environment_name": environment_name,
+                        "host": str(service.get("service_ip") or host).strip() or host,
+                        "service_name": str(service.get("name") or "").strip(),
+                        "title": "Serviço crítico parado",
+                        "message": f"{display_name} está parado no ambiente {environment_name}.",
+                    }
+                )
+
+    alerts.sort(
+        key=lambda item: (
+            severity_order.get(item.get("severity"), 9),
+            str(item.get("environment_name") or ""),
+            str(item.get("title") or ""),
+            str(item.get("message") or ""),
+        )
+    )
+    return {
+        "success": True,
+        "settings": settings,
+        "alerts": alerts,
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
@@ -1474,9 +1693,7 @@ def register_collector_health_event(environment, collector_server):
             result = f"PARADO - sem sincronizacao recente (ultima: {timestamp_text})"
         else:
             result = "PARADO - timestamp indisponivel no gamb-coletor"
-    else:
-        result = f"RODANDO - sincronizado em {timestamp_text}"
-    save_log(target, "COLLECTOR_HEALTH", result, "system")
+        save_log(target, "COLLECTOR_HEALTH", result, "system")
 
 
 def _collector_status_candidate_hosts(host):
@@ -2187,17 +2404,6 @@ def get_request_client_ip():
     return (request.remote_addr or "").strip() or "unknown"
 
 
-def should_audit_request(path, method):
-    if not path or path.startswith("/static/"):
-        return False
-    if path in {"/favicon.ico"}:
-        return False
-    if method in {"POST", "PUT", "PATCH", "DELETE"}:
-        return True
-    # GETs relevantes de navegação/consulta de tela para trilha de acesso.
-    return path in {"/", "/admin", "/server-inventory", "/login", "/logout", "/session", "/logs"}
-
-
 def can_user_access_environment(user, environment):
     if not user or not environment:
         return False
@@ -2218,15 +2424,6 @@ def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
         if not current_user():
-            save_log(
-                "AUTENTICACAO",
-                "ACCESS_DENIED_LOGIN_REQUIRED",
-                "ERROR",
-                session.get("username") or "anonymous",
-                ip=get_request_client_ip(),
-                path=request.path,
-                method=request.method,
-            )
             if request.path != "/":
                 return jsonify({"success": False, "error": "Sessão expirada."}), 401
             return redirect(url_for("login"))
@@ -2240,27 +2437,8 @@ def admin_required(view):
     def wrapped_view(*args, **kwargs):
         user = current_user()
         if not user:
-            save_log(
-                "AUTENTICACAO",
-                "ACCESS_DENIED_ADMIN_REQUIRED",
-                "ERROR",
-                "anonymous",
-                ip=get_request_client_ip(),
-                path=request.path,
-                method=request.method,
-            )
             return jsonify({"success": False, "error": "Sessão expirada."}), 401
         if user.get("role") != "admin":
-            save_log(
-                "AUTORIZACAO",
-                "ACCESS_DENIED_ADMIN_REQUIRED",
-                "ERROR",
-                user.get("username", "unknown"),
-                ip=get_request_client_ip(),
-                path=request.path,
-                method=request.method,
-                details=f"Perfil atual: {user.get('role')}",
-            )
             return jsonify({"success": False, "error": "Acesso negado."}), 403
         return view(*args, **kwargs)
 
@@ -2599,56 +2777,13 @@ def enforce_https():
 
 @app.before_request
 def sync_session_user():
-    g.request_start_ts = time.time()
     username = session.get("username")
     if not username:
         return
 
     user = find_user(username)
     if not user or not user.get("active", True):
-        save_log(
-            "AUTENTICACAO",
-            "SESSION_INVALIDATED",
-            "SUCCESS",
-            username or "anonymous",
-            ip=get_request_client_ip(),
-            path=request.path,
-            method=request.method,
-            details="Sessão removida por usuário inexistente/inativo.",
-        )
         session.clear()
-
-
-@app.after_request
-def audit_user_requests(response):
-    try:
-        method = request.method
-        path = request.path or ""
-        if not should_audit_request(path, method):
-            return response
-
-        user = current_user()
-        username = (user or {}).get("username") or session.get("username") or "anonymous"
-        status_code = int(response.status_code or 0)
-        result = "SUCCESS" if status_code < 400 else "ERROR"
-        duration_ms = None
-        started = getattr(g, "request_start_ts", None)
-        if started:
-            duration_ms = int((time.time() - started) * 1000)
-
-        save_log(
-            "ACESSO",
-            f"{method} {path}",
-            result,
-            username,
-            ip=get_request_client_ip(),
-            http_status=status_code,
-            duration_ms=duration_ms,
-            query_string=(request.query_string.decode("utf-8", errors="ignore")[:500] if request.query_string else ""),
-        )
-    except Exception:
-        pass
-    return response
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -2664,29 +2799,9 @@ def login():
 
     user = find_user(username)
     if not user or not user.get("active", True):
-        save_log(
-            "AUTENTICACAO",
-            "LOGIN",
-            "ERROR",
-            username or "anonymous",
-            ip=get_request_client_ip(),
-            path=request.path,
-            method=request.method,
-            details="Usuário inexistente ou inativo.",
-        )
         return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401
 
     if not check_password_hash(user["password_hash"], password):
-        save_log(
-            "AUTENTICACAO",
-            "LOGIN",
-            "ERROR",
-            username or "anonymous",
-            ip=get_request_client_ip(),
-            path=request.path,
-            method=request.method,
-            details="Senha inválida.",
-        )
         return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401
 
     session.clear()
@@ -2775,6 +2890,28 @@ def get_server_alerts():
     result_label = "SUCCESS" if payload.get("success") else "WARNING"
     save_log("SERVERS", "ALERTS", result_label, current_user()["username"])
     return jsonify(payload)
+
+
+@app.route("/alert-settings", methods=["GET"])
+@admin_required
+def get_alert_settings():
+    return jsonify({"success": True, "settings": load_alert_settings()})
+
+
+@app.route("/alert-settings", methods=["PUT"])
+@admin_required
+def update_alert_settings():
+    data = request.get_json(silent=True) or {}
+    actor = current_user()
+    settings = save_alert_settings(data)
+    save_log("ALERTAS", "UPDATE_SETTINGS", "SUCCESS", actor.get("username", "unknown"))
+    return jsonify({"success": True, "settings": settings})
+
+
+@app.route("/alerts", methods=["GET"])
+@login_required
+def get_monitor_alerts():
+    return jsonify(build_monitor_alerts_payload(current_user()))
 
 
 @app.route("/")
@@ -3334,6 +3471,7 @@ def discover_services():
 if __name__ == "__main__":
     ensure_users_file()
     ensure_environments_file()
+    ensure_alert_settings_file()
     ssl_context = None
     if GAMB_SSL_CERT_FILE and GAMB_SSL_KEY_FILE and os.path.exists(GAMB_SSL_CERT_FILE) and os.path.exists(GAMB_SSL_KEY_FILE):
         ssl_context = (GAMB_SSL_CERT_FILE, GAMB_SSL_KEY_FILE)

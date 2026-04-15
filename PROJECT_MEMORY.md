@@ -13,3 +13,16 @@ Notes:
 
 - Tailwind is vendored locally at `static/vendor/tailwindcss.js`.
 - Main templates use the local script instead of `https://cdn.tailwindcss.com`, so the layout still renders without internet access.
+
+## Auditoria
+
+- events_log.json deve registrar apenas entrada e saida do sistema: LOGIN e LOGOUT bem-sucedidos.
+- Nao registrar trilha HTTP, negacoes de acesso, tentativas de login invalidas ou invalidacao automatica de sessao no log de acesso.
+
+
+- Saude do coletor: COLLECTOR_HEALTH deve gerar log apenas quando a sincronizacao nao estiver sendo feita (coletor parado/desatualizado), sem registrar estado sincronizado/normal.
+
+
+- Alertas configuraveis: usar `alert_settings.json` para habilitar/desabilitar monitoramento de disco critico (<=10%), servicos de prioridade alta parados, Windows Update pendente e ausencia do `status-servico.json` do coletor no host.
+- Tela inicial deve ter botao de alertas ao lado do sino de logs, com badge e modal no mesmo padrao visual.
+

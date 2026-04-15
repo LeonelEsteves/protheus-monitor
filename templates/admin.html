@@ -239,6 +239,10 @@ document.documentElement.classList.add("dark");
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/><path d="M9.5 12.5l1.5 1.5 3.5-4"/></svg>
                     <span>Segurança</span>
                 </button>
+                <button onclick="setAdminTab('alerts')" id="tab-alerts" class="inline-flex w-full items-center gap-2 rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                    <span>Alertas</span>
+                </button>
                 <button onclick="setAdminTab('users')" id="tab-users" class="inline-flex w-full items-center gap-2 rounded-2xl button-highlight-secondary px-4 py-3 text-left text-sm font-semibold">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Usuários</span>
@@ -268,6 +272,74 @@ document.documentElement.classList.add("dark");
                     <div class="rounded-2xl bg-slate-50 p-5">
                         <div class="text-sm text-slate-500">Permissão atual</div>
                         <div class="mt-2 text-lg font-semibold">{{ user.role }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="panel-alerts" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
+                <div class="mb-4">
+                    <h2 class="inline-flex items-center gap-2 text-2xl font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500 dark:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                        <span>Rotina de alertas</span>
+                    </h2>
+                    <p class="text-sm text-slate-500">Marque o que deve ser monitorado. Quando a opção estiver desmarcada, o alerta deixa de aparecer no monitor principal.</p>
+                </div>
+
+                <form id="alertSettingsForm" class="space-y-5">
+                    <div class="grid gap-3 md:grid-cols-2">
+                        <label class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="flex items-start gap-3">
+                                <input id="alertDiskFreeBelow10" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
+                                <div>
+                                    <div class="font-semibold text-slate-900">Espaço em disco crítico</div>
+                                    <div class="mt-1 text-sm text-slate-500">Gera alerta quando alguma unidade ficar com 10% livre ou menos.</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="flex items-start gap-3">
+                                <input id="alertHighPriorityServicesStopped" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
+                                <div>
+                                    <div class="font-semibold text-slate-900">Serviços críticos parados</div>
+                                    <div class="mt-1 text-sm text-slate-500">Monitora serviços com prioridade alta quando estiverem em estado parado.</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="flex items-start gap-3">
+                                <input id="alertWindowsUpdatesPending" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
+                                <div>
+                                    <div class="font-semibold text-slate-900">Atualizações pendentes do Windows</div>
+                                    <div class="mt-1 text-sm text-slate-500">Exibe alerta quando o servidor reportar updates pendentes.</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="flex items-start gap-3">
+                                <input id="alertCollectorJsonMissing" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
+                                <div>
+                                    <div class="font-semibold text-slate-900">JSON do coletor ausente</div>
+                                    <div class="mt-1 text-sm text-slate-500">Avisa quando o arquivo `status-servico.json` não for encontrado no host monitorado.</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <button type="button" onclick="loadAlertSettings()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Recarregar</button>
+                        <button type="submit" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Salvar rotina de alertas</button>
+                    </div>
+                </form>
+
+                <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <div class="text-lg font-semibold text-slate-900">Sugestões para próximos monitores</div>
+                    <div class="mt-2 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
+                        <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">Monitorar serviços de prioridade média parados por mais tempo.</div>
+                        <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">Monitorar consumo alto de CPU ou memória do servidor.</div>
+                        <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">Avisar quando a base do ambiente estiver há muitos dias sem atualização.</div>
                     </div>
                 </div>
             </section>
@@ -580,6 +652,7 @@ document.documentElement.classList.add("dark");
 const currentUser = {{ user|tojson }};
 let adminEnvironments = [];
 let adminUsers = [];
+let adminAlertSettings = {};
 let activeAdminTab = "security";
 let editingEnvironmentId = null;
 let editingUserUsername = "";
@@ -941,12 +1014,39 @@ function resolveHostPromptModal(confirmed) {
 
 function setAdminTab(tabName) {
     activeAdminTab = tabName;
-    ["security", "users", "environments"].forEach((tab) => {
+    ["security", "alerts", "users", "environments"].forEach((tab) => {
         document.getElementById(`panel-${tab}`).classList.toggle("hidden", tab !== tabName);
         const button = document.getElementById(`tab-${tab}`);
         button.classList.toggle("button-highlight-primary", tab === tabName);
         button.classList.toggle("button-highlight-secondary", tab !== tabName);
     });
+}
+
+function applyAlertSettingsToForm(settings = {}) {
+    adminAlertSettings = { ...settings };
+    document.getElementById("alertDiskFreeBelow10").checked = Boolean(settings.disk_free_below_10);
+    document.getElementById("alertHighPriorityServicesStopped").checked = Boolean(settings.high_priority_services_stopped);
+    document.getElementById("alertWindowsUpdatesPending").checked = Boolean(settings.windows_updates_pending);
+    document.getElementById("alertCollectorJsonMissing").checked = Boolean(settings.collector_json_missing);
+}
+
+function readAlertSettingsForm() {
+    return {
+        disk_free_below_10: document.getElementById("alertDiskFreeBelow10").checked,
+        high_priority_services_stopped: document.getElementById("alertHighPriorityServicesStopped").checked,
+        windows_updates_pending: document.getElementById("alertWindowsUpdatesPending").checked,
+        collector_json_missing: document.getElementById("alertCollectorJsonMissing").checked,
+    };
+}
+
+async function loadAlertSettings() {
+    const result = await apiFetch("/alert-settings");
+    if (!result) return;
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível carregar a rotina de alertas.");
+        return;
+    }
+    applyAlertSettingsToForm(result.data.settings || {});
 }
 
 async function apiFetch(url, options = {}) {
@@ -1592,6 +1692,38 @@ document.getElementById("userForm").addEventListener("submit", async (event) => 
     await loadUsers();
 });
 
+document.getElementById("alertSettingsForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const payload = readAlertSettingsForm();
+    const confirmed = await showConfirmModal({
+        title: "Salvar rotina de alertas",
+        message: "Confirma a atualização das opções de monitoramento e alerta?",
+        confirmLabel: "Salvar alertas",
+        tone: "success",
+    });
+    if (!confirmed) {
+        showToast("Atualização dos alertas cancelada.");
+        return;
+    }
+
+    const result = await apiFetch("/alert-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível salvar a rotina de alertas.");
+        return;
+    }
+
+    applyAlertSettingsToForm(result.data.settings || payload);
+    showToast("Rotina de alertas salva com sucesso.", "success");
+});
+
 document.getElementById("userFilterInput").addEventListener("input", () => {
     renderUsersList();
 });
@@ -1655,6 +1787,7 @@ document.getElementById("environmentForm").addEventListener("submit", async (eve
 setAdminTab("security");
 resetEnvironmentForm();
 closeEnvironmentForm();
+loadAlertSettings();
 document.getElementById("environmentFilterSelect").addEventListener("change", (event) => {
     environmentFilterId = String(event.target.value || "");
     loadEnvironmentAdmin();

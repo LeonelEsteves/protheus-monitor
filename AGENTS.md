@@ -86,3 +86,11 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Tela de servicos monitorados deve manter a mesma ordem de cadastro dos servicos (sem reordenacao por IP/nome na exibicao).
 
 - Auditoria: registrar em events_log.json os acessos/autenticacao dos usuarios (login, logout, negacoes) e trilha de chamadas HTTP de acoes da aplicacao com metodo, rota, status e IP.
+
+- Auditoria vigente: registrar em events_log.json apenas entrada e saida do sistema (LOGIN e LOGOUT bem-sucedidos), sem trilha HTTP e sem logs de negacoes/invalidacoes de sessao.
+
+- Log do coletor: registrar evento de sincronizacao apenas quando o monitor/coletor estiver sem sincronizacao recente; nao registrar retorno ao estado sincronizado.
+
+- Painel administrativo deve oferecer rotina de alertas configuravel; tela inicial deve exibir icone/modal de alertas ao lado de logs, seguindo o mesmo padrao visual e de badge.
+
+- Rotina de alertas: usar opcao para alertar quando o status-servico.json do coletor estiver ausente no host, em vez de monitoramento generico de sincronizacao.

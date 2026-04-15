@@ -80,7 +80,9 @@ document.documentElement.classList.add("dark");
 
     .dark #content .rounded-2xl,
     .dark #logContent .rounded-2xl,
+    .dark #alertsContent .rounded-2xl,
     .dark #logModal > div,
+    .dark #alertsModal > div,
     .dark #confirmModal > div {
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(9, 14, 26, 0.94));
         border-color: rgba(148, 163, 184, 0.14);
@@ -185,9 +187,20 @@ document.documentElement.classList.add("dark");
                     Painel Administrativo
                 </a>
                 {% endif %}
-                <button id="logsButton" onclick="toggleLogs()" class="relative inline-flex h-10 items-center rounded-xl bg-blue-500 px-4 text-sm font-semibold text-white transition hover:bg-blue-400">
-                    Logs
+                <button id="logsButton" onclick="toggleLogs()" aria-label="Abrir logs" title="Abrir logs" class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-sm font-semibold text-white transition hover:bg-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/>
+                        <path d="M10 17a2 2 0 0 0 4 0"/>
+                    </svg>
                     <span id="badge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
+                </button>
+                <button id="alertsButton" onclick="toggleAlerts()" aria-label="Abrir alertas" title="Abrir alertas" class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-sm font-semibold text-white transition hover:bg-amber-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+                        <path d="M12 9v4"/>
+                        <path d="M12 17h.01"/>
+                    </svg>
+                    <span id="alertsBadge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
                 </button>
                 <button onclick="logout()" class="button-highlight-neutral inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Sair</button>
             </div>
@@ -327,6 +340,19 @@ document.documentElement.classList.add("dark");
     </div>
 </div>
 
+<div id="alertsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+    <div class="max-h-[80vh] w-full max-w-3xl rounded-3xl bg-white p-5 shadow-2xl">
+        <div class="mb-4 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold">Alertas do monitor</h2>
+                <p class="text-sm text-slate-500">Ocorrências críticas e avisos com base na rotina configurada no painel administrativo.</p>
+            </div>
+            <button onclick="toggleAlerts()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
+        </div>
+        <div id="alertsContent" class="max-h-[60vh] space-y-3 overflow-y-auto"></div>
+    </div>
+</div>
+
 <script>
 let environmentsData = {{ initial_environments|tojson }}.map((environment) => ({
     ...environment,
@@ -336,7 +362,9 @@ let environmentsData = {{ initial_environments|tojson }}.map((environment) => ({
 const currentUser = {{ user|tojson }};
 let activeTab = 0;
 let lastRead = localStorage.getItem("lastRead") || null;
+let lastAlertsReadSignature = localStorage.getItem("lastAlertsReadSignature") || "";
 let allLogs = [];
+let allAlerts = [];
 let debugEntriesByContext = {};
 let activeDebugContext = null;
 let runningActions = {};
@@ -907,6 +935,36 @@ async function refreshLogsBadge() {
     }
 }
 
+function getAlertsSignature(alerts) {
+    return JSON.stringify((Array.isArray(alerts) ? alerts : []).map((alert) => ({
+        kind: alert.kind,
+        severity: alert.severity,
+        environment_id: alert.environment_id,
+        service_name: alert.service_name,
+        drive: alert.drive,
+        message: alert.message,
+    })));
+}
+
+function getAlertToneClasses(severity) {
+    if (severity === "critical") {
+        return "border-rose-200 bg-rose-50 text-rose-900";
+    }
+    if (severity === "warning") {
+        return "border-amber-200 bg-amber-50 text-amber-900";
+    }
+    return "border-blue-200 bg-blue-50 text-blue-900";
+}
+
+async function refreshAlertsBadge() {
+    const alertsResult = await apiFetch("/alerts");
+    if (!alertsResult) {
+        return;
+    }
+    allAlerts = Array.isArray(alertsResult.data.alerts) ? alertsResult.data.alerts : [];
+    updateAlertsBadge();
+}
+
 async function loadEnvironmentStatus(environmentId, { force = false } = {}) {
     const environment = getEnvironmentById(environmentId);
     if (!environment) {
@@ -957,6 +1015,7 @@ async function loadEnvironmentStatus(environmentId, { force = false } = {}) {
         renderTabs();
         renderContent();
         await refreshLogsBadge();
+        await refreshAlertsBadge();
     } finally {
         loadingEnvironmentIds.delete(environmentId);
         const currentEnvironment = getEnvironmentById(environmentId);
@@ -989,6 +1048,24 @@ function updateBadge() {
     } else {
         badge.classList.add("hidden");
     }
+}
+
+function updateAlertsBadge() {
+    const badge = document.getElementById("alertsBadge");
+    const safeAlerts = Array.isArray(allAlerts) ? allAlerts : [];
+    if (!safeAlerts.length) {
+        badge.classList.add("hidden");
+        return;
+    }
+
+    const currentSignature = getAlertsSignature(safeAlerts);
+    if (!lastAlertsReadSignature || lastAlertsReadSignature !== currentSignature) {
+        badge.textContent = safeAlerts.length;
+        badge.classList.remove("hidden");
+        return;
+    }
+
+    badge.classList.add("hidden");
 }
 
 
@@ -1101,10 +1178,18 @@ function renderContent() {
                 ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 font-semibold text-slate-100 underline underline-offset-2 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg><span>Acessar aplicação</span></a>` : ""}
                 ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 font-semibold text-slate-100 underline underline-offset-2 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8"/><path d="M12 8v8"/><circle cx="12" cy="12" r="9"/></svg><span>Acessar serviço REST</span></a>` : ""}
             </div>
-            <div class="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 text-[12px] text-slate-100">
-                    <div class="whitespace-nowrap"><span class="font-semibold text-white">Updates pendentes:</span> ${escapeHtml(pendingUpdatesLabel)}</div>
-                    <div><span class="font-semibold text-white">Unidades de disco</span> ${escapeHtml((diskUnitsSummary || "indisponível").replace(/^Unidades de disco\s*/i, ""))}</div>
-                    ${lowDiskWarning ? `<div class="whitespace-nowrap font-semibold text-white">${escapeHtml(lowDiskWarning)}</div>` : ""}
+            <div class="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 text-[12px] text-slate-100">
+                    <div class="inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1 whitespace-nowrap">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                        <span class="font-semibold text-white">Updates pendentes:</span>
+                        <span>${escapeHtml(pendingUpdatesLabel)}</span>
+                    </div>
+                    <div class="inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
+                        <span class="font-semibold text-white">Unidades de disco:</span>
+                        <span>${escapeHtml((diskUnitsSummary || "indisponível").replace(/^Unidades de disco\s*/i, ""))}</span>
+                    </div>
+                    ${lowDiskWarning ? `<div class="inline-flex items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 whitespace-nowrap font-semibold text-amber-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>${escapeHtml(lowDiskWarning)}</div>` : ""}
             </div>
             <div class="mt-3 flex flex-wrap gap-2">
                 <button ${bulkStartRunning ? "disabled" : ""} data-bulk-action="start" data-environment-id="${escapeHtml(env.id)}" class="bulk-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${bulkStartRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-600 hover:bg-emerald-500"}">
@@ -1402,6 +1487,44 @@ async function toggleLogs() {
     updateBadge();
 }
 
+async function toggleAlerts() {
+    const modal = document.getElementById("alertsModal");
+    modal.classList.toggle("hidden");
+
+    if (modal.classList.contains("hidden")) {
+        return;
+    }
+
+    const result = await apiFetch("/alerts");
+    if (!result) return;
+
+    allAlerts = Array.isArray(result.data.alerts) ? result.data.alerts : [];
+    const container = document.getElementById("alertsContent");
+    container.innerHTML = "";
+
+    if (!allAlerts.length) {
+        container.innerHTML = '<div class="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">Nenhum alerta ativo no momento.</div>';
+    } else {
+        allAlerts.forEach((alert) => {
+            const toneClasses = getAlertToneClasses(String(alert.severity || "").trim().toLowerCase());
+            container.innerHTML += `
+                <div class="rounded-2xl border p-4 text-sm ${toneClasses}">
+                    <div class="mb-2 flex items-start justify-between gap-3">
+                        <div class="font-semibold">${escapeHtml(alert.title || "Alerta")}</div>
+                        <span class="rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] bg-white/70">${escapeHtml(alert.severity || "info")}</span>
+                    </div>
+                    <div>${escapeHtml(alert.message || "")}</div>
+                    <div class="mt-2 text-xs opacity-80">${escapeHtml(alert.environment_name || alert.host || "")}</div>
+                </div>
+            `;
+        });
+    }
+
+    lastAlertsReadSignature = getAlertsSignature(allAlerts);
+    localStorage.setItem("lastAlertsReadSignature", lastAlertsReadSignature);
+    updateAlertsBadge();
+}
+
 async function logout() {
     const result = await apiFetch("/logout", { method: "POST" });
     if (result && result.data.success) {
@@ -1490,6 +1613,8 @@ setInterval(() => {
     const activeEnvironment = getFilteredEnvironments()[activeTab];
     if (activeEnvironment) {
         loadEnvironmentStatus(activeEnvironment.id, { force: true });
+    } else {
+        refreshAlertsBadge();
     }
 }, 12000);
 syncEnvironmentFilter();
@@ -1501,6 +1626,7 @@ if (initialEnvironment) {
     loadEnvironmentStatus(initialEnvironment.id);
 }
 refreshLogsBadge();
+refreshAlertsBadge();
 </script>
 
 </body>
