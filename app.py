@@ -30,12 +30,18 @@ app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = False
 
-LOG_FILE = "events_log.json"
-LOG_MAX_ENTRIES = 2000
-USERS_FILE = "users.json"
-ENVIRONMENTS_FILE = "environments.json"
-SERVERS_FILE = "servers.json"
-ALERT_SETTINGS_FILE = "alert_settings.json"
+DATA_DIR = "data"
+LOG_FILE = os.path.join(DATA_DIR, "events_log.json")
+LOG_MAX_ENTRIES = 1000
+LOG_DEDUP_WINDOWS_SECONDS = {
+    "COLLECTOR_HEALTH": 21600,
+    "ALERTS": 1800,
+    "INVENTORY": 1800,
+}
+USERS_FILE = os.path.join(DATA_DIR, "users.json")
+ENVIRONMENTS_FILE = os.path.join(DATA_DIR, "environments.json")
+SERVERS_FILE = os.path.join(DATA_DIR, "servers.json")
+ALERT_SETTINGS_FILE = os.path.join(DATA_DIR, "alert_settings.json")
 
 # ===== CONFIG =====
 TEAMS_WEBHOOK = ""
@@ -120,6 +126,8 @@ DEFAULT_ALERT_SETTINGS = {
     "windows_updates_pending": True,
     "collector_json_missing": True,
 }
+
+ALERTS_MAX_ITEMS = 100
 
 _FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
 GAMB_BEHIND_PROXY = os.getenv("GAMB_BEHIND_PROXY", "0").strip() == "1"
@@ -281,6 +289,7 @@ def sanitize_environment(environment, existing_id=None):
 
 
 def ensure_users_file():
+    os.makedirs(DATA_DIR, exist_ok=True)
     if os.path.exists(USERS_FILE):
         return
 
@@ -297,6 +306,7 @@ def ensure_users_file():
 
 
 def ensure_environments_file():
+    os.makedirs(DATA_DIR, exist_ok=True)
     if os.path.exists(ENVIRONMENTS_FILE):
         return
     save_environments(DEFAULT_ENVIRONMENTS)
@@ -323,6 +333,7 @@ def normalize_server_list(raw_value):
 
 
 def ensure_servers_file():
+    os.makedirs(DATA_DIR, exist_ok=True)
     if os.path.exists(SERVERS_FILE):
         return
     save_servers([])
@@ -341,6 +352,7 @@ def sanitize_alert_settings(settings):
 
 
 def ensure_alert_settings_file():
+    os.makedirs(DATA_DIR, exist_ok=True)
     if os.path.exists(ALERT_SETTINGS_FILE):
         return
     save_alert_settings(DEFAULT_ALERT_SETTINGS)
@@ -356,6 +368,7 @@ def load_servers():
 
 
 def save_servers(servers):
+    os.makedirs(DATA_DIR, exist_ok=True)
     normalized = normalize_server_list(servers)
     with open(SERVERS_FILE, "w", encoding="utf-8") as file:
         json.dump({"servers": normalized}, file, indent=2, ensure_ascii=False)
@@ -373,6 +386,7 @@ def load_alert_settings():
 
 
 def save_alert_settings(settings):
+    os.makedirs(DATA_DIR, exist_ok=True)
     normalized = sanitize_alert_settings(settings)
     with open(ALERT_SETTINGS_FILE, "w", encoding="utf-8") as file:
         json.dump(normalized, file, indent=2, ensure_ascii=False)
@@ -386,6 +400,7 @@ def load_users():
 
 
 def save_users(users):
+    os.makedirs(DATA_DIR, exist_ok=True)
     with open(USERS_FILE, "w", encoding="utf-8") as file:
         json.dump(users, file, indent=2, ensure_ascii=False)
 
@@ -465,6 +480,7 @@ def load_environments():
 
 
 def save_environments(environments):
+    os.makedirs(DATA_DIR, exist_ok=True)
     with open(ENVIRONMENTS_FILE, "w", encoding="utf-8") as file:
         json.dump(environments, file, indent=2, ensure_ascii=False)
     invalidate_environment_status_cache()
@@ -865,10 +881,32 @@ def build_monitor_alerts_payload(user=None):
             str(item.get("message") or ""),
         )
     )
+
+    unique_alerts = []
+    seen_alerts = set()
+    for alert in alerts:
+        signature = json.dumps(
+            {
+                "kind": alert.get("kind"),
+                "severity": alert.get("severity"),
+                "environment_id": alert.get("environment_id"),
+                "host": alert.get("host"),
+                "service_name": alert.get("service_name"),
+                "drive": alert.get("drive"),
+                "message": alert.get("message"),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+        if signature in seen_alerts:
+            continue
+        seen_alerts.add(signature)
+        unique_alerts.append(alert)
+
     return {
         "success": True,
         "settings": settings,
-        "alerts": alerts,
+        "alerts": unique_alerts[:ALERTS_MAX_ITEMS],
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
@@ -2927,6 +2965,7 @@ def save_log(service, action, result, user, **extra):
             continue
         log[key] = value
 
+    os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(LOG_FILE):
         with open(LOG_FILE, "w", encoding="utf-8") as file:
             json.dump([], file)
@@ -2938,6 +2977,25 @@ def save_log(service, action, result, user, **extra):
                 data = []
         except Exception:
             data = []
+
+        dedup_window_seconds = LOG_DEDUP_WINDOWS_SECONDS.get(str(action or "").strip())
+        if dedup_window_seconds and data:
+            now = datetime.now()
+            comparable_log = {key: value for key, value in log.items() if key != "datetime"}
+            for existing in data[:50]:
+                if not isinstance(existing, dict):
+                    continue
+                existing_dt = str(existing.get("datetime") or "").strip()
+                try:
+                    existing_when = datetime.strptime(existing_dt, "%Y-%m-%d %H:%M:%S")
+                except Exception:
+                    continue
+                if (now - existing_when).total_seconds() > dedup_window_seconds:
+                    continue
+                comparable_existing = {key: value for key, value in existing.items() if key != "datetime"}
+                if comparable_existing == comparable_log:
+                    return
+
         data.insert(0, log)
         file.seek(0)
         json.dump(data[:LOG_MAX_ENTRIES], file, indent=2, ensure_ascii=False)

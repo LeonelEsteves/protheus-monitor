@@ -104,3 +104,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Toda alteracao no gamb-coletor deve gerar uma nova pasta versionada em gamb-coletor/versions; manter rotina/script para snapshot automatico e rollback simples.
 
 - Painel administrativo deve avisar quando existir versao mais nova disponivel do gamb-coletor em relacao a versao instalada no ambiente.
+
+- Logs e alertas devem evitar repeticao; deduplicar eventos ruidosos e limitar retencao para reduzir crescimento do events_log.json e das notificacoes.
+
+- Estrutura de dados local deve ficar centralizada em data/ para separar codigo, templates e arquivos operacionais; JSONs de usuarios, ambientes, alertas, servidores e eventos ficam em data/.

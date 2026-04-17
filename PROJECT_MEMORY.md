@@ -26,3 +26,5 @@ Notes:
 - Alertas configuraveis: usar `alert_settings.json` para habilitar/desabilitar monitoramento de disco critico (<=10%), servicos de prioridade alta parados, Windows Update pendente e ausencia do `status-servico.json` do coletor no host.
 - Tela inicial deve ter botao de alertas ao lado do sino de logs, com badge e modal no mesmo padrao visual.
 
+
+- Estrutura organizada: arquivos operacionais do monitor foram centralizados em data/ (users, environments, servers, alert_settings, events_log).
