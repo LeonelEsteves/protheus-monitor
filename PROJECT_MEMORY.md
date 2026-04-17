@@ -28,3 +28,5 @@ Notes:
 
 
 - Estrutura organizada: arquivos operacionais do monitor foram centralizados em data/ (users, environments, servers, alert_settings, events_log).
+
+- Regra duravel: novas atualizacoes tecnicas relevantes do ambiente/sistema devem ser registradas no README.md da raiz; a tela principal expõe esse conteudo para todos os usuarios autenticados.

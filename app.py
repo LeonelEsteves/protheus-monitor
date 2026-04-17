@@ -13,6 +13,7 @@ import socket
 import time
 import threading
 import uuid
+from html import escape
 
 from email.mime.text import MIMEText
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
@@ -32,7 +33,9 @@ app.config["SESSION_COOKIE_SECURE"] = False
 
 DATA_DIR = "data"
 LOG_FILE = os.path.join(DATA_DIR, "events_log.json")
+EXECUTION_TRACE_FILE = os.path.join(DATA_DIR, "execution_trace.json")
 LOG_MAX_ENTRIES = 1000
+EXECUTION_TRACE_MAX_ENTRIES = 4000
 LOG_DEDUP_WINDOWS_SECONDS = {
     "COLLECTOR_HEALTH": 21600,
     "ALERTS": 1800,
@@ -119,6 +122,9 @@ COLLECTOR_HEALTH_STATE_LOCK = threading.Lock()
 LOCAL_IP_CACHE = {"generated_at": 0.0, "values": {"127.0.0.1"}}
 LOCAL_IP_CACHE_LOCK = threading.Lock()
 LOCAL_IP_CACHE_TTL_SECONDS = 60
+HOST_AVAILABILITY_CACHE = {}
+HOST_AVAILABILITY_CACHE_LOCK = threading.Lock()
+HOST_AVAILABILITY_CACHE_TTL_SECONDS = 30
 
 DEFAULT_ALERT_SETTINGS = {
     "disk_free_below_10": True,
@@ -128,6 +134,7 @@ DEFAULT_ALERT_SETTINGS = {
 }
 
 ALERTS_MAX_ITEMS = 100
+README_FILE = "README.md"
 
 _FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
 GAMB_BEHIND_PROXY = os.getenv("GAMB_BEHIND_PROXY", "0").strip() == "1"
@@ -799,15 +806,20 @@ def build_monitor_alerts_payload(user=None):
                 checked_hosts.add(normalized_host)
                 if not collector_payload_missing(load_collector_status_for_host(collector_host, use_cache=True)):
                     continue
+                host_online = is_host_online(collector_host, use_cache=True)
                 alerts.append(
                     {
-                        "kind": "collector_json_missing",
+                        "kind": "collector_host_offline" if host_online is False else "collector_json_missing",
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
                         "host": collector_host,
-                        "title": "JSON do coletor ausente",
-                        "message": f"{environment_name} não encontrou o arquivo status-servico.json no host {collector_host}.",
+                        "title": "Servidor possivelmente desligado" if host_online is False else "JSON do coletor ausente",
+                        "message": (
+                            f"{environment_name} não conseguiu sincronizar com o host {collector_host}; o servidor pode estar desligado ou inacessível."
+                            if host_online is False
+                            else f"{environment_name} não encontrou o arquivo status-servico.json no host {collector_host}."
+                        ),
                     }
                 )
 
@@ -854,21 +866,26 @@ def build_monitor_alerts_payload(user=None):
                 )
 
         if settings.get("high_priority_services_stopped"):
+            environment_type = normalize_environment_type(
+                environment.get("environment_type"),
+                environment.get("name"),
+            )
             for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
-                if normalize_service_priority(service.get("priority")) != "alta":
+                is_production = environment_type == "producao"
+                if not is_production and normalize_service_priority(service.get("priority")) != "alta":
                     continue
                 if not service_status_is_stopped(service.get("status")):
                     continue
                 display_name = str(service.get("display_name") or service.get("name") or "Serviço").strip() or "Serviço"
                 alerts.append(
                     {
-                        "kind": "high_priority_service",
+                        "kind": "production_service_stopped" if is_production else "high_priority_service",
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
                         "host": str(service.get("service_ip") or host).strip() or host,
                         "service_name": str(service.get("name") or "").strip(),
-                        "title": "Serviço crítico parado",
+                        "title": "Serviço parado em produção" if is_production else "Serviço crítico parado",
                         "message": f"{display_name} está parado no ambiente {environment_name}.",
                     }
                 )
@@ -2334,6 +2351,7 @@ def build_environment_status(environment):
     previous_status_lookup = _build_previous_status_lookup(get_cached_environment_status(environment["id"]))
 
     collector_by_host = {}
+    host_availability_by_host = {}
     target_hosts = sorted(
         {
             current_host
@@ -2346,6 +2364,7 @@ def build_environment_status(environment):
     )
     for target_host in target_hosts:
         collector_by_host[target_host] = load_collector_status_for_host(target_host, use_cache=True)
+        host_availability_by_host[target_host] = is_host_online(target_host, use_cache=True)
 
     for service_type, service in all_services:
         resolved_host = (service or {}).get("service_ip") or host
@@ -2388,6 +2407,8 @@ def build_environment_status(environment):
     has_pending_updates_value = False
     collector_hosts_summary = []
     collector_hosts_seen = set()
+    offline_hosts = []
+    unsynced_hosts = []
     for target_host, collector_payload in collector_by_host.items():
         collector_server = (collector_payload or {}).get("server") or {}
         summary_server_ip = str(collector_server.get("server_ip") or target_host).strip() or target_host
@@ -2395,6 +2416,9 @@ def build_environment_status(environment):
         if summary_key in collector_hosts_seen:
             continue
         collector_hosts_seen.add(summary_key)
+        host_online = host_availability_by_host.get(target_host)
+        payload_missing = collector_payload_missing(collector_payload)
+        host_stale = is_collector_stale(collector_server)
         try:
             pending_updates = int(collector_server.get("windows_updates_pending"))
         except Exception:
@@ -2414,11 +2438,21 @@ def build_environment_status(environment):
                 "disk_free_gb": collector_server.get("disk_free_gb"),
                 "windows_updates_pending": pending_updates,
                 "timestamp": str(collector_server.get("timestamp") or "").strip(),
-                "is_stale": is_collector_stale(collector_server),
+                "is_stale": host_stale,
+                "payload_missing": payload_missing,
+                "host_online": host_online,
             }
         )
+        if host_online is False:
+            offline_hosts.append(summary_server_ip)
+        elif payload_missing or host_stale:
+            unsynced_hosts.append(summary_server_ip)
     if has_pending_updates_value:
         environment_collector["windows_updates_pending"] = total_pending_updates
+    environment_collector["any_host_offline"] = bool(offline_hosts)
+    environment_collector["offline_hosts"] = offline_hosts
+    environment_collector["any_host_unsynced"] = bool(unsynced_hosts)
+    environment_collector["unsynced_hosts"] = unsynced_hosts
     register_collector_health_event(environment, environment_collector)
     return {
         "id": environment["id"],
@@ -2534,6 +2568,34 @@ def _is_local_machine_host(host):
         pass
 
     return normalized in {ip.lower() for ip in _get_local_ipv4_addresses()}
+
+
+def is_host_online(host, use_cache=True):
+    normalized = str(host or "").strip()
+    if not normalized:
+        return None
+
+    cache_key = normalized.lower()
+    now_ts = time.time()
+    if use_cache:
+        with HOST_AVAILABILITY_CACHE_LOCK:
+            cached = HOST_AVAILABILITY_CACHE.get(cache_key)
+            if cached and (now_ts - float(cached.get("generated_at") or 0)) <= HOST_AVAILABILITY_CACHE_TTL_SECONDS:
+                return cached.get("is_online")
+
+    if _is_local_machine_host(normalized):
+        is_online = True
+    else:
+        command = ["ping", "-n", "1", "-w", "1200", normalized]
+        completed = subprocess.run(command, capture_output=True, text=True)
+        is_online = completed.returncode == 0
+
+    with HOST_AVAILABILITY_CACHE_LOCK:
+        HOST_AVAILABILITY_CACHE[cache_key] = {
+            "generated_at": now_ts,
+            "is_online": is_online,
+        }
+    return is_online
 
 
 def _get_service_pid_via_sc(service_name, host):
@@ -3002,6 +3064,41 @@ def save_log(service, action, result, user, **extra):
         file.truncate()
 
 
+def save_execution_trace(environment_name, host, service, action, result, user, **extra):
+    entry = {
+        "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "environment": str(environment_name or "").strip() or "-",
+        "host": str(host or "").strip() or "local",
+        "service": str(service or "").strip() or "-",
+        "action": str(action or "").strip() or "-",
+        "result": str(result or "").strip() or "-",
+        "user": str(user or "").strip() or "system",
+    }
+    for key, value in (extra or {}).items():
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        entry[key] = value
+
+    os.makedirs(DATA_DIR, exist_ok=True)
+    if not os.path.exists(EXECUTION_TRACE_FILE):
+        with open(EXECUTION_TRACE_FILE, "w", encoding="utf-8") as file:
+            json.dump([], file)
+
+    with open(EXECUTION_TRACE_FILE, "r+", encoding="utf-8") as file:
+        try:
+            data = json.load(file)
+            if not isinstance(data, list):
+                data = []
+        except Exception:
+            data = []
+        data.insert(0, entry)
+        file.seek(0)
+        json.dump(data[:EXECUTION_TRACE_MAX_ENTRIES], file, indent=2, ensure_ascii=False)
+        file.truncate()
+
+
 def save_environment_log(environment_name, host, service, action, result, user):
     target = f"{environment_name} ({host or 'local'}) :: {service}"
     save_log(target, action, result, user)
@@ -3100,6 +3197,11 @@ def _set_action_job(job_key, **fields):
         ACTION_JOBS[job_key] = current
 
 
+def service_status_is_running(status_text):
+    normalized = str(status_text or "").strip().upper()
+    return normalized in {"RODANDO", "RUNNING"}
+
+
 def _run_service_action(environment, resolved_host, service, action_type, username):
     machine = resolve_service_machine(resolved_host)
     forced_stop = False
@@ -3149,6 +3251,16 @@ def _run_service_action(environment, resolved_host, service, action_type, userna
     invalidate_environment_status_cache(environment.get("id"))
     result_label = "SUCCESS_FORCED" if forced_stop else "SUCCESS"
     save_environment_log(environment["name"], resolved_host, service, action_type, result_label, username)
+    save_execution_trace(
+        environment.get("name"),
+        resolved_host,
+        service,
+        action_type,
+        result_label,
+        username,
+        status=final_status,
+        forced_stop=forced_stop,
+    )
     return {"success": True, "service_ip": resolved_host, "forced_stop": forced_stop, "status": final_status}
 
 
@@ -3167,17 +3279,46 @@ def _normalize_bulk_priority(value):
 
 
 def _build_bulk_ordered_services(environment, action_type):
-    services = [item for item in (environment.get("services", []) + environment.get("infra_services", [])) if item.get("name")]
+    services = [
+        item
+        for item in (environment.get("services", []) + environment.get("infra_services", []))
+        if item.get("name") and not is_license_service(item.get("name"), item.get("display_name"))
+    ]
+    environment_type = normalize_environment_type(
+        (environment or {}).get("environment_type"),
+        (environment or {}).get("name"),
+    )
+    is_production = environment_type == "producao"
     if action_type == "start":
-        sequence = ["alta", "media"]
+        sequence = ["alta", "media", "baixa", "p1"] if is_production else ["alta", "media"]
     else:
         sequence = ["p1", "baixa", "media", "alta"]
 
     ordered = []
+    seen = set()
     for priority in sequence:
         for service in services:
+            service_key = (
+                str(service.get("name") or "").strip().lower(),
+                str(service.get("service_ip") or "").strip().lower(),
+            )
+            if service_key in seen:
+                continue
             if _normalize_bulk_priority(service.get("priority")) == priority:
                 ordered.append(service)
+                seen.add(service_key)
+
+    if is_production:
+        for service in services:
+            service_key = (
+                str(service.get("name") or "").strip().lower(),
+                str(service.get("service_ip") or "").strip().lower(),
+            )
+            if service_key in seen:
+                continue
+            ordered.append(service)
+            seen.add(service_key)
+
     return ordered
 
 
@@ -3217,6 +3358,101 @@ def serialize_user(user):
         "active": user.get("active", True),
         "created_at": user.get("created_at"),
     }
+
+
+def render_readme_to_html():
+    if not os.path.exists(README_FILE):
+        return "<p class=\"text-sm text-slate-400\">Documentação não disponível no momento.</p>"
+
+    with open(README_FILE, "r", encoding="utf-8") as file:
+        lines = file.read().splitlines()
+
+    html_parts = []
+    in_list = False
+    in_code = False
+    code_lines = []
+    current_section_open = False
+
+    def close_list():
+        nonlocal in_list
+        if in_list:
+            html_parts.append("</ul>")
+            in_list = False
+
+    def close_code():
+        nonlocal in_code, code_lines
+        if in_code:
+            code_html = "\n".join(escape(line) for line in code_lines)
+            html_parts.append(f"<pre class=\"overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950/80 p-4 text-xs text-slate-200\"><code>{code_html}</code></pre>")
+            in_code = False
+            code_lines = []
+
+    def close_section():
+        nonlocal current_section_open
+        close_list()
+        close_code()
+        if current_section_open:
+            html_parts.append("</section>")
+            current_section_open = False
+
+    for raw_line in lines:
+        line = raw_line.rstrip()
+        stripped = line.strip()
+
+        if stripped.startswith("```"):
+            close_list()
+            if in_code:
+                close_code()
+            else:
+                in_code = True
+                code_lines = []
+            continue
+
+        if in_code:
+            code_lines.append(line)
+            continue
+
+        if not stripped:
+            close_list()
+            continue
+
+        if stripped.startswith("# "):
+            close_section()
+            html_parts.append(f"<h1 class=\"text-2xl font-bold text-slate-100\">{escape(stripped[2:])}</h1>")
+            continue
+        if stripped.startswith("## "):
+            close_section()
+            html_parts.append("<section class=\"rounded-3xl border border-slate-700 bg-slate-900/40 p-5 shadow-sm\">")
+            html_parts.append(f"<h2 class=\"text-xl font-semibold text-slate-100\">{escape(stripped[3:])}</h2>")
+            current_section_open = True
+            continue
+        if stripped.startswith("### "):
+            close_list()
+            html_parts.append(f"<h3 class=\"mt-5 text-base font-semibold text-slate-100\">{escape(stripped[4:])}</h3>")
+            continue
+        if stripped.startswith("- "):
+            if not in_list:
+                html_parts.append("<ul class=\"space-y-2 text-sm leading-6 text-slate-300\">")
+                in_list = True
+            html_parts.append(f"<li>{escape(stripped[2:])}</li>")
+            continue
+
+        close_list()
+        html_parts.append(f"<p class=\"text-sm leading-7 text-slate-300\">{escape(stripped)}</p>")
+
+    close_section()
+    return (
+        "<div class=\"space-y-5\">"
+        + "".join(html_parts)
+        + "</div>"
+    ) or "<p class=\"text-sm text-slate-400\">Documentação não disponível no momento.</p>"
+
+
+def get_readme_last_updated_label():
+    if not os.path.exists(README_FILE):
+        return ""
+    updated_at = datetime.fromtimestamp(os.path.getmtime(README_FILE))
+    return updated_at.strftime("%d/%m/%Y %H:%M")
 
 
 @app.context_processor
@@ -3373,6 +3609,18 @@ def get_monitor_alerts():
     return jsonify(build_monitor_alerts_payload(current_user()))
 
 
+@app.route("/documentation", methods=["GET"])
+@login_required
+def documentation():
+    return jsonify(
+        {
+            "success": True,
+            "html": render_readme_to_html(),
+            "updated_at": get_readme_last_updated_label(),
+        }
+    )
+
+
 @app.route("/")
 @login_required
 def index():
@@ -3385,7 +3633,13 @@ def index():
         cached_environment = get_cached_environment_status(environment["id"])
         initial_environments.append(cached_environment or build_initial_environment_payload(environment))
 
-    return render_template("index.html", user=user, initial_environments=initial_environments)
+    return render_template(
+        "index.html",
+        user=user,
+        initial_environments=initial_environments,
+        documentation_html=render_readme_to_html(),
+        documentation_updated_at=get_readme_last_updated_label(),
+    )
 
 
 @app.route("/admin")
@@ -3514,6 +3768,16 @@ def action():
                 target = f"{environment['name']} [{resolved_host or 'local'}] - {service}"
                 msg = f"ERRO: {target} - {action_type}"
                 save_environment_log(environment["name"], resolved_host, service, action_type, "ERROR", user["username"])
+                save_execution_trace(
+                    environment.get("name"),
+                    resolved_host,
+                    service,
+                    action_type,
+                    "ERROR",
+                    user["username"],
+                    error=str(exc),
+                    mode="single_async",
+                )
                 send_teams(msg)
                 send_email(msg)
                 _set_action_job(
@@ -3533,6 +3797,16 @@ def action():
         target = f"{environment['name']} [{resolved_host or 'local'}] - {service}"
         msg = f"ERRO: {target} - {action_type}"
         save_environment_log(environment["name"], resolved_host, service, action_type, "ERROR", user["username"])
+        save_execution_trace(
+            environment.get("name"),
+            resolved_host,
+            service,
+            action_type,
+            "ERROR",
+            user["username"],
+            error=str(exc),
+            mode="single_sync",
+        )
         send_teams(msg)
         send_email(msg)
         return jsonify({"success": False, "error": str(exc), "service_ip": resolved_host}), 500
@@ -3576,12 +3850,6 @@ def action_bulk():
     environment = hydrate_environment_from_collector(environment, use_cache=False)
 
     ordered_services = _build_bulk_ordered_services(environment, action_type)
-    if action_type == "stop":
-        ordered_services = [
-            service for service in ordered_services
-            if not is_license_service(service.get("name"), service.get("display_name"))
-        ]
-
     if not ordered_services:
         return jsonify({"success": False, "error": "Nenhum serviço elegível para execução em lote."}), 400
 
@@ -3604,20 +3872,65 @@ def action_bulk():
         _set_action_job(job_id, status="running", started_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         success_count = 0
         fail_count = 0
+        skipped_count = 0
         errors = []
 
         for service in ordered_services:
             service_name = service.get("name")
-            resolved_host = (service.get("service_ip") or environment.get("host") or "").strip()
+            service_ip = (service.get("service_ip") or "").strip()
+            resolved_host = service_ip or (environment.get("host") or "").strip()
             try:
-                _run_service_action(environment, resolved_host, service_name, action_type, user["username"])
+                resolved_service = find_service_in_environment(environment, service_name, service_ip=service_ip)
+                if not resolved_service:
+                    raise ValueError("Servico nao encontrado no ambiente para o IP informado.")
+
+                current_status = str(resolved_service.get("status") or "").strip()
+                if action_type == "start" and service_status_is_running(current_status):
+                    skipped_count += 1
+                    save_execution_trace(
+                        environment.get("name"),
+                        resolved_host,
+                        resolved_service.get("name") or service_name,
+                        action_type,
+                        "SKIPPED_ALREADY_RUNNING",
+                        user["username"],
+                        status=current_status,
+                        mode="bulk",
+                        job_id=job_id,
+                    )
+                elif action_type == "stop" and service_status_is_stopped(current_status):
+                    skipped_count += 1
+                    save_execution_trace(
+                        environment.get("name"),
+                        resolved_host,
+                        resolved_service.get("name") or service_name,
+                        action_type,
+                        "SKIPPED_ALREADY_STOPPED",
+                        user["username"],
+                        status=current_status,
+                        mode="bulk",
+                        job_id=job_id,
+                    )
+                else:
+                    _run_service_action(environment, resolved_host, resolved_service.get("name") or service_name, action_type, user["username"])
                 success_count += 1
             except Exception as exc:
                 fail_count += 1
+                save_execution_trace(
+                    environment.get("name"),
+                    resolved_host,
+                    service_name,
+                    action_type,
+                    "ERROR",
+                    user["username"],
+                    error=str(exc),
+                    mode="bulk",
+                    job_id=job_id,
+                )
                 if len(errors) < 20:
-                    errors.append(f"{service_name}: {str(exc)}")
+                    errors.append(f"{service_name} [{resolved_host or 'local'}]: {str(exc)}")
 
-            _set_action_job(job_id, success_count=success_count, fail_count=fail_count)
+            _set_action_job(job_id, success_count=success_count, fail_count=fail_count, skipped_count=skipped_count)
 
         _set_action_job(
             job_id,
@@ -3625,6 +3938,7 @@ def action_bulk():
             success=fail_count == 0,
             success_count=success_count,
             fail_count=fail_count,
+            skipped_count=skipped_count,
             errors=errors,
             finished_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )

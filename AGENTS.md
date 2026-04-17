@@ -108,3 +108,19 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Logs e alertas devem evitar repeticao; deduplicar eventos ruidosos e limitar retencao para reduzir crescimento do events_log.json e das notificacoes.
 
 - Estrutura de dados local deve ficar centralizada em data/ para separar codigo, templates e arquivos operacionais; JSONs de usuarios, ambientes, alertas, servidores e eventos ficam em data/.
+
+- A pagina principal deve oferecer acesso a documentacao tecnica do sistema para todos os usuarios autenticados, usando o README.md como fonte.
+
+- Sempre que houver novas atualizacoes tecnicas relevantes do ambiente ou do sistema, atualizar o README.md da raiz; a documentacao deve permanecer disponivel na pagina principal para todos os usuarios autenticados.
+
+- Rotina de alertas: em ambientes de producao, qualquer servico parado deve gerar alerta critico; nos demais, manter foco em servicos de prioridade alta.
+
+- Operacao em lote: em producao, start/stop em lote devem considerar todos os servicos cadastrados do ambiente; fora de producao, manter filtros anteriores de prioridade e preservacao de license no stop all.
+
+- Operacao em lote: o servico de license nunca deve participar de Iniciar todos ou Parar todos em nenhum ambiente; qualquer operacao nele deve ser individual e restrita ao administrador quando aplicavel.
+
+- Sincronizacao com o coletor deve verificar disponibilidade dos hosts do ambiente; quando um host nao responder, sinalizar servidor possivelmente desligado/inacessivel no painel e nos alertas.
+
+- Em ambientes com multiplos hosts, a sincronizacao do coletor so deve ser considerada saudavel quando todos os hosts relevantes do ambiente estiverem online e com JSON/timestamp validos.
+
+- Toda execucao de start/stop/restart, incluindo lote, deve gravar trilha tecnica separada em data/execution_trace.json com ambiente, host, servico, acao, resultado e erro/retorno para diagnostico futuro.

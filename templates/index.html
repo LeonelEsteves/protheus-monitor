@@ -81,12 +81,28 @@ document.documentElement.classList.add("dark");
     .dark #content .rounded-2xl,
     .dark #logContent .rounded-2xl,
     .dark #alertsContent .rounded-2xl,
+    .dark #documentationModal > div,
     .dark #logModal > div,
     .dark #alertsModal > div,
     .dark #confirmModal > div {
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(9, 14, 26, 0.94));
         border-color: rgba(148, 163, 184, 0.14);
         color: #e2e8f0;
+    }
+
+    .documentation-prose h1,
+    .documentation-prose h2,
+    .documentation-prose h3 {
+        letter-spacing: -0.02em;
+    }
+
+    .documentation-prose ul {
+        list-style: disc;
+        padding-left: 1.25rem;
+    }
+
+    .documentation-prose li::marker {
+        color: #60a5fa;
     }
 
     .dark .rounded-3xl.bg-slate-900 {
@@ -202,6 +218,12 @@ document.documentElement.classList.add("dark");
                         <path d="M12 17h.01"/>
                     </svg>
                     <span id="alertsBadge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
+                </button>
+                <button id="documentationButton" onclick="toggleDocumentation()" aria-label="Abrir documentação" title="Abrir documentação" class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-sm font-semibold text-white transition hover:bg-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path>
+                    </svg>
                 </button>
                 <button onclick="logout()" class="button-highlight-neutral inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Sair</button>
             </div>
@@ -360,6 +382,29 @@ document.documentElement.classList.add("dark");
     </div>
 </div>
 
+<div id="documentationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+    <div class="max-h-[85vh] w-full max-w-5xl rounded-3xl bg-white p-5 shadow-2xl">
+        <div class="mb-4 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold">Documentação do sistema</h2>
+                <p class="text-sm text-slate-500">Conteúdo técnico e regras de negócio do monitor.</p>
+                <div class="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+                    <span class="rounded-full border border-slate-700 bg-slate-950/60 px-3 py-1 text-slate-200">Leitura liberada para todos os usuários</span>
+                    <span id="documentationUpdatedAtBadge" class="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-blue-200">Atualizado em {{ documentation_updated_at or "Não informado" }}</span>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="refreshDocumentation()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Atualizar</button>
+                <button onclick="toggleDocumentation()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
+            </div>
+        </div>
+        <div class="mb-4 rounded-2xl border border-slate-700 bg-slate-950/50 p-4">
+            <div class="text-sm text-slate-300">Esta documentação é alimentada pelo <span class="font-semibold text-slate-100">README.md</span> do projeto e reflete a visão técnica e operacional mais recente do monitor.</div>
+        </div>
+        <div id="documentationContent" class="documentation-prose max-h-[60vh] space-y-4 overflow-y-auto pr-2">{{ documentation_html|safe }}</div>
+    </div>
+</div>
+
 <script>
 let environmentsData = {{ initial_environments|tojson }}.map((environment) => ({
     ...environment,
@@ -385,6 +430,7 @@ let activeServiceLogSignature = "";
 let serviceLogPollingTimer = null;
 let serviceLogRequestInFlight = false;
 let runningBulkActions = {};
+let documentationLoadedOnce = true;
 
 function compareEnvironmentNames(left, right) {
     return String(left.environment || "").localeCompare(String(right.environment || ""), "pt-BR", { sensitivity: "base" });
@@ -866,6 +912,31 @@ function getCollectorSyncMeta(environment) {
     const parsed = parseCollectorTimestamp(timestamp);
     const staleAfterMs = 90 * 1000;
     const isStale = !parsed || ((Date.now() - parsed.getTime()) > staleAfterMs);
+    const collectorHosts = Array.isArray(environment?.collector_hosts) ? environment.collector_hosts : [];
+    const offlineHosts = collectorHosts.filter((item) => item && item.host_online === false);
+    const unsyncedHosts = collectorHosts.filter((item) => item && item.host_online !== false && (item.payload_missing || item.is_stale));
+    if (offlineHosts.length) {
+        const offlineLabel = offlineHosts.length === 1
+            ? `Servidor possivelmente desligado: ${offlineHosts[0].server_ip || offlineHosts[0].host || "-"}`
+            : `${offlineHosts.length} servidores possivelmente desligados`;
+        return {
+            isStale: true,
+            label: offlineLabel,
+            badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-200",
+            iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+        };
+    }
+    if (collectorHosts.length > 1 && unsyncedHosts.length) {
+        const unsyncedLabel = unsyncedHosts.length === 1
+            ? `Coletor sem sincronização em ${unsyncedHosts[0].server_ip || unsyncedHosts[0].host || "-"}`
+            : `Coletor sem sincronização em ${unsyncedHosts.length} hosts do ambiente`;
+        return {
+            isStale: true,
+            label: unsyncedLabel,
+            badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-200",
+            iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+        };
+    }
     if (!timestamp) {
         return {
             isStale: true,
@@ -946,6 +1017,7 @@ function buildCollectorHostMetric(hostSummary) {
         pendingUpdatesLabel,
         diskUnitsSummary,
         lowDiskWarning: lowDiskUnits.length ? "Pouco espaço em disco" : "",
+        hostOnline: hostSummary?.host_online,
     };
 }
 
@@ -1340,6 +1412,7 @@ function renderContent() {
                                 <span>Updates ${escapeHtml(metric.pendingUpdatesLabel)}</span>
                                 <span class="text-slate-500">|</span>
                                 <span>Discos ${escapeHtml(metric.diskUnitsSummary)}</span>
+                                ${metric.hostOnline === false ? `<span class="text-rose-200">| Servidor possivelmente desligado</span>` : ""}
                                 ${metric.lowDiskWarning ? `<span class="text-amber-200">| ${escapeHtml(metric.lowDiskWarning)}</span>` : ""}
                             </div>
                         `).join("")
@@ -1354,6 +1427,7 @@ function renderContent() {
                                 <span class="font-semibold text-white">Unidades de disco:</span>
                                 <span>${escapeHtml(singleCollectorMetric.diskUnitsSummary)}</span>
                             </div>
+                            ${singleCollectorMetric.hostOnline === false ? `<div class="inline-flex items-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/10 px-2 py-1 whitespace-nowrap font-semibold text-rose-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-rose-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>Servidor possivelmente desligado</div>` : ""}
                             ${singleCollectorMetric.lowDiskWarning ? `<div class="inline-flex items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 whitespace-nowrap font-semibold text-amber-100"><svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-amber-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>${escapeHtml(singleCollectorMetric.lowDiskWarning)}</div>` : ""}
                         `}
             </div>
@@ -1538,7 +1612,8 @@ async function triggerBulkAction(environmentId, action) {
                 renderContent();
                 await loadEnvironmentStatus(environmentId, { force: true });
                 const failCount = Number(job.fail_count || 0);
-                showToast(`Lote ${actionLabel}: ${job.success_count || 0} sucesso(s), ${failCount} falha(s).`, failCount ? "error" : "success");
+                const skippedCount = Number(job.skipped_count || 0);
+                showToast(`Lote ${actionLabel}: ${job.success_count || 0} sucesso(s), ${failCount} falha(s), ${skippedCount} já estavam no estado esperado.`, failCount ? "error" : "success");
                 if (Array.isArray(job.errors) && job.errors.length) {
                     job.errors.forEach((message) => appendDebug(environmentId, "__bulk__", `[LOTE ${action.toUpperCase()}] ${message}`, "error"));
                 }
@@ -1657,6 +1732,39 @@ async function toggleAlerts() {
     lastAlertsReadSignature = getAlertsSignature(allAlerts);
     localStorage.setItem("lastAlertsReadSignature", lastAlertsReadSignature);
     updateAlertsBadge();
+}
+
+async function refreshDocumentation() {
+    const result = await apiFetch("/documentation");
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível carregar a documentação.");
+        return;
+    }
+
+    const container = document.getElementById("documentationContent");
+    if (container) {
+        container.innerHTML = String(result.data.html || "");
+    }
+    const badge = document.getElementById("documentationUpdatedAtBadge");
+    if (badge) {
+        badge.textContent = `Atualizado em ${String(result.data.updated_at || "Não informado")}`;
+    }
+    documentationLoadedOnce = true;
+}
+
+async function toggleDocumentation() {
+    const modal = document.getElementById("documentationModal");
+    modal.classList.toggle("hidden");
+
+    if (modal.classList.contains("hidden")) {
+        return;
+    }
+
+    if (!documentationLoadedOnce) {
+        await refreshDocumentation();
+    }
 }
 
 async function logout() {

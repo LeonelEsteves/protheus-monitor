@@ -1,5 +1,26 @@
 [
   {
+    "datetime": "2026-04-17 16:26:01",
+    "service": "APEX-PRD (10.85.0.90) :: TOTVS-Appserver12-P241-PRD-REST-MASTER",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 16:06:43",
+    "service": "APEX-PRD (10.85.0.198) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 16:06:24",
+    "service": "APEX-PRD (10.85.0.198) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-17 14:20:18",
     "service": "COLETOR :: APEX-HML3",
     "action": "DEPLOY::multilingual-2026-04-16",

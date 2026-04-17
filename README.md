@@ -38,6 +38,7 @@ Os arquivos operacionais ficam centralizados em `data/`:
 - `data/servers.json`: inventário de servidores.
 - `data/alert_settings.json`: configuração da rotina de alertas.
 - `data/events_log.json`: log operacional e auditoria resumida.
+- `data/execution_trace.json`: trilha técnica de execução de ações por host/serviço, usada para diagnóstico.
 
 ### Coletor
 
@@ -89,6 +90,10 @@ O monitor lê o `status-servico.json` por host via caminho local/UNC e hidrata o
 - atualizações pendentes do Windows
 - metadados do `appserver.ini`
 
+Durante a sincronização com o coletor, o monitor também verifica se os hosts do ambiente estão acessíveis. Quando um host não responde, o sistema passa a sinalizar que o servidor está possivelmente desligado ou inacessível.
+
+Em ambientes com múltiplos hosts, o monitor só considera a sincronização do coletor saudável quando todos os hosts relevantes do ambiente estiverem online e com JSON/timestamp válidos.
+
 O sistema evita consultar o status diretamente no Windows como fonte principal. O coletor é a referência operacional.
 
 ### 3. Operação de serviços
@@ -139,8 +144,10 @@ Cada deploy grava um marcador local de versão no host do coletor.
 ### Restrições operacionais
 
 - `operator` não pode acessar ambientes de produção.
-- parada em lote nunca deve parar serviços de license.
-- start em lote deve iniciar apenas prioridades alta e média.
+- em produção, start/stop em lote devem considerar todos os serviços cadastrados do ambiente, sem ignorar por prioridade.
+- fora de produção, start em lote deve iniciar apenas prioridades alta e média.
+- o serviço de license nunca participa de `Iniciar todos` ou `Parar todos` em nenhum ambiente; quando necessário, deve ser operado individualmente por administrador.
+- operações em lote resolvem cada serviço por `nome + IP` e tratam serviços já no estado desejado como sucesso operacional, reduzindo falhas desnecessárias.
 - stop/restart devem priorizar `taskkill`.
 
 ### Coletor como fonte primária
