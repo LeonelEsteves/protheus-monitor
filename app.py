@@ -1748,6 +1748,19 @@ def load_collector_status_for_host(host, use_cache=True):
     return parsed_payload
 
 
+def refresh_collector_cache_for_environment(environment):
+    target_hosts = {
+        (environment or {}).get("host", "").strip()
+    }
+    for service in ((environment or {}).get("services") or []):
+        target_hosts.add(((service or {}).get("service_ip") or "").strip())
+    for service in ((environment or {}).get("infra_services") or []):
+        target_hosts.add(((service or {}).get("service_ip") or "").strip())
+
+    for host in sorted(target_hosts):
+        load_collector_status_for_host(host, use_cache=False)
+
+
 def _build_service_status_snapshot(host):
     machine = resolve_service_machine(host)
     snapshot = {
@@ -2947,6 +2960,7 @@ def status():
     ensure_service_status_monitor_started()
     user = current_user()
     environment_id = request.args.get("environment_id", "").strip()
+    refresh = _as_bool(request.args.get("refresh"))
     if environment_id:
         environment = find_environment(environment_id)
         if not environment:
@@ -2954,8 +2968,10 @@ def status():
         if not can_user_access_environment(user, environment):
             return jsonify({"success": False, "error": "Acesso negado ao ambiente de produção."}), 403
         cached_environment = get_cached_environment_status(environment_id)
-        if cached_environment:
+        if cached_environment and not refresh:
             return jsonify(cached_environment)
+        if refresh:
+            refresh_collector_cache_for_environment(environment)
         fresh_environment = build_environment_status(environment)
         with ENVIRONMENT_STATUS_CACHE_LOCK:
             ENVIRONMENT_STATUS_CACHE[environment_id] = fresh_environment
