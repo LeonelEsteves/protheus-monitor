@@ -199,7 +199,7 @@ try {
 try {
     $updateSession = New-Object -ComObject "Microsoft.Update.Session"
     $updateSearcher = $updateSession.CreateUpdateSearcher()
-    $searchResult = $updateSearcher.Search("IsInstalled=0 and IsHidden=0")
+    $searchResult = $updateSearcher.Search("IsInstalled=0 and IsHidden=0 and Type='Software'")
     if ($searchResult) {
         $pendingUpdatesCount = [int]$searchResult.Updates.Count
     }

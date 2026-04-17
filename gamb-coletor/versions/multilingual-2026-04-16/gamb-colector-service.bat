@@ -9,6 +9,8 @@ REM Exemplo:
 REM   gamb-colector-service.bat TOTVS C:\gamb-coletor 5
 REM ============================================================
 
+for %%I in ("%~dp0.") do set "COLLECTOR_VERSION=%%~nxI"
+if not defined COLLECTOR_VERSION set "COLLECTOR_VERSION=multilingual-2026-04-16"
 set "FILTER_TERM=TOTVS"
 set "OUTPUT_DIR=C:\gamb-coletor"
 set "INTERVAL=5"
@@ -37,6 +39,7 @@ if not defined SERVER_IP set "SERVER_IP="
 
 call :Log "--------------------------------------------------"
 call :Log "GAMB COLETOR iniciado"
+call :Log "Versao: %COLLECTOR_VERSION%"
 call :Log "Servidor: %SERVER_NAME%"
 call :Log "IP: %SERVER_IP%"
 call :Log "Filtro servico: %FILTER_TERM%"
@@ -53,6 +56,7 @@ timeout /t %INTERVAL% /nobreak >nul
 goto :Loop
 
 :Usage
+echo Versao: %COLLECTOR_VERSION%
 echo Uso: %~nx0 [FILTRO_NOME] [OUTPUT_DIR] [INTERVAL_SECONDS]
 echo Exemplo: %~nx0 TOTVS C:\gamb-coletor 5
 exit /b 0

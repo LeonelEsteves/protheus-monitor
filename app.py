@@ -5,6 +5,7 @@ from functools import wraps
 import json
 import os
 import re
+import shutil
 import smtplib
 import subprocess
 import base64
@@ -98,6 +99,11 @@ SERVER_INVENTORY_CACHE = {}
 SERVER_INVENTORY_CACHE_LOCK = threading.Lock()
 SERVER_INVENTORY_CACHE_TTL_SECONDS = 300
 COLLECTOR_STATUS_PATH = r"C:\gamb-coletor\status-servico.json"
+COLLECTOR_DEPLOY_ROOT = r"C:\gamb-coletor"
+COLLECTOR_VERSION_MARKER_PATH = os.path.join(COLLECTOR_DEPLOY_ROOT, "collector-version.json")
+COLLECTOR_REPO_VERSIONS_DIR = os.path.join("gamb-coletor", "versions")
+COLLECTOR_SERVICE_NAME = "GambColetorService"
+COLLECTOR_VERSION_HISTORY_LIMIT = 20
 COLLECTOR_DATA_CACHE = {}
 COLLECTOR_DATA_CACHE_LOCK = threading.Lock()
 COLLECTOR_DATA_CACHE_TTL_SECONDS = 15
@@ -1238,13 +1244,14 @@ def discover_services_on_hosts(hosts, credential=None):
             "message": "",
         }
         collector_payload = load_collector_status_for_host(connect_host or source_host, use_cache=False)
-        collector_services = (collector_payload.get("services_by_name") or {})
+        collector_services = (collector_payload.get("services") or [])
+        collector_server_ip = ((collector_payload.get("server") or {}).get("server_ip") or "").strip()
         if collector_services:
             step_logs.append(f"[{source_host}] status-servico.json carregado com sucesso.")
             added_services = 0
             added_infra = 0
             ignored_without_path = 0
-            for service in collector_services.values():
+            for service in collector_services:
                 name = (service.get("name") or "").strip()
                 if not name:
                     continue
@@ -1254,7 +1261,7 @@ def discover_services_on_hosts(hosts, credential=None):
                     ignored_without_path += 1
                     continue
 
-                service_ip = (service.get("service_ip") or source_host).strip()
+                service_ip = collector_server_ip
                 row = {
                     "name": name,
                     "display_name": (service.get("display_name") or "").strip(),
@@ -1686,6 +1693,7 @@ def parse_collector_status_payload(payload):
         services = payload
 
     by_name = {}
+    normalized_services = []
     for raw_service in services:
         if not isinstance(raw_service, dict):
             continue
@@ -1705,6 +1713,7 @@ def parse_collector_status_payload(payload):
             "rpocustom": (raw_service.get("rpocustom") or "").strip(),
             "status": map_collector_status(raw_service.get("status_atual") or raw_service.get("status")),
         }
+        normalized_services.append(normalized)
         by_name[_normalize_service_lookup_key(service_name)] = normalized
 
     server = {
@@ -1718,7 +1727,7 @@ def parse_collector_status_payload(payload):
         "windows_updates_pending": server_info.get("windows_updates_pending"),
         "timestamp": (server_info.get("timestamp") or "").strip(),
     }
-    return {"server": server, "services_by_name": by_name}
+    return {"server": server, "services_by_name": by_name, "services": normalized_services}
 
 
 def _parse_collector_timestamp(timestamp_text):
@@ -1830,6 +1839,274 @@ def refresh_collector_cache_for_environment(environment):
 
     for host in sorted(target_hosts):
         load_collector_status_for_host(host, use_cache=False)
+
+
+def list_available_collector_versions():
+    if not os.path.isdir(COLLECTOR_REPO_VERSIONS_DIR):
+        return []
+
+    versions = []
+    try:
+        for entry in os.scandir(COLLECTOR_REPO_VERSIONS_DIR):
+            if not entry.is_dir():
+                continue
+            version_name = str(entry.name or "").strip()
+            if not version_name:
+                continue
+            versions.append(
+                {
+                    "version": version_name,
+                    "path": entry.path,
+                    "has_bat": os.path.exists(os.path.join(entry.path, "gamb-colector-service.bat")),
+                    "has_ps1": os.path.exists(os.path.join(entry.path, "gamb-colector-service.ps1")),
+                    "has_readme": os.path.exists(os.path.join(entry.path, "README.md")),
+                }
+            )
+    except Exception:
+        return []
+
+    versions.sort(key=lambda item: str(item.get("version") or "").lower(), reverse=True)
+    return versions
+
+
+def get_collector_version_info(version_name):
+    target_version = str(version_name or "").strip()
+    if not target_version:
+        return None
+    for item in list_available_collector_versions():
+        if str(item.get("version") or "").strip() == target_version:
+            return item
+    return None
+
+
+def _collect_environment_hosts_for_collector(environment):
+    hosts = []
+    seen = set()
+
+    def add_host(value):
+        host_value = str(value or "").strip()
+        if not host_value:
+            return
+        normalized = _normalize_service_lookup_key(host_value)
+        if normalized in seen:
+            return
+        seen.add(normalized)
+        hosts.append(host_value)
+
+    add_host((environment or {}).get("host"))
+    for service in ((environment or {}).get("services") or []):
+        add_host((service or {}).get("service_ip"))
+    for service in ((environment or {}).get("infra_services") or []):
+        add_host((service or {}).get("service_ip"))
+    return hosts
+
+
+def _collector_candidate_paths_for_host(host, base_local_path):
+    if _is_local_machine_host(host):
+        return [base_local_path]
+    candidate_paths = []
+    for candidate_host in _collector_status_candidate_hosts(host):
+        unc = local_path_to_unc(candidate_host, base_local_path)
+        if unc:
+            candidate_paths.append(unc)
+    return candidate_paths
+
+
+def _read_json_from_candidate_paths(candidate_paths):
+    for path_value in candidate_paths:
+        try:
+            if not os.path.exists(path_value):
+                continue
+            with open(path_value, "r", encoding="utf-8-sig") as file:
+                return json.load(file)
+        except Exception:
+            continue
+    return {}
+
+
+def read_collector_version_marker_for_host(host):
+    return _read_json_from_candidate_paths(_collector_candidate_paths_for_host(host, COLLECTOR_VERSION_MARKER_PATH))
+
+
+def _collector_destination_path_for_host(host, relative_name):
+    destination = os.path.join(COLLECTOR_DEPLOY_ROOT, relative_name)
+    if _is_local_machine_host(host):
+        return destination
+    return local_path_to_unc(host, destination)
+
+
+def _write_json_file(path_value, payload):
+    os.makedirs(os.path.dirname(path_value), exist_ok=True)
+    with open(path_value, "w", encoding="utf-8") as file:
+        json.dump(payload, file, ensure_ascii=False, indent=2)
+
+
+def _copy_file_to_host(host, source_path, destination_name):
+    destination_path = _collector_destination_path_for_host(host, destination_name)
+    if not destination_path:
+        raise RuntimeError("Nao foi possivel resolver o caminho de destino do coletor.")
+    os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+    shutil.copy2(source_path, destination_path)
+    return destination_path
+
+
+def _is_access_denied_message(text):
+    normalized = str(text or "").strip().lower()
+    return "access is denied" in normalized or "acesso negado" in normalized
+
+
+def _restart_collector_service_for_host(host):
+    target = str(host or "").strip()
+    sc_target = [] if _is_local_machine_host(target) else [f"\\\\{target}"]
+    query_cmd = ["sc.exe", *sc_target, "query", COLLECTOR_SERVICE_NAME]
+    query_result = subprocess.run(query_cmd, capture_output=True, text=True)
+    if query_result.returncode != 0:
+        query_output = (query_result.stderr or query_result.stdout or "").strip()
+        if _is_access_denied_message(query_output):
+            return {
+                "status": "permission_denied",
+                "message": "Arquivos atualizados, mas sem permissao para consultar/reiniciar o servico do coletor neste host.",
+                "details": query_output,
+            }
+        return {"status": "not_installed", "message": "Servico do coletor nao encontrado."}
+
+    stop_cmd = ["sc.exe", *sc_target, "stop", COLLECTOR_SERVICE_NAME]
+    start_cmd = ["sc.exe", *sc_target, "start", COLLECTOR_SERVICE_NAME]
+    stop_result = subprocess.run(stop_cmd, capture_output=True, text=True)
+    stop_output = (stop_result.stderr or stop_result.stdout or "").strip()
+    if stop_result.returncode != 0 and _is_access_denied_message(stop_output):
+        return {
+            "status": "permission_denied",
+            "message": "Arquivos atualizados, mas sem permissao para parar/iniciar o servico do coletor neste host.",
+            "details": stop_output,
+        }
+    time.sleep(2)
+    start_result = subprocess.run(start_cmd, capture_output=True, text=True)
+    start_output = (start_result.stderr or start_result.stdout or "").strip()
+    if start_result.returncode == 0:
+        return {"status": "restarted", "message": "Servico do coletor reiniciado."}
+    if _is_access_denied_message(start_output):
+        return {
+            "status": "permission_denied",
+            "message": "Arquivos atualizados, mas sem permissao para iniciar o servico do coletor neste host.",
+            "details": start_output,
+        }
+    return {
+        "status": "restart_failed",
+        "message": (start_output or stop_output or "Falha ao reiniciar o servico.").strip(),
+    }
+
+
+def build_environment_collector_deployment_status(environment, latest_version=""):
+    host_rows = []
+    current_versions = set()
+    has_unknown_versions = False
+    seen_display_hosts = set()
+    latest_version = str(latest_version or "").strip()
+
+    for host in _collect_environment_hosts_for_collector(environment):
+        marker = read_collector_version_marker_for_host(host)
+        collector_payload = load_collector_status_for_host(host, use_cache=True)
+        collector_server = (collector_payload or {}).get("server") or {}
+        display_host = str(collector_server.get("server_ip") or host).strip() or host
+        normalized_display_host = _normalize_service_lookup_key(display_host)
+        if normalized_display_host in seen_display_hosts:
+            continue
+        seen_display_hosts.add(normalized_display_host)
+        current_version = str(marker.get("current_version") or "").strip()
+        if current_version:
+            current_versions.add(current_version)
+        else:
+            has_unknown_versions = True
+        host_rows.append(
+            {
+                "host": display_host,
+                "server_ip": display_host,
+                "server_name": str(collector_server.get("server_name") or "").strip(),
+                "current_version": current_version,
+                "current_version_label": current_version or "Nao identificado",
+                "updated_at": str(marker.get("updated_at") or "").strip(),
+                "updated_by": str(marker.get("updated_by") or "").strip(),
+                "update_available": bool(latest_version and current_version and current_version != latest_version),
+            }
+        )
+
+    if len(current_versions) == 1 and not has_unknown_versions:
+        current_version_label = next(iter(current_versions))
+        current_version = current_version_label
+    elif current_versions or has_unknown_versions:
+        current_version_label = "Misto"
+        current_version = ""
+    else:
+        current_version_label = "Nao identificado"
+        current_version = ""
+
+    update_available = bool(latest_version and ((current_version and current_version != latest_version) or current_version_label == "Misto"))
+
+    return {
+        "environment_id": environment.get("id"),
+        "environment_name": environment.get("name"),
+        "current_version": current_version,
+        "current_version_label": current_version_label,
+        "latest_version": latest_version,
+        "update_available": update_available,
+        "hosts": host_rows,
+    }
+
+
+def deploy_collector_version_to_host(host, version_name, actor_username):
+    version_info = get_collector_version_info(version_name)
+    if not version_info:
+        raise RuntimeError("Versao do coletor nao encontrada.")
+
+    source_dir = version_info["path"]
+    source_files = [
+        name
+        for name in ("gamb-colector-service.bat", "gamb-colector-service.ps1", "README.md")
+        if os.path.exists(os.path.join(source_dir, name))
+    ]
+    if not source_files:
+        raise RuntimeError("Arquivos da versao selecionada nao encontrados.")
+
+    marker = read_collector_version_marker_for_host(host)
+    previous_version = str(marker.get("current_version") or "").strip()
+    history = marker.get("history") if isinstance(marker.get("history"), list) else []
+    if previous_version and previous_version != version_name:
+        history.insert(
+            0,
+            {
+                "version": previous_version,
+                "updated_at": str(marker.get("updated_at") or "").strip(),
+                "updated_by": str(marker.get("updated_by") or "").strip(),
+            },
+        )
+    history = history[:COLLECTOR_VERSION_HISTORY_LIMIT]
+
+    copied_files = []
+    for file_name in source_files:
+        destination_path = _copy_file_to_host(host, os.path.join(source_dir, file_name), file_name)
+        copied_files.append(destination_path)
+
+    marker_payload = {
+        "current_version": version_name,
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "updated_by": actor_username,
+        "history": history,
+    }
+    marker_path = _collector_destination_path_for_host(host, "collector-version.json")
+    if not marker_path:
+        raise RuntimeError("Nao foi possivel resolver o arquivo de versao do coletor.")
+    _write_json_file(marker_path, marker_payload)
+
+    restart_info = _restart_collector_service_for_host(host)
+    return {
+        "host": host,
+        "target_version": version_name,
+        "previous_version": previous_version,
+        "current_version": version_name,
+        "copied_files": copied_files,
+        "service_restart": restart_info,
+    }
 
 
 def _build_service_status_snapshot(host):
@@ -2021,8 +2298,12 @@ def build_environment_status(environment):
     collector_by_host = {}
     target_hosts = sorted(
         {
-            ((service or {}).get("service_ip") or host or "").strip()
-            for _, service in all_services
+            current_host
+            for current_host in (
+                [str(host or "").strip()]
+                + [((service or {}).get("service_ip") or host or "").strip() for _, service in all_services]
+            )
+            if current_host
         }
     )
     for target_host in target_hosts:
@@ -2065,6 +2346,41 @@ def build_environment_status(environment):
         built_services[service_type].append(base)
 
     environment_collector = load_collector_status_for_host(host, use_cache=True).get("server") or {}
+    total_pending_updates = 0
+    has_pending_updates_value = False
+    collector_hosts_summary = []
+    collector_hosts_seen = set()
+    for target_host, collector_payload in collector_by_host.items():
+        collector_server = (collector_payload or {}).get("server") or {}
+        summary_server_ip = str(collector_server.get("server_ip") or target_host).strip() or target_host
+        summary_key = _normalize_service_lookup_key(summary_server_ip or target_host)
+        if summary_key in collector_hosts_seen:
+            continue
+        collector_hosts_seen.add(summary_key)
+        try:
+            pending_updates = int(collector_server.get("windows_updates_pending"))
+        except Exception:
+            pending_updates = None
+        if pending_updates is None:
+            pending_updates = None
+        else:
+            total_pending_updates += pending_updates
+            has_pending_updates_value = True
+        collector_hosts_summary.append(
+            {
+                "host": target_host,
+                "server_ip": summary_server_ip,
+                "server_name": str(collector_server.get("server_name") or "").strip(),
+                "disk_space": str(collector_server.get("disk_space") or "").strip(),
+                "disk_total_gb": collector_server.get("disk_total_gb"),
+                "disk_free_gb": collector_server.get("disk_free_gb"),
+                "windows_updates_pending": pending_updates,
+                "timestamp": str(collector_server.get("timestamp") or "").strip(),
+                "is_stale": is_collector_stale(collector_server),
+            }
+        )
+    if has_pending_updates_value:
+        environment_collector["windows_updates_pending"] = total_pending_updates
     register_collector_health_event(environment, environment_collector)
     return {
         "id": environment["id"],
@@ -2076,6 +2392,7 @@ def build_environment_status(environment):
         "erp_version": environment.get("erp_version", ""),
         "database_update_date": environment.get("database_update_date", get_default_database_update_date(environment.get("environment_type", infer_environment_type(environment["name"])))),
         "collector_server": environment_collector,
+        "collector_hosts": collector_hosts_summary,
         "services": built_services["services"],
         "infra_services": built_services["infra_services"],
     }
@@ -3444,6 +3761,75 @@ def delete_user(username):
 @admin_required
 def environments():
     return jsonify(load_environments())
+
+
+@app.route("/collector/deployments")
+@admin_required
+def collector_deployments():
+    versions = list_available_collector_versions()
+    latest_version = versions[0]["version"] if versions else ""
+    environments_data = load_environments()
+    return jsonify(
+        {
+            "success": True,
+            "versions": versions,
+            "latest_version": latest_version,
+            "environments": [build_environment_collector_deployment_status(environment, latest_version) for environment in environments_data],
+        }
+    )
+
+
+@app.route("/collector/deployments/<environment_id>", methods=["POST"])
+@admin_required
+def deploy_collector_to_environment(environment_id):
+    data = request.get_json(silent=True) or {}
+    version_name = str(data.get("version") or "").strip()
+    actor = current_user()
+
+    if not version_name:
+        return jsonify({"success": False, "error": "Versao do coletor obrigatoria."}), 400
+
+    version_info = get_collector_version_info(version_name)
+    if not version_info:
+        return jsonify({"success": False, "error": "Versao do coletor nao encontrada."}), 404
+
+    environment = find_environment(environment_id)
+    if not environment:
+        return jsonify({"success": False, "error": "Ambiente nao encontrado."}), 404
+
+    target_hosts = _collect_environment_hosts_for_collector(environment)
+    if not target_hosts:
+        return jsonify({"success": False, "error": "Nenhum host configurado para o ambiente."}), 400
+
+    results = []
+    failures = []
+    for host in target_hosts:
+        try:
+            results.append(deploy_collector_version_to_host(host, version_name, actor["username"]))
+        except Exception as exc:
+            failures.append({"host": host, "error": str(exc)})
+
+    result_label = "SUCCESS" if not failures else ("PARTIAL" if results else "ERROR")
+    save_log(
+        f"COLETOR :: {environment.get('name')}",
+        f"DEPLOY::{version_name}",
+        result_label,
+        actor["username"],
+        hosts=target_hosts,
+        failures=failures,
+    )
+
+    return jsonify(
+        {
+            "success": True if results or not failures else False,
+            "environment_id": environment_id,
+            "environment_name": environment.get("name"),
+            "target_version": version_name,
+            "results": results,
+            "failures": failures,
+            "current_status": build_environment_collector_deployment_status(environment, version_name),
+        }
+    )
 
 
 @app.route("/environments", methods=["POST"])

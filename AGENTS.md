@@ -98,3 +98,9 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Padrao visual duravel: ao estilizar layouts, padronizar sempre para o tema dark e reutilizar o mesmo formato, modelos de tela, cores, templates, icones e demais elementos visuais ja implantados no projeto.
 
 - Tela de cadastro de ambiente pode usar leitura mais clara e suave que o restante do dark mode; evitar cores chamativas e priorizar contraste suave, blocos distintos e secoes/itens colapsados por padrao para melhor usabilidade.
+
+- Painel administrativo deve oferecer controle de versoes do gamb-coletor por ambiente, com atualizacao automatica dos arquivos nos hosts do ambiente e possibilidade de rollback selecionando versao anterior.
+
+- Toda alteracao no gamb-coletor deve gerar uma nova pasta versionada em gamb-coletor/versions; manter rotina/script para snapshot automatico e rollback simples.
+
+- Painel administrativo deve avisar quando existir versao mais nova disponivel do gamb-coletor em relacao a versao instalada no ambiente.
