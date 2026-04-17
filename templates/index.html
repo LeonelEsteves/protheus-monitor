@@ -161,6 +161,7 @@ document.documentElement.classList.add("dark");
         border-color: rgba(71, 85, 105, 0.7);
         box-shadow: 0 24px 60px rgba(2, 6, 23, 0.55);
     }
+
 </style>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300">
@@ -194,7 +195,7 @@ document.documentElement.classList.add("dark");
                     </svg>
                     <span id="badge" class="hidden absolute -top-2 -right-2 rounded-full bg-rose-500 px-2 py-0.5 text-xs text-white">0</span>
                 </button>
-                <button id="alertsButton" onclick="toggleAlerts()" aria-label="Abrir alertas" title="Abrir alertas" class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-sm font-semibold text-white transition hover:bg-amber-400">
+                <button id="alertsButton" onclick="toggleAlerts()" aria-label="Abrir alertas" title="Abrir alertas" class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-sm font-semibold text-white transition hover:bg-blue-400">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
                         <path d="M12 9v4"/>
@@ -334,7 +335,10 @@ document.documentElement.classList.add("dark");
                 <h2 class="text-xl font-semibold">Eventos registrados</h2>
                 <p class="text-sm text-slate-500">Histórico das ações executadas na aplicação.</p>
             </div>
-            <button onclick="toggleLogs()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
+            <div class="flex gap-2">
+                <button onclick="clearLogsScreen()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar da tela</button>
+                <button onclick="toggleLogs()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
+            </div>
         </div>
         <div id="logContent" class="max-h-[60vh] space-y-3 overflow-y-auto"></div>
     </div>
@@ -345,9 +349,12 @@ document.documentElement.classList.add("dark");
         <div class="mb-4 flex items-center justify-between">
             <div>
                 <h2 class="text-xl font-semibold">Alertas do monitor</h2>
-                <p class="text-sm text-slate-500">Ocorrências críticas e avisos com base na rotina configurada no painel administrativo.</p>
+                <p class="text-sm text-slate-500">Ocorrências críticas e avisos ativos.</p>
             </div>
-            <button onclick="toggleAlerts()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
+            <div class="flex gap-2">
+                <button onclick="clearAlertsScreen()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar da tela</button>
+                <button onclick="toggleAlerts()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Fechar</button>
+            </div>
         </div>
         <div id="alertsContent" class="max-h-[60vh] space-y-3 overflow-y-auto"></div>
     </div>
@@ -363,6 +370,8 @@ const currentUser = {{ user|tojson }};
 let activeTab = 0;
 let lastRead = localStorage.getItem("lastRead") || null;
 let lastAlertsReadSignature = localStorage.getItem("lastAlertsReadSignature") || "";
+let hiddenLogsUntil = localStorage.getItem("hiddenLogsUntil") || "";
+let hiddenAlertsSignature = localStorage.getItem("hiddenAlertsSignature") || "";
 let allLogs = [];
 let allAlerts = [];
 let debugEntriesByContext = {};
@@ -829,6 +838,15 @@ function formatCollectorTimestampBr(timestamp) {
     return text;
 }
 
+function formatDateBr(value) {
+    const text = String(value || "").trim();
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+        return `${match[3]}/${match[2]}/${match[1]}`;
+    }
+    return text || "Não informado";
+}
+
 function parseCollectorTimestamp(timestamp) {
     const text = String(timestamp || "").trim();
     const match = text.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/);
@@ -852,7 +870,7 @@ function getCollectorSyncMeta(environment) {
         return {
             isStale: true,
             label: "Coletor parado: sem sincronização",
-            badgeClass: "border-rose-300 bg-rose-50 text-rose-700",
+            badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-200",
             iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
         };
     }
@@ -860,14 +878,14 @@ function getCollectorSyncMeta(environment) {
         return {
             isStale: true,
             label: `Coletor parado: última sincronização ${formatCollectorTimestampBr(timestamp)}`,
-            badgeClass: "border-rose-300 bg-rose-50 text-rose-700",
+            badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-200",
             iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
         };
     }
     return {
         isStale: false,
-        label: `Sinconizado com o coletor: ${formatCollectorTimestampBr(timestamp)}`,
-        badgeClass: "border-emerald-300 bg-emerald-50 text-emerald-700",
+        label: `Sincronizado com o coletor: ${formatCollectorTimestampBr(timestamp)}`,
+        badgeClass: "border-emerald-500/50 bg-emerald-500/15 text-emerald-200",
         iconPath: '<path d="M21 12a9 9 0 0 1-15.5 6.36"/><path d="M3 12a9 9 0 0 1 15.5-6.36"/><path d="M7 18H3v4"/><path d="M17 2h4v4"/>',
     };
 }
@@ -948,12 +966,89 @@ function getAlertsSignature(alerts) {
 
 function getAlertToneClasses(severity) {
     if (severity === "critical") {
-        return "border-rose-200 bg-rose-50 text-rose-900";
+        return "border-rose-500/35 bg-rose-500/12 text-rose-100";
     }
     if (severity === "warning") {
-        return "border-amber-200 bg-amber-50 text-amber-900";
+        return "border-amber-500/35 bg-amber-500/12 text-amber-100";
     }
-    return "border-blue-200 bg-blue-50 text-blue-900";
+    return "border-sky-500/35 bg-sky-500/12 text-sky-100";
+}
+
+function getAlertSeverityBadgeClasses(severity) {
+    if (severity === "critical") {
+        return "border border-rose-400/35 bg-rose-400/18 text-rose-100";
+    }
+    if (severity === "warning") {
+        return "border border-amber-400/35 bg-amber-400/18 text-amber-100";
+    }
+    return "border border-sky-400/35 bg-sky-400/18 text-sky-100";
+}
+
+function getVisibleLogs() {
+    const safeLogs = Array.isArray(allLogs) ? allLogs : [];
+    if (!hiddenLogsUntil) {
+        return safeLogs;
+    }
+    return safeLogs.filter((log) => String(log.datetime || "") > hiddenLogsUntil);
+}
+
+function getVisibleAlerts() {
+    const safeAlerts = Array.isArray(allAlerts) ? allAlerts : [];
+    if (!hiddenAlertsSignature) {
+        return safeAlerts;
+    }
+    const currentSignature = getAlertsSignature(safeAlerts);
+    return currentSignature === hiddenAlertsSignature ? [] : safeAlerts;
+}
+
+function renderLogsContent() {
+    const container = document.getElementById("logContent");
+    const visibleLogs = getVisibleLogs();
+    container.innerHTML = "";
+
+    if (!visibleLogs.length) {
+        container.innerHTML = '<div class="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">Nenhum evento visível na tela no momento.</div>';
+        return;
+    }
+
+    visibleLogs.forEach((log) => {
+        container.innerHTML += `
+            <div class="rounded-2xl border border-slate-200 p-4 text-sm">
+                <div class="mb-2 font-semibold text-slate-900">${escapeHtml(log.datetime)}</div>
+                <div><span class="text-slate-500">Serviço:</span> ${escapeHtml(log.service)}</div>
+                <div><span class="text-slate-500">Ação:</span> ${escapeHtml(log.action)}</div>
+                <div><span class="text-slate-500">Resultado:</span> ${escapeHtml(log.result)}</div>
+                <div><span class="text-slate-500">Usuário:</span> ${escapeHtml(log.user)}</div>
+            </div>
+        `;
+    });
+}
+
+function renderAlertsContent() {
+    const container = document.getElementById("alertsContent");
+    const visibleAlerts = getVisibleAlerts();
+    container.innerHTML = "";
+
+    if (!visibleAlerts.length) {
+        container.innerHTML = '<div class="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">Nenhum alerta visível na tela no momento.</div>';
+        return;
+    }
+
+    visibleAlerts.forEach((alert) => {
+        const severity = String(alert.severity || "").trim().toLowerCase();
+        const toneClasses = getAlertToneClasses(severity);
+        const badgeClasses = getAlertSeverityBadgeClasses(severity);
+        container.innerHTML += `
+            <div class="rounded-2xl border p-4 text-sm ${toneClasses}">
+                <div class="mb-2 flex items-start justify-between gap-3">
+                    <div class="font-semibold">${escapeHtml(alert.title || "Alerta")}</div>
+                    <span class="rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${badgeClasses}">${escapeHtml(alert.severity || "info")}</span>
+                </div>
+                <div>${escapeHtml(alert.message || "")}</div>
+                <div class="mt-2 text-xs opacity-80">${escapeHtml(alert.environment_name || alert.host || "")}</div>
+            </div>
+        `;
+    });
 }
 
 async function refreshAlertsBadge() {
@@ -991,7 +1086,11 @@ async function loadEnvironmentStatus(environmentId, { force = false } = {}) {
     renderContent();
 
     try {
-        const statusResult = await apiFetch(`/status?environment_id=${encodeURIComponent(environmentId)}`);
+        const query = new URLSearchParams({ environment_id: environmentId });
+        if (force) {
+            query.set("refresh", "1");
+        }
+        const statusResult = await apiFetch(`/status?${query.toString()}`);
         if (!statusResult) {
             return;
         }
@@ -1028,7 +1127,7 @@ async function loadEnvironmentStatus(environmentId, { force = false } = {}) {
 
 function updateBadge() {
     const badge = document.getElementById("badge");
-    const safeLogs = Array.isArray(allLogs) ? allLogs : [];
+    const safeLogs = getVisibleLogs();
 
     if (!safeLogs.length) {
         badge.classList.add("hidden");
@@ -1050,9 +1149,31 @@ function updateBadge() {
     }
 }
 
+async function forceCollectorReconnect(environmentId) {
+    const environment = getEnvironmentById(environmentId);
+    if (!environment) {
+        showToast("Ambiente não encontrado.");
+        return;
+    }
+
+    showToast(`Forçando nova leitura do coletor em ${environment.environment}...`, "success");
+    await loadEnvironmentStatus(environmentId, { force: true });
+}
+
+function clearLogsScreen() {
+    const latestVisibleLog = getVisibleLogs()[0];
+    hiddenLogsUntil = latestVisibleLog ? String(latestVisibleLog.datetime || "") : hiddenLogsUntil;
+    if (hiddenLogsUntil) {
+        localStorage.setItem("hiddenLogsUntil", hiddenLogsUntil);
+    }
+    renderLogsContent();
+    updateBadge();
+    showToast("Logs ocultados apenas na tela.", "success");
+}
+
 function updateAlertsBadge() {
     const badge = document.getElementById("alertsBadge");
-    const safeAlerts = Array.isArray(allAlerts) ? allAlerts : [];
+    const safeAlerts = getVisibleAlerts();
     if (!safeAlerts.length) {
         badge.classList.add("hidden");
         return;
@@ -1066,6 +1187,14 @@ function updateAlertsBadge() {
     }
 
     badge.classList.add("hidden");
+}
+
+function clearAlertsScreen() {
+    hiddenAlertsSignature = getAlertsSignature(allAlerts);
+    localStorage.setItem("hiddenAlertsSignature", hiddenAlertsSignature);
+    renderAlertsContent();
+    updateAlertsBadge();
+    showToast("Alertas ocultados apenas na tela.", "success");
 }
 
 
@@ -1151,16 +1280,31 @@ function renderContent() {
     let html = `
         <div class="mb-4 rounded-2xl border p-4 text-sm text-slate-600 ${environmentType.headerClass}">
             <div class="mb-2 flex flex-wrap items-center gap-2 text-slate-100">
-                <span class="inline-flex items-center rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5">
+                <span class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
                     <span class="font-semibold text-white">Ambiente:</span>&nbsp;${escapeHtml(env.environment)}
                 </span>
-                <span class="inline-flex items-center rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 text-xs font-semibold text-white">${environmentType.label}</span>
-                <span class="inline-flex items-center gap-1 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 text-xs font-semibold text-slate-100">
+                <span class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 text-xs font-semibold text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${env.environment_type === "producao" ? '<path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/><path d="M9.5 12.5l1.5 1.5 3.5-4"/>' : env.environment_type === "homologacao" ? '<path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/>' : '<path d="M9 3H5a2 2 0 0 0-2 2v4"/><path d="M15 21h4a2 2 0 0 0 2-2v-4"/><path d="M21 9V5a2 2 0 0 0-2-2h-4"/><path d="M3 15v4a2 2 0 0 0 2 2h4"/>'}</svg>
+                    <span>${environmentType.label}</span>
+                </span>
+                <span class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 text-xs font-semibold text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
+                    ${escapeHtml(String(serviceSummary.runningCount))} serviços em execução
+                </span>
+                <span class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 text-xs font-semibold text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h12"/><path d="M6 12h12"/><path d="M6 18h12"/></svg>
+                    ${escapeHtml(String(serviceSummary.stoppedCount))} serviços parados
+                </span>
+                <button onclick="forceCollectorReconnect('${escapeHtml(env.id)}')" class="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${collectorSyncMeta.isStale ? "border-rose-500/60 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20" : "border-sky-500/50 bg-sky-500/10 text-sky-200 hover:bg-sky-500/20"}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         ${collectorSyncMeta.iconPath}
                     </svg>
                     <span>${escapeHtml(collectorSyncMeta.label)}</span>
-                </span>
+                    <span class="opacity-60">|</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                    <span>${collectorSyncMeta.isStale ? "Reconectar" : "Atualizar"}</span>
+                </button>
             </div>
             <div class="flex flex-wrap items-center gap-2 text-sm text-slate-100">
                 <div class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5">
@@ -1173,7 +1317,7 @@ function renderContent() {
                 </div>
                 <div class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
-                    <span><span class="font-semibold text-white">Atualização do banco de dados do ambiente:</span> ${escapeHtml(env.database_update_date || "Não informado")}</span>
+                    <span><span class="font-semibold text-white">Atualização do banco de dados do ambiente:</span> ${escapeHtml(formatDateBr(env.database_update_date))}</span>
                 </div>
                 ${env.app_url ? `<a href="${escapeHtml(env.app_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 font-semibold text-slate-100 underline underline-offset-2 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg><span>Acessar aplicação</span></a>` : ""}
                 ${env.rest_url ? `<a href="${escapeHtml(env.rest_url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/50 px-2.5 py-1.5 font-semibold text-slate-100 underline underline-offset-2 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8"/><path d="M12 8v8"/><circle cx="12" cy="12" r="9"/></svg><span>Acessar serviço REST</span></a>` : ""}
@@ -1222,7 +1366,12 @@ function renderContent() {
         return;
     }
 
-    html += renderServiceSection(env, env.services || [], "Serviços da Aplicação", serviceFilters);
+    html += `
+        <div class="mt-6">
+            <div class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Serviços</div>
+        </div>
+    `;
+    html += renderServiceSection(env, env.services || [], "Serviços", serviceFilters);
 
     if ((env.infra_services || []).length) {
         html += `
@@ -1297,10 +1446,10 @@ function renderServiceCard(env, service) {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
                     <span>${restartRunning ? "Executando..." : "Restart"}</span>
                 </button>
-                <button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+                ${consoleLogFile ? `<button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6"/><path d="M18 20v-10"/><path d="M6 20V10"/><path d="M3 20h18"/></svg>
                     <span>Console Log</span>
-                </button>
+                </button>` : ""}
             </div>
         </div>
     `;
@@ -1462,28 +1611,11 @@ async function toggleLogs() {
     if (!result) return;
 
     allLogs = Array.isArray(result.data) ? result.data : [];
-    const container = document.getElementById("logContent");
-    container.innerHTML = "";
-
-    if (!allLogs.length) {
-        container.innerHTML = '<div class="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">Nenhum evento registrado até o momento.</div>';
-        return;
+    renderLogsContent();
+    if (allLogs.length) {
+        lastRead = allLogs[0].datetime;
+        localStorage.setItem("lastRead", lastRead);
     }
-
-    allLogs.forEach((log) => {
-        container.innerHTML += `
-            <div class="rounded-2xl border border-slate-200 p-4 text-sm">
-                <div class="mb-2 font-semibold text-slate-900">${escapeHtml(log.datetime)}</div>
-                <div><span class="text-slate-500">Serviço:</span> ${escapeHtml(log.service)}</div>
-                <div><span class="text-slate-500">Ação:</span> ${escapeHtml(log.action)}</div>
-                <div><span class="text-slate-500">Resultado:</span> ${escapeHtml(log.result)}</div>
-                <div><span class="text-slate-500">Usuário:</span> ${escapeHtml(log.user)}</div>
-            </div>
-        `;
-    });
-
-    lastRead = allLogs[0].datetime;
-    localStorage.setItem("lastRead", lastRead);
     updateBadge();
 }
 
@@ -1499,27 +1631,7 @@ async function toggleAlerts() {
     if (!result) return;
 
     allAlerts = Array.isArray(result.data.alerts) ? result.data.alerts : [];
-    const container = document.getElementById("alertsContent");
-    container.innerHTML = "";
-
-    if (!allAlerts.length) {
-        container.innerHTML = '<div class="rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">Nenhum alerta ativo no momento.</div>';
-    } else {
-        allAlerts.forEach((alert) => {
-            const toneClasses = getAlertToneClasses(String(alert.severity || "").trim().toLowerCase());
-            container.innerHTML += `
-                <div class="rounded-2xl border p-4 text-sm ${toneClasses}">
-                    <div class="mb-2 flex items-start justify-between gap-3">
-                        <div class="font-semibold">${escapeHtml(alert.title || "Alerta")}</div>
-                        <span class="rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] bg-white/70">${escapeHtml(alert.severity || "info")}</span>
-                    </div>
-                    <div>${escapeHtml(alert.message || "")}</div>
-                    <div class="mt-2 text-xs opacity-80">${escapeHtml(alert.environment_name || alert.host || "")}</div>
-                </div>
-            `;
-        });
-    }
-
+    renderAlertsContent();
     lastAlertsReadSignature = getAlertsSignature(allAlerts);
     localStorage.setItem("lastAlertsReadSignature", lastAlertsReadSignature);
     updateAlertsBadge();

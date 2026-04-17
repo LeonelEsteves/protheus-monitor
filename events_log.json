@@ -1,5 +1,1676 @@
 [
   {
+    "datetime": "2026-04-16 23:01:54",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:55:18",
+    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:55:17",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:55:17",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:55:17",
+    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:55:17",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:55:17",
+    "service": "COLETOR :: APEX-HML3 (10.10.1.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:53:28",
+    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:53:28",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:53:27",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:53:27",
+    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:53:27",
+    "service": "COLETOR :: APEX-HML3 (10.10.1.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:53:27",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:51:33",
+    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:51:33",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:51:33",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:51:33",
+    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:51:32",
+    "service": "COLETOR :: APEX-HML3 (10.10.1.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:51:32",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:49:51",
+    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:49:51",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:49:50",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:49:50",
+    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:49:50",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:49:50",
+    "service": "COLETOR :: APEX-HML3 (10.10.1.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:49:05",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 22:48:49",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 22:46:18",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 22:39:01",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 22:38:16",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 22:37:50",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 22:10:23",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:07:51",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:07:51",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 22:05:41)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:07:14",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 22:05:41)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:06:02",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 22:04:32)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 22:05:51",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 22:02:43)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:56:28",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:54:56)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:56:17",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:53:35",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:53:35",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:51:24)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:53:26",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:51:24)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:49:59",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:47:35",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:45:58)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:46:59",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:45:41",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 21:45:37",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:43:59)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:45:02",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:43:23",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:41:47)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:42:10",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "stop",
+    "result": "SUCCESS_PENDING",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 21:41:34",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:37:29",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 21:36:41",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 21:33:42",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:32:11)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:33:06",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:26:44",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:12:35",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:10:20)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:09:33",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:08:03)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:06:33",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 21:04:57)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 21:00:33",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 20:58:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 20:57:34",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 20:55:12)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 20:53:34",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 20:51:22)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 20:41:50",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 20:40:11",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-REST",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 20:38:21",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 20:35:53)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 20:23:00",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 20:21:19)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 20:11:34",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 20:09:22)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 20:10:18",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 20:08:28)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 19:56:35",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 19:54:37)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 19:55:34",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 19:53:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 19:37:34",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 19:35:59)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 19:23:00",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 19:21:22)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 19:19:27",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 19:17:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 18:48:38",
+    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 18:33:16",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:31:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 18:28:09",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:25:11)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 18:12:46",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 18:10:29)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 17:34:59",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 17:33:26)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 17:30:00",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 17:28:20)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 17:28:11",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 17:26:37)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 17:18:59",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 17:17:21)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 17:13:11",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 17:11:30)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 16:55:47",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "tecnico",
+    "ip": "10.10.1.68",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-16 16:40:33",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 16:38:49)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 16:36:03",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 16:34:31)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 16:21:51",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 16:20:16)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 16:21:39",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-16 16:10:34",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 16:08:47)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:37:30",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:35:47)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:37:30",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:34:01)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:37:28",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-16 15:33:58",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-16 15:32:29",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:30:59)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:30:52",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:29:20)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:28:40",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:27:04)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:27:41",
+    "service": "APEX-HML2 (10.10.1.172) :: TOTVS-Appserver12-APEX-HML2-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 15:27:04",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:25:32)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:24:04",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:22:33)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:23:18",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:21:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:21:19",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-16 15:19:52",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 15:18:19)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 15:19:40",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-16 14:37:58",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 14:35:47)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 14:30:17",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 14:27:52)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 14:27:44",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 14:25:34)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 13:45:08",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 13:43:32)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 13:44:20",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 13:42:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 13:42:09",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 13:40:35)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 13:35:56",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 13:34:21)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 13:22:08",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 13:20:37)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 13:01:32",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 13:00:00)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 12:43:44",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-16 11:54:45",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 11:52:49)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 10:58:25",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 10:56:54)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 10:50:45",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 10:48:20)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 07:22:58",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 07:20:52)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 05:04:36",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 05:01:29)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 04:56:56",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 04:55:12)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 04:49:15",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 04:47:24)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 04:05:44",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 04:03:06)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 02:31:03",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 02:28:01)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 02:05:28",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 02:03:49)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 01:47:30",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 01:45:42)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 01:42:22",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 01:39:58)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 01:42:22",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 01:40:15)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 01:37:15",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 01:35:41)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-16 00:02:30",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-16 00:00:56)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-15 21:43:18",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 21:42:38",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 21:41:53",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 21:41:00",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 21:40:01",
+    "service": "APEX-HML1 (10.85.0.68) :: TOTVS-Appserver12-APEX-HML1",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 18:14:20",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-15 18:12:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-15 17:12:18",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 17:11:01",
+    "service": "APEX-HML2 (10.10.1.172) :: TOTVS-Appserver12-APEX-HML2",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 16:31:58",
+    "service": "APEX-HML4 (10.10.1.176) :: TOTVS-Appserver12-APEX-HML4-WS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 16:31:46",
+    "service": "APEX-HML4 (10.10.1.176) :: TOTVS-Appserver12-APEX-HML4-WF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 16:20:34",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 16:05:21",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 15:38:08",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:36:25",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:35:02",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:34:48",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:34:18",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 15:34:15",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:34:09",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 15:32:40",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:32:03",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:31:33",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 15:30:30",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 14:57:12",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 14:57:06",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 14:57:05",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.177",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 14:57:05",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 14:44:06",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 14:44:00",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 12:05:43",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:04:51",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 12:04:44",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 12:03:56",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: TOTVS :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:56",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML5 :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:56",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML5 - Web Service :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:56",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML5 - WS TAF :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:56",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML5 - Workflow :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:56",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML5 - Schedule :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:56",
+    "service": "SERVICO :: APEX-HML5 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML5 - REST :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:55",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: webagent :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:55",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:55",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.10.1.177",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:55",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: license :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:55",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: dbaccess :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:55",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: broker :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:03:55",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:02:55",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML4 :: 10.10.1.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML4 - SMARTVIEW :: 10.10.1.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML4 - Web Service :: 10.10.1.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML4 - WS TAF :: 10.10.1.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML4 - Workflow :: 10.10.1.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML4 - Schedule :: 10.10.1.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML4 - REST :: 10.10.1.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: webagent :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.85.0.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.85.0.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.85.0.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.85.0.176",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: license :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: dbaccess :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: broker :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 12:00:33",
+    "service": "AMBIENTE :: APEX-HML4",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:59:28",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML2 :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML2 - Web Service :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML2 - HUB Cielo :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .08 TOTVS | Microsiga Protheus 12 APEX-HML2 - WS TAF :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML2 - Workflow :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML2 - Schedule :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML2 - REST :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML2-NGF :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Aplicacao :: .10 TOTVS | Microsiga Protheus 12 APEX-HML2-FISC :: 10.10.1.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: webagent :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.85.0.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.85.0.172",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: license :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: dbaccess :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: broker :: -",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:56:29",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 11:55:10",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:07:49",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:05:44",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:05:30",
+    "service": "APEX-HML3 (10.10.1.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:01:46",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-15 10:01:20",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-15 10:01:12",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: webagent :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:01:12",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: license :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:01:12",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: dbaccess :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:01:12",
+    "service": "SERVICO :: APEX-HML5 :: Infra :: broker :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 10:01:12",
+    "service": "AMBIENTE :: APEX-HML5",
+    "action": "CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:59:09",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: webagent :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:59:09",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: license :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:59:09",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: dbaccess :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:59:09",
+    "service": "SERVICO :: APEX-HML4 :: Infra :: broker :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:59:09",
+    "service": "AMBIENTE :: APEX-HML4",
+    "action": "CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:57:02",
+    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-15 09:56:52",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: webagent :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:56:52",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: license :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:56:52",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: dbaccess :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:56:52",
+    "service": "SERVICO :: APEX-HML2 :: Infra :: broker :: -",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:56:52",
+    "service": "AMBIENTE :: APEX-HML2",
+    "action": "CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-15 09:54:35",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-15 09:54:31",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
     "datetime": "2026-04-15 09:20:20",
     "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
     "action": "COLLECTOR_HEALTH",

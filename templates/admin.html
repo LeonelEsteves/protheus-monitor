@@ -121,6 +121,22 @@ document.documentElement.classList.add("dark");
         color: #86efac !important;
     }
 
+    .dark #hostPromptInput {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #334155;
+        color: #f8fafc;
+    }
+
+    .dark #hostPromptInput:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+        outline: none;
+    }
+
+    .dark #hostPromptInput::placeholder {
+        color: #94a3b8;
+    }
+
     .dark #environmentFormModal .bg-white,
     .dark #environmentFormModal .bg-white\/95 {
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(9, 14, 26, 0.98)) !important;
@@ -142,15 +158,15 @@ document.documentElement.classList.add("dark");
         color: #cbd5e1 !important;
     }
 
-    .dark input,
-    .dark select {
+    .dark #environmentFormModal input,
+    .dark #environmentFormModal select {
         background: rgba(15, 23, 42, 0.92);
         border-color: #334155;
         color: #f8fafc;
     }
 
-    .dark input:focus,
-    .dark select:focus {
+    .dark #environmentFormModal input:focus,
+    .dark #environmentFormModal select:focus {
         border-color: #60a5fa;
         box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
         outline: none;
@@ -161,7 +177,35 @@ document.documentElement.classList.add("dark");
         color: #94a3b8;
     }
 
+    .dark #environmentFormModal input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(88%) sepia(9%) saturate(347%) hue-rotate(175deg) brightness(102%) contrast(96%);
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    .dark #environmentFormModal input[type="date"]::-webkit-inner-spin-button,
+    .dark #environmentFormModal input[type="date"]::-webkit-clear-button {
+        display: none;
+    }
+
     .dark #environmentFormModal select option {
+        background: #0f172a;
+        color: #f8fafc;
+    }
+
+    .dark #environmentFilterSelect {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #334155;
+        color: #f8fafc;
+    }
+
+    .dark #environmentFilterSelect:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+        outline: none;
+    }
+
+    .dark #environmentFilterSelect option {
         background: #0f172a;
         color: #f8fafc;
     }
@@ -201,6 +245,80 @@ document.documentElement.classList.add("dark");
 
     .dark .button-highlight-neutral:hover {
         background: rgba(30, 41, 59, 0.96);
+    }
+
+    .admin-form-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #f8fafc;
+        padding: 1rem;
+    }
+
+    .admin-form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .admin-form-card-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    .admin-collapse-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.75rem;
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .admin-collapse-icon-btn:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+    }
+
+    .admin-row-header {
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .dark .admin-form-card {
+        background: linear-gradient(180deg, rgba(5, 8, 16, 1), rgba(1, 3, 9, 1));
+        border-color: rgba(71, 85, 105, 0.42);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    }
+
+    .dark .admin-form-card-icon {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: rgba(148, 163, 184, 0.18);
+        color: #cbd5e1;
+    }
+
+    .dark .admin-collapse-icon-btn {
+        background: rgba(37, 99, 235, 0.16);
+        border-color: rgba(96, 165, 250, 0.28);
+        color: #dbeafe;
+    }
+
+    .dark .admin-collapse-icon-btn:hover {
+        background: rgba(37, 99, 235, 0.24);
+        border-color: rgba(147, 197, 253, 0.38);
+    }
+
+    .dark .admin-row-header {
+        border-bottom-color: rgba(148, 163, 184, 0.14);
     }
 
 </style>
@@ -538,7 +656,7 @@ document.documentElement.classList.add("dark");
         <div class="sticky top-0 z-10 mb-4 flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-6 py-4">
             <div>
                 <h3 id="environmentFormTitle" class="text-lg font-semibold text-slate-900">Novo ambiente</h3>
-                <p class="text-sm text-slate-500">Defina nome do ambiente, IP, serviços e metadados (TCP Port, WebApp Port, IP, log e prioridade) de cada serviço.</p>
+                <p class="text-sm text-slate-500">Informe ambiente, host e serviços monitorados.</p>
             </div>
             <div class="flex gap-2">
                 <button type="button" onclick="autoDiscoverServices()" class="button-highlight-secondary rounded-xl px-3 py-2 text-xs font-semibold">Busca automática</button>
@@ -547,48 +665,86 @@ document.documentElement.classList.add("dark");
             </div>
         </div>
 
-        <form id="environmentForm" class="space-y-3 px-6 pb-6">
-            <div class="grid gap-3 md:grid-cols-2">
-                <label class="space-y-1 text-sm">
-                    <span class="font-medium text-slate-700">Nome do ambiente</span>
-                    <input id="environmentName" placeholder="Nome do ambiente" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                </label>
-                <label class="space-y-1 text-sm">
-                    <span class="font-medium text-slate-700">Endereço IP ou hostname</span>
-                    <input id="environmentHost" placeholder="Endereço IP ou hostname" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                </label>
-            </div>
-            <div>
-                <label for="environmentType" class="mb-1 block text-sm font-medium text-slate-700">Tipo do ambiente</label>
-                <select id="environmentType" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                    <option value="producao">Produção</option>
-                    <option value="homologacao">Homologação</option>
-                    <option value="desenvolvimento">Desenvolvimento</option>
-                </select>
-            </div>
-            <div>
-                <label for="environmentAppUrl" class="mb-1 block text-sm font-medium text-slate-700">Link da aplicação principal</label>
-                <input id="environmentAppUrl" placeholder="Link de acesso da aplicação principal" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                <p class="mt-1 text-xs text-slate-500">Exemplo: `http://10.10.1.68:8080` ou `https://meu-ambiente/app`.</p>
-            </div>
-            <div>
-                <label for="environmentRestUrl" class="mb-1 block text-sm font-medium text-slate-700">Link do serviço REST</label>
-                <input id="environmentRestUrl" placeholder="Link de acesso do serviço REST" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                <p class="mt-1 text-xs text-slate-500">Exemplo: `http://10.10.1.68:8081/rest` ou outra URL do endpoint REST.</p>
-            </div>
-            <div class="grid gap-3 md:grid-cols-2">
-                <label class="space-y-1 text-sm">
-                    <span class="font-medium text-slate-700">Versão ERP</span>
-                    <input id="environmentErpVersion" placeholder="Ex.: 12.1.2410" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                </label>
-                <label class="space-y-1 text-sm">
-                    <span class="font-medium text-slate-700">Atualização do banco de dados do ambiente</span>
-                    <input id="environmentDatabaseUpdateDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                    <p id="environmentDatabaseUpdateHint" class="mt-1 text-xs text-slate-500">Informe manualmente a data da atualização da base.</p>
-                </label>
+        <form id="environmentForm" class="space-y-4 px-6 pb-6">
+            <div class="admin-form-card border-sky-200/70 dark:border-sky-500/20">
+                <div class="admin-form-card-header">
+                    <span class="admin-form-card-icon text-sky-600 dark:text-sky-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+                    </span>
+                    <div>
+                        <div class="text-sm font-semibold text-slate-900">Identificação</div>
+                        <div class="text-xs text-slate-500">Dados principais do ambiente.</div>
+                    </div>
+                </div>
+                <div class="grid gap-3 md:grid-cols-2">
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Nome do ambiente</span>
+                        <input id="environmentName" placeholder="Nome do ambiente" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    </label>
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Endereço IP ou hostname</span>
+                        <input id="environmentHost" placeholder="Endereço IP ou hostname" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    </label>
+                    <label class="space-y-1 text-sm md:col-span-2">
+                        <span class="font-medium text-slate-700">Tipo do ambiente</span>
+                        <select id="environmentType" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                            <option value="producao">Produção</option>
+                            <option value="homologacao">Homologação</option>
+                            <option value="desenvolvimento">Desenvolvimento</option>
+                        </select>
+                    </label>
+                </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div class="admin-form-card border-cyan-200/70 dark:border-cyan-500/20">
+                <div class="admin-form-card-header">
+                    <span class="admin-form-card-icon text-cyan-600 dark:text-cyan-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+                    </span>
+                    <div>
+                        <div class="text-sm font-semibold text-slate-900">Links</div>
+                        <div class="text-xs text-slate-500">Acessos rápidos do ambiente.</div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label for="environmentAppUrl" class="mb-1 block text-sm font-medium text-slate-700">Link da aplicação principal</label>
+                        <input id="environmentAppUrl" placeholder="Link de acesso da aplicação principal" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <p class="mt-1 text-xs text-slate-500">Ex.: `http://10.10.1.68:8080`.</p>
+                    </div>
+                    <div>
+                        <label for="environmentRestUrl" class="mb-1 block text-sm font-medium text-slate-700">Link do serviço REST</label>
+                        <input id="environmentRestUrl" placeholder="Link de acesso do serviço REST" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <p class="mt-1 text-xs text-slate-500">Ex.: `http://10.10.1.68:8081/rest`.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-form-card border-violet-200/70 dark:border-violet-500/20">
+                <div class="admin-form-card-header">
+                    <span class="admin-form-card-icon text-violet-600 dark:text-violet-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
+                    </span>
+                    <div>
+                        <div class="text-sm font-semibold text-slate-900">Metadados</div>
+                        <div class="text-xs text-slate-500">Versão e data da base.</div>
+                    </div>
+                </div>
+                <div class="grid gap-3 md:grid-cols-2">
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Versão ERP</span>
+                        <input id="environmentErpVersion" placeholder="Ex.: 12.1.2410" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    </label>
+                    <label class="space-y-1 text-sm">
+                        <span class="font-medium text-slate-700">Atualização do banco de dados do ambiente</span>
+                        <input id="environmentDatabaseUpdateDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                        <p id="environmentDatabaseUpdatePreview" class="text-xs text-slate-500">Data: Não informado</p>
+                        <p id="environmentDatabaseUpdateHint" class="mt-1 text-xs text-slate-500">Informe a data.</p>
+                    </label>
+                </div>
+            </div>
+
+            <div class="admin-form-card border-slate-200 dark:border-slate-500/20">
                 <label class="space-y-1 text-sm">
                     <span class="font-medium text-slate-700">Filtrar serviço no cadastro</span>
                     <div class="relative">
@@ -604,21 +760,46 @@ document.documentElement.classList.add("dark");
                 <p id="environmentServiceFilterHint" class="mt-1 text-xs text-slate-500">Mostrando todos os serviços do formulário.</p>
             </div>
 
-            <div>
+            <div class="admin-form-card border-emerald-200/70 dark:border-emerald-500/20">
                 <div class="mb-2 flex items-center justify-between">
-                    <span class="text-sm font-medium text-slate-700">Serviços</span>
-                    <button type="button" onclick="addServiceRow()" class="button-highlight-primary rounded-xl px-3 py-2 text-xs font-semibold">Adicionar serviço</button>
+                    <div class="admin-form-card-header mb-0">
+                        <span class="admin-form-card-icon text-emerald-600 dark:text-emerald-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M7 16h6"/></svg>
+                        </span>
+                        <div>
+                            <div class="text-sm font-semibold text-slate-900">Serviços</div>
+                            <div class="text-xs text-slate-500">Aplicação monitorada no ambiente.</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="toggleEnvironmentSection('service')" id="toggleServiceSectionButton" class="admin-collapse-icon-btn" title="Colapsar serviços" aria-label="Colapsar serviços"></button>
+                        <button type="button" onclick="addServiceRow()" class="button-highlight-primary rounded-xl px-3 py-2 text-xs font-semibold">Adicionar serviço</button>
+                    </div>
                 </div>
-                <div id="serviceRows" class="space-y-2"></div>
+                <div id="serviceSectionContent">
+                    <div id="serviceRows" class="space-y-2"></div>
+                </div>
             </div>
 
-            <div>
+            <div class="admin-form-card border-amber-200/70 dark:border-amber-500/20">
                 <div class="mb-2 flex items-center justify-between">
-                    <span class="text-sm font-medium text-slate-700">Infra</span>
-                    <button type="button" onclick="addInfraRow()" class="button-highlight-primary rounded-xl px-3 py-2 text-xs font-semibold">Adicionar infra</button>
+                    <div class="admin-form-card-header mb-0">
+                        <span class="admin-form-card-icon text-amber-600 dark:text-amber-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
+                        </span>
+                        <div>
+                            <div class="text-sm font-semibold text-slate-900">Infra</div>
+                            <div class="text-xs text-slate-500">Infraestrutura relacionada ao ambiente.</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="toggleEnvironmentSection('infra')" id="toggleInfraSectionButton" class="admin-collapse-icon-btn" title="Colapsar infra" aria-label="Colapsar infra"></button>
+                        <button type="button" onclick="addInfraRow()" class="button-highlight-primary rounded-xl px-3 py-2 text-xs font-semibold">Adicionar infra</button>
+                    </div>
                 </div>
-                <p class="mb-2 text-xs text-slate-500">Cadastre serviços de infraestrutura como `dbaccess`, `broker`, `balance master`, `license` e `webagent`.</p>
-                <div id="infraRows" class="space-y-2"></div>
+                <div id="infraSectionContent">
+                    <div id="infraRows" class="space-y-2"></div>
+                </div>
             </div>
 
             <div class="sticky bottom-0 z-10 flex flex-wrap gap-2 border-t border-slate-200 bg-white/95 pt-4 backdrop-blur">
@@ -661,6 +842,13 @@ let confirmModalExpectedText = "";
 let hostPromptResolver = null;
 let autoDiscoverRunning = false;
 let environmentFilterId = "";
+let collapsedEnvironmentSections = { service: false, infra: false };
+
+function getCollapseIconMarkup(collapsed) {
+    return collapsed
+        ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>';
+}
 
 function updateEnvironmentServiceNamesDatalist() {
     const datalist = document.getElementById("serviceNamesDatalist");
@@ -711,6 +899,29 @@ function applyEnvironmentServiceFilter() {
     }
 }
 
+function toggleEnvironmentSection(section) {
+    const content = document.getElementById(section === "infra" ? "infraSectionContent" : "serviceSectionContent");
+    const button = document.getElementById(section === "infra" ? "toggleInfraSectionButton" : "toggleServiceSectionButton");
+    if (!content || !button) return;
+    collapsedEnvironmentSections[section] = !collapsedEnvironmentSections[section];
+    content.classList.toggle("hidden", collapsedEnvironmentSections[section]);
+    button.innerHTML = getCollapseIconMarkup(collapsedEnvironmentSections[section]);
+    button.title = collapsedEnvironmentSections[section] ? "Expandir seção" : "Colapsar seção";
+    button.setAttribute("aria-label", collapsedEnvironmentSections[section] ? "Expandir seção" : "Colapsar seção");
+}
+
+function setEnvironmentSectionCollapsed(section, collapsed) {
+    collapsedEnvironmentSections[section] = Boolean(collapsed);
+    const content = document.getElementById(section === "infra" ? "infraSectionContent" : "serviceSectionContent");
+    const button = document.getElementById(section === "infra" ? "toggleInfraSectionButton" : "toggleServiceSectionButton");
+    if (content) content.classList.toggle("hidden", collapsedEnvironmentSections[section]);
+    if (button) {
+        button.innerHTML = getCollapseIconMarkup(collapsedEnvironmentSections[section]);
+        button.title = collapsedEnvironmentSections[section] ? "Expandir seção" : "Colapsar seção";
+        button.setAttribute("aria-label", collapsedEnvironmentSections[section] ? "Expandir seção" : "Colapsar seção");
+    }
+}
+
 function showToast(message, type = "error") {
     const toast = document.getElementById("toast");
     toast.className = `fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg ${type === "success" ? "bg-emerald-600" : "bg-rose-600"}`;
@@ -758,6 +969,15 @@ function compareEnvironmentNames(left, right) {
 
 function normalizeServiceName(name) {
     return String(name || "").trim().toLowerCase();
+}
+
+function formatDateBr(value) {
+    const text = String(value || "").trim();
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+        return `${match[3]}/${match[2]}/${match[1]}`;
+    }
+    return text || "Não informado";
 }
 
 function normalizeServiceIp(ip) {
@@ -1362,53 +1582,98 @@ function addRow(containerId, prefix, service = {}) {
     const serviceIp = service.service_ip || "";
     const consoleLogFile = service.console_log_file || "";
     const priority = prefix === "infra" ? (service.priority || "alta") : (service.priority || "media");
+    const rowTypeLabel = prefix === "infra" ? "Infra" : "Serviço";
 
-    row.className = "grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-2 xl:grid-cols-4";
+    row.className = "rounded-2xl border border-slate-200 bg-slate-50 p-3";
     row.innerHTML = `
-        <label class="space-y-1 text-sm md:col-span-2">
-            <span class="font-medium text-slate-700">Nome do serviço</span>
-            <input value="${escapeHtml(name)}" list="serviceNamesDatalist" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <label class="space-y-1 text-sm md:col-span-2">
-            <span class="font-medium text-slate-700">Display Name</span>
-            <input value="${escapeHtml(displayName)}" placeholder="Display Name do serviço" class="${prefix}-display-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
-            <span class="font-medium text-slate-700">Path Executable</span>
-            <input value="${escapeHtml(pathExecutable)}" placeholder="Caminho completo do executável do serviço" class="${prefix}-path-executable w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <label class="space-y-1 text-sm">
-            <span class="font-medium text-slate-700">Prioridade</span>
-            <select class="${prefix}-priority w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                <option value="baixa" ${priority === "baixa" ? "selected" : ""}>Baixa</option>
-                <option value="media" ${priority === "media" ? "selected" : ""}>Média</option>
-                <option value="alta" ${priority === "alta" ? "selected" : ""}>Alta</option>
-            </select>
-        </label>
-        <label class="space-y-1 text-sm">
-            <span class="font-medium text-slate-700">IP do serviço</span>
-            <input value="${escapeHtml(serviceIp)}" placeholder="IP do serviço" class="${prefix}-service-ip w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <label class="space-y-1 text-sm">
-            <span class="font-medium text-slate-700">TCP Port</span>
-            <input value="${escapeHtml(tcpPort)}" placeholder="TCP Port" class="${prefix}-tcp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <label class="space-y-1 text-sm">
-            <span class="font-medium text-slate-700">WebApp Port</span>
-            <input value="${escapeHtml(webappPort)}" placeholder="WebApp Port" class="${prefix}-webapp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <label class="space-y-1 text-sm">
-            <span class="font-medium text-slate-700">Rest Port</span>
-            <input value="${escapeHtml(restPort)}" placeholder="Rest Port" class="${prefix}-rest-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
-            <span class="font-medium text-slate-700">Console log file</span>
-            <input value="${escapeHtml(consoleLogFile)}" placeholder="Caminho do log" class="${prefix}-console-log-file w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-        </label>
-        <button type="button" class="button-highlight-secondary rounded-xl px-3 py-2 text-sm font-semibold md:col-span-2 xl:col-span-4">Remover</button>
+        <div class="admin-row-header flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">${rowTypeLabel}</div>
+                <div class="${prefix}-row-title mt-1 text-sm font-semibold text-slate-900">${escapeHtml(displayName || name || `Novo ${rowTypeLabel.toLowerCase()}`)}</div>
+                <div class="${prefix}-row-summary mt-1 text-xs text-slate-500">Sem detalhes preenchidos.</div>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" class="${prefix}-toggle admin-collapse-icon-btn" title="Colapsar item" aria-label="Colapsar item"></button>
+                <button type="button" class="${prefix}-remove button-highlight-secondary rounded-xl px-3 py-2 text-xs font-semibold">Remover</button>
+            </div>
+        </div>
+        <div class="${prefix}-row-body mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <label class="space-y-1 text-sm md:col-span-2">
+                <span class="font-medium text-slate-700">Nome do serviço</span>
+                <input value="${escapeHtml(name)}" list="serviceNamesDatalist" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+            <label class="space-y-1 text-sm md:col-span-2">
+                <span class="font-medium text-slate-700">Display Name</span>
+                <input value="${escapeHtml(displayName)}" placeholder="Display Name do serviço" class="${prefix}-display-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+            <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
+                <span class="font-medium text-slate-700">Path Executable</span>
+                <input value="${escapeHtml(pathExecutable)}" placeholder="Caminho do executável" class="${prefix}-path-executable w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">Prioridade</span>
+                <select class="${prefix}-priority w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    <option value="baixa" ${priority === "baixa" ? "selected" : ""}>Baixa</option>
+                    <option value="media" ${priority === "media" ? "selected" : ""}>Média</option>
+                    <option value="alta" ${priority === "alta" ? "selected" : ""}>Alta</option>
+                </select>
+            </label>
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">IP</span>
+                <input value="${escapeHtml(serviceIp)}" placeholder="IP do serviço" class="${prefix}-service-ip w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">TCP</span>
+                <input value="${escapeHtml(tcpPort)}" placeholder="TCP Port" class="${prefix}-tcp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">WebApp</span>
+                <input value="${escapeHtml(webappPort)}" placeholder="WebApp Port" class="${prefix}-webapp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+            <label class="space-y-1 text-sm">
+                <span class="font-medium text-slate-700">REST</span>
+                <input value="${escapeHtml(restPort)}" placeholder="Rest Port" class="${prefix}-rest-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+            <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
+                <span class="font-medium text-slate-700">Console log</span>
+                <input value="${escapeHtml(consoleLogFile)}" placeholder="Caminho do log" class="${prefix}-console-log-file w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+            </label>
+        </div>
     `;
     const nameInput = row.querySelector(`.${prefix}-name`);
     const displayInput = row.querySelector(`.${prefix}-display-name`);
+    const pathInput = row.querySelector(`.${prefix}-path-executable`);
+    const priorityInput = row.querySelector(`.${prefix}-priority`);
+    const ipInput = row.querySelector(`.${prefix}-service-ip`);
+    const tcpInput = row.querySelector(`.${prefix}-tcp-port`);
+    const webappInput = row.querySelector(`.${prefix}-webapp-port`);
+    const restInput = row.querySelector(`.${prefix}-rest-port`);
+    const logInput = row.querySelector(`.${prefix}-console-log-file`);
+    const body = row.querySelector(`.${prefix}-row-body`);
+    const toggleButton = row.querySelector(`.${prefix}-toggle`);
+    const titleNode = row.querySelector(`.${prefix}-row-title`);
+    const summaryNode = row.querySelector(`.${prefix}-row-summary`);
+
+    const updateRowSummary = () => {
+        const title = displayInput.value.trim() || nameInput.value.trim() || `Novo ${rowTypeLabel.toLowerCase()}`;
+        const summaryParts = [];
+        if (nameInput.value.trim()) summaryParts.push(nameInput.value.trim());
+        if (ipInput.value.trim()) summaryParts.push(`IP ${ipInput.value.trim()}`);
+        if (tcpInput.value.trim()) summaryParts.push(`TCP ${tcpInput.value.trim()}`);
+        if (webappInput.value.trim()) summaryParts.push(`WebApp ${webappInput.value.trim()}`);
+        if (restInput.value.trim()) summaryParts.push(`REST ${restInput.value.trim()}`);
+        if (priorityInput.value.trim()) summaryParts.push(`Prioridade ${priorityInput.value.trim()}`);
+        if (logInput.value.trim()) summaryParts.push("Com log");
+        titleNode.textContent = title;
+        summaryNode.textContent = summaryParts.length ? summaryParts.join(" | ") : "Sem detalhes preenchidos.";
+    };
+
+    const setRowCollapsed = (collapsed) => {
+        body.classList.toggle("hidden", collapsed);
+        toggleButton.innerHTML = getCollapseIconMarkup(collapsed);
+        toggleButton.title = collapsed ? "Expandir item" : "Colapsar item";
+        toggleButton.setAttribute("aria-label", collapsed ? "Expandir item" : "Colapsar item");
+    };
 
     // Autopreenche Display Name pelo Nome enquanto o usuário não personalizar manualmente.
     displayInput.dataset.autoFromName = displayInput.value.trim() ? "0" : "1";
@@ -1420,6 +1685,7 @@ function addRow(containerId, prefix, service = {}) {
         if (displayInput.dataset.autoFromName === "1") {
             displayInput.value = nameInput.value.trim();
         }
+        updateRowSummary();
         updateEnvironmentServiceNamesDatalist();
         applyEnvironmentServiceFilter();
     });
@@ -1428,10 +1694,21 @@ function addRow(containerId, prefix, service = {}) {
         const nameValue = nameInput.value.trim();
         const displayValue = displayInput.value.trim();
         displayInput.dataset.autoFromName = (!displayValue || displayValue === nameValue) ? "1" : "0";
+        updateRowSummary();
         applyEnvironmentServiceFilter();
     });
 
-    row.querySelector("button").addEventListener("click", async () => {
+    [pathInput, priorityInput, ipInput, tcpInput, webappInput, restInput, logInput].forEach((input) => {
+        input.addEventListener("input", updateRowSummary);
+        input.addEventListener("change", updateRowSummary);
+    });
+
+    toggleButton.addEventListener("click", () => {
+        const collapsed = !body.classList.contains("hidden");
+        setRowCollapsed(collapsed);
+    });
+
+    row.querySelector(`.${prefix}-remove`).addEventListener("click", async () => {
         const serviceName = nameInput.value.trim() || "este serviço";
         const confirmed = await showConfirmModal({
             title: "Excluir serviço do cadastro",
@@ -1448,6 +1725,8 @@ function addRow(containerId, prefix, service = {}) {
         updateEnvironmentServiceNamesDatalist();
         applyEnvironmentServiceFilter();
     });
+    updateRowSummary();
+    setRowCollapsed(false);
     container.appendChild(row);
     updateEnvironmentServiceNamesDatalist();
     applyEnvironmentServiceFilter();
@@ -1501,11 +1780,8 @@ function resetEnvironmentForm() {
     document.getElementById("environmentServiceFilter").value = "";
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
-    addServiceRow();
-    addInfraRow({ name: "dbaccess" });
-    addInfraRow({ name: "broker" });
-    addInfraRow({ name: "license" });
-    addInfraRow({ name: "webagent" });
+    setEnvironmentSectionCollapsed("service", false);
+    setEnvironmentSectionCollapsed("infra", false);
     applyEnvironmentTypeDefaults();
     updateEnvironmentServiceNamesDatalist();
     applyEnvironmentServiceFilter();
@@ -1525,6 +1801,8 @@ function fillEnvironmentForm(environment) {
     document.getElementById("environmentServiceFilter").value = "";
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
+    setEnvironmentSectionCollapsed("service", false);
+    setEnvironmentSectionCollapsed("infra", false);
     [...(environment.services || [])].sort(compareServicePresentation).forEach((service) => addServiceRow(service));
     [...(environment.infra_services || [])].sort(compareServicePresentation).forEach((service) => addInfraRow(service));
     applyEnvironmentTypeDefaults();
@@ -1537,6 +1815,13 @@ function getTodayDateISO() {
     return new Date().toISOString().slice(0, 10);
 }
 
+function updateEnvironmentDatabaseDatePreview() {
+    const input = document.getElementById("environmentDatabaseUpdateDate");
+    const preview = document.getElementById("environmentDatabaseUpdatePreview");
+    if (!input || !preview) return;
+    preview.textContent = `Data: ${formatDateBr(input.value)}`;
+}
+
 function applyEnvironmentTypeDefaults() {
     const environmentType = document.getElementById("environmentType")?.value || "homologacao";
     const dateInput = document.getElementById("environmentDatabaseUpdateDate");
@@ -1547,10 +1832,11 @@ function applyEnvironmentTypeDefaults() {
         if (!dateInput.value) {
             dateInput.value = getTodayDateISO();
         }
-        hint.textContent = "Em produção, a data atual é sugerida automaticamente como padrão.";
+        hint.textContent = "Data sugerida automaticamente.";
     } else {
-        hint.textContent = "Em homologação e desenvolvimento, informe manualmente a data da atualização da base.";
+        hint.textContent = "Preencha manualmente.";
     }
+    updateEnvironmentDatabaseDatePreview();
 }
 
 async function loadEnvironmentAdmin() {
@@ -1603,7 +1889,7 @@ async function loadEnvironmentAdmin() {
                         </div>
                         <div class="mt-1 text-sm text-slate-500">IP: ${escapeHtml(environment.host)}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Versão ERP:</span> ${escapeHtml(environment.erp_version || "Não informado")}</div>
-                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Atualização do banco de dados do ambiente:</span> ${escapeHtml(environment.database_update_date || "Não informado")}</div>
+                        <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Atualização do banco de dados do ambiente:</span> ${escapeHtml(formatDateBr(environment.database_update_date))}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">Aplicação:</span> ${appLinkLabel}</div>
                         <div class="mt-1 text-sm text-slate-600"><span class="font-semibold">REST:</span> ${restLinkLabel}</div>
                         <div class="mt-2 text-sm text-slate-600"><span class="font-semibold">Serviços cadastrados:</span> ${totalServicesCount}</div>
@@ -1794,6 +2080,12 @@ document.getElementById("environmentFilterSelect").addEventListener("change", (e
 });
 document.getElementById("environmentType").addEventListener("change", () => {
     applyEnvironmentTypeDefaults();
+});
+document.getElementById("environmentDatabaseUpdateDate").addEventListener("input", () => {
+    updateEnvironmentDatabaseDatePreview();
+});
+document.getElementById("environmentDatabaseUpdateDate").addEventListener("change", () => {
+    updateEnvironmentDatabaseDatePreview();
 });
 document.getElementById("environmentServiceFilter").addEventListener("input", () => {
     applyEnvironmentServiceFilter();

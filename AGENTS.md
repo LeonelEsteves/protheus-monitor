@@ -94,3 +94,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Painel administrativo deve oferecer rotina de alertas configuravel; tela inicial deve exibir icone/modal de alertas ao lado de logs, seguindo o mesmo padrao visual e de badge.
 
 - Rotina de alertas: usar opcao para alertar quando o status-servico.json do coletor estiver ausente no host, em vez de monitoramento generico de sincronizacao.
+
+- Padrao visual duravel: ao estilizar layouts, padronizar sempre para o tema dark e reutilizar o mesmo formato, modelos de tela, cores, templates, icones e demais elementos visuais ja implantados no projeto.
+
+- Tela de cadastro de ambiente pode usar leitura mais clara e suave que o restante do dark mode; evitar cores chamativas e priorizar contraste suave, blocos distintos e secoes/itens colapsados por padrao para melhor usabilidade.
