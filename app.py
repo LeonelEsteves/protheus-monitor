@@ -3086,17 +3086,17 @@ def save_execution_trace(environment_name, host, service, action, result, user, 
         with open(EXECUTION_TRACE_FILE, "w", encoding="utf-8") as file:
             json.dump([], file)
 
-    with open(EXECUTION_TRACE_FILE, "r+", encoding="utf-8") as file:
-        try:
+    try:
+        with open(EXECUTION_TRACE_FILE, "r", encoding="utf-8-sig") as file:
             data = json.load(file)
             if not isinstance(data, list):
                 data = []
-        except Exception:
-            data = []
-        data.insert(0, entry)
-        file.seek(0)
+    except Exception:
+        data = []
+
+    data.insert(0, entry)
+    with open(EXECUTION_TRACE_FILE, "w", encoding="utf-8") as file:
         json.dump(data[:EXECUTION_TRACE_MAX_ENTRIES], file, indent=2, ensure_ascii=False)
-        file.truncate()
 
 
 def save_environment_log(environment_name, host, service, action, result, user):
@@ -4016,7 +4016,26 @@ def logs():
                 return jsonify(data)
     except Exception:
         pass
-    return jsonify([])
+        return jsonify([])
+
+
+@app.route("/execution-trace")
+@admin_required
+def execution_trace():
+    limit = int(request.args.get("limit") or 200)
+    limit = max(1, min(limit, 1000))
+
+    if not os.path.exists(EXECUTION_TRACE_FILE):
+        return jsonify([])
+
+    try:
+        with open(EXECUTION_TRACE_FILE, "r", encoding="utf-8-sig") as file:
+            data = json.load(file)
+            if not isinstance(data, list):
+                data = []
+    except Exception:
+        data = []
+    return jsonify(data[:limit])
 
 
 @app.route("/users")
