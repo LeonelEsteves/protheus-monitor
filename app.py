@@ -45,9 +45,11 @@ USERS_FILE = os.path.join(DATA_DIR, "users.json")
 ENVIRONMENTS_FILE = os.path.join(DATA_DIR, "environments.json")
 SERVERS_FILE = os.path.join(DATA_DIR, "servers.json")
 ALERT_SETTINGS_FILE = os.path.join(DATA_DIR, "alert_settings.json")
+SECRET_SETTINGS_FILE = os.path.join(DATA_DIR, "secret_settings.json")
+ALERT_DELIVERY_STATE_FILE = os.path.join(DATA_DIR, "alert_delivery_state.json")
 
 # ===== CONFIG =====
-TEAMS_WEBHOOK = ""
+TEAMS_WEBHOOK = (os.getenv("TEAMS_WEBHOOK") or "").strip()
 EMAIL_FROM = ""
 EMAIL_TO = ""
 SMTP_SERVER = "smtp.office365.com"
@@ -125,6 +127,8 @@ LOCAL_IP_CACHE_TTL_SECONDS = 60
 HOST_AVAILABILITY_CACHE = {}
 HOST_AVAILABILITY_CACHE_LOCK = threading.Lock()
 HOST_AVAILABILITY_CACHE_TTL_SECONDS = 30
+ALERT_DISPATCH_LOCK = threading.Lock()
+ALERT_LAST_DISPATCH_TS = 0.0
 
 DEFAULT_ALERT_SETTINGS = {
     "disk_free_below_10": True,
@@ -132,9 +136,12 @@ DEFAULT_ALERT_SETTINGS = {
     "production_services_stopped": True,
     "windows_updates_pending": True,
     "collector_json_missing": True,
+    "teams_enabled": False,
 }
 
 ALERTS_MAX_ITEMS = 100
+ALERT_TEAMS_DEDUP_SECONDS = 1800
+ALERT_DISPATCH_INTERVAL_SECONDS = 60
 README_FILE = "README.md"
 
 _FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
@@ -357,8 +364,9 @@ def sanitize_alert_settings(settings):
             settings = dict(settings)
             settings["production_services_stopped"] = bool(settings.get("high_priority_services_stopped"))
         for key in DEFAULT_ALERT_SETTINGS:
-            if key in settings:
-                merged[key] = bool(settings.get(key))
+            if key not in settings:
+                continue
+            merged[key] = bool(settings.get(key))
     return merged
 
 
@@ -367,6 +375,26 @@ def ensure_alert_settings_file():
     if os.path.exists(ALERT_SETTINGS_FILE):
         return
     save_alert_settings(DEFAULT_ALERT_SETTINGS)
+
+
+def load_secret_settings():
+    os.makedirs(DATA_DIR, exist_ok=True)
+    if not os.path.exists(SECRET_SETTINGS_FILE):
+        return {}
+    try:
+        with open(SECRET_SETTINGS_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_secret_settings(settings):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    normalized = settings if isinstance(settings, dict) else {}
+    with open(SECRET_SETTINGS_FILE, "w", encoding="utf-8") as file:
+        json.dump(normalized, file, indent=2, ensure_ascii=False)
+    return normalized
 
 
 def load_servers():
@@ -390,17 +418,37 @@ def load_alert_settings():
     ensure_alert_settings_file()
     with open(ALERT_SETTINGS_FILE, "r", encoding="utf-8") as file:
         data = json.load(file)
+    legacy_webhook = ""
+    if isinstance(data, dict):
+        legacy_webhook = str(data.get("teams_webhook_url") or "").strip()
     normalized = sanitize_alert_settings(data)
-    if normalized != data:
+    secret_settings = load_secret_settings()
+    changed = normalized != data
+    if legacy_webhook and not str(secret_settings.get("teams_webhook_url") or "").strip():
+        secret_settings["teams_webhook_url"] = legacy_webhook
+        save_secret_settings(secret_settings)
+        changed = True
+    if changed:
         save_alert_settings(normalized)
+    normalized["teams_webhook_url"] = str(load_secret_settings().get("teams_webhook_url") or "").strip()
     return normalized
 
 
 def save_alert_settings(settings):
     os.makedirs(DATA_DIR, exist_ok=True)
+    webhook_url = ""
+    if isinstance(settings, dict):
+        webhook_url = str(settings.get("teams_webhook_url") or "").strip()
     normalized = sanitize_alert_settings(settings)
     with open(ALERT_SETTINGS_FILE, "w", encoding="utf-8") as file:
         json.dump(normalized, file, indent=2, ensure_ascii=False)
+    secret_settings = load_secret_settings()
+    if webhook_url:
+        secret_settings["teams_webhook_url"] = webhook_url
+    elif "teams_webhook_url" in secret_settings:
+        secret_settings["teams_webhook_url"] = ""
+    save_secret_settings(secret_settings)
+    normalized["teams_webhook_url"] = str(secret_settings.get("teams_webhook_url") or "").strip()
     return normalized
 
 
@@ -776,14 +824,63 @@ def collector_payload_missing(payload):
     return not server and not services_by_name
 
 
-def build_monitor_alerts_payload(user=None):
+def build_alert_signature(alert):
+    return json.dumps(
+        {
+            "kind": alert.get("kind"),
+            "severity": alert.get("severity"),
+            "environment_id": alert.get("environment_id"),
+            "host": alert.get("host"),
+            "service_name": alert.get("service_name"),
+            "drive": alert.get("drive"),
+            "message": alert.get("message"),
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+
+
+def load_alert_delivery_state():
+    os.makedirs(DATA_DIR, exist_ok=True)
+    if not os.path.exists(ALERT_DELIVERY_STATE_FILE):
+        with open(ALERT_DELIVERY_STATE_FILE, "w", encoding="utf-8") as file:
+            json.dump({"teams": {}}, file, indent=2, ensure_ascii=False)
+        return {"teams": {}}
+    try:
+        with open(ALERT_DELIVERY_STATE_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        if not isinstance(data, dict):
+            return {"teams": {}}
+        teams = data.get("teams")
+        if not isinstance(teams, dict):
+            data["teams"] = {}
+        return data
+    except Exception:
+        return {"teams": {}}
+
+
+def save_alert_delivery_state(state):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(ALERT_DELIVERY_STATE_FILE, "w", encoding="utf-8") as file:
+        json.dump(state or {"teams": {}}, file, indent=2, ensure_ascii=False)
+
+
+def get_teams_webhook_url(settings=None):
+    if isinstance(settings, dict):
+        configured = str(settings.get("teams_webhook_url") or "").strip()
+        if configured:
+            return configured
+    return TEAMS_WEBHOOK
+
+
+def build_monitor_alerts_payload(user=None, include_all=False):
     settings = load_alert_settings()
     alerts = []
     environments = load_environments()
     accessible_environments = [
         environment
         for environment in environments
-        if can_user_access_environment(user, environment)
+        if include_all or can_user_access_environment(user, environment)
     ]
 
     severity_order = {"critical": 0, "warning": 1, "info": 2}
@@ -925,19 +1022,7 @@ def build_monitor_alerts_payload(user=None):
     unique_alerts = []
     seen_alerts = set()
     for alert in alerts:
-        signature = json.dumps(
-            {
-                "kind": alert.get("kind"),
-                "severity": alert.get("severity"),
-                "environment_id": alert.get("environment_id"),
-                "host": alert.get("host"),
-                "service_name": alert.get("service_name"),
-                "drive": alert.get("drive"),
-                "message": alert.get("message"),
-            },
-            ensure_ascii=False,
-            sort_keys=True,
-        )
+        signature = build_alert_signature(alert)
         if signature in seen_alerts:
             continue
         seen_alerts.add(signature)
@@ -2332,6 +2417,7 @@ def _service_status_monitor_loop():
             environments = load_environments()
             refresh_service_status_cache(_collect_monitored_hosts(environments))
             refresh_environment_status_cache(environments)
+            dispatch_monitor_alerts()
         except Exception:
             pass
         time.sleep(SERVICE_STATUS_MONITOR_INTERVAL_SECONDS)
@@ -3345,15 +3431,45 @@ def _build_bulk_ordered_services(environment, action_type):
     return ordered
 
 
-def send_teams(message):
-    if not TEAMS_WEBHOOK:
-        return
+def build_teams_adaptive_card(title, message):
+    return {
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "msteams": {
+            "width": "Full"
+        },
+        "body": [
+            {
+                "type": "TextBlock",
+                "text": str(title or "Protheus Monitor").strip() or "Protheus Monitor",
+                "weight": "Bolder",
+                "size": "Medium",
+                "wrap": True
+            },
+            {
+                "type": "TextBlock",
+                "text": str(message or "").strip(),
+                "wrap": True
+            }
+        ]
+    }
+
+
+def send_teams(message, webhook_url="", title="Protheus Monitor"):
+    target_webhook = str(webhook_url or "").strip() or TEAMS_WEBHOOK
+    if not target_webhook:
+        return False, "Webhook do Teams não configurado."
     try:
         import requests
 
-        requests.post(TEAMS_WEBHOOK, json={"text": message}, timeout=10)
-    except Exception:
-        pass
+        payload = message if isinstance(message, dict) else build_teams_adaptive_card(title, message)
+        response = requests.post(target_webhook, json=payload, timeout=10)
+        if 200 <= response.status_code < 300:
+            return True, ""
+        return False, f"Teams respondeu com HTTP {response.status_code}."
+    except Exception as exc:
+        return False, str(exc)
 
 
 def send_email(message):
@@ -3372,6 +3488,89 @@ def send_email(message):
         server.quit()
     except Exception:
         pass
+
+
+def format_teams_alert_digest(alerts):
+    timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    lines = [f"Protheus Monitor | {len(alerts)} novo(s) alerta(s)", f"Gerado em: {timestamp}", ""]
+    for alert in alerts[:20]:
+        severity = str(alert.get("severity") or "").strip().upper() or "INFO"
+        environment_name = str(alert.get("environment_name") or "Ambiente").strip()
+        host = str(alert.get("host") or "-").strip()
+        title = str(alert.get("title") or "Alerta").strip()
+        message = str(alert.get("message") or "").strip()
+        lines.append(f"[{severity}] {environment_name} | {host}")
+        lines.append(f"{title}: {message}")
+        lines.append("")
+    if len(alerts) > 20:
+        lines.append(f"... e mais {len(alerts) - 20} alerta(s).")
+    return "\n".join(lines).strip()
+
+
+def dispatch_monitor_alerts():
+    global ALERT_LAST_DISPATCH_TS
+
+    now = time.time()
+    if now - ALERT_LAST_DISPATCH_TS < ALERT_DISPATCH_INTERVAL_SECONDS:
+        return
+
+    with ALERT_DISPATCH_LOCK:
+        now = time.time()
+        if now - ALERT_LAST_DISPATCH_TS < ALERT_DISPATCH_INTERVAL_SECONDS:
+            return
+        ALERT_LAST_DISPATCH_TS = now
+
+        settings = load_alert_settings()
+        if not settings.get("teams_enabled"):
+            return
+
+        webhook_url = get_teams_webhook_url(settings)
+        if not webhook_url:
+            return
+
+        payload = build_monitor_alerts_payload(include_all=True)
+        alerts = payload.get("alerts") or []
+        if not alerts:
+            return
+
+        state = load_alert_delivery_state()
+        teams_state = state.get("teams") if isinstance(state, dict) else {}
+        if not isinstance(teams_state, dict):
+            teams_state = {}
+
+        cutoff = now - ALERT_TEAMS_DEDUP_SECONDS
+        teams_state = {
+            signature: sent_at
+            for signature, sent_at in teams_state.items()
+            if isinstance(sent_at, (int, float)) and sent_at >= cutoff
+        }
+
+        new_alerts = []
+        for alert in alerts:
+            signature = build_alert_signature(alert)
+            sent_at = teams_state.get(signature, 0)
+            if isinstance(sent_at, (int, float)) and sent_at >= cutoff:
+                continue
+            new_alerts.append(alert)
+            teams_state[signature] = now
+
+        if not new_alerts:
+            state["teams"] = teams_state
+            save_alert_delivery_state(state)
+            return
+
+        sent, error = send_teams(
+            format_teams_alert_digest(new_alerts),
+            webhook_url=webhook_url,
+            title="Protheus Monitor | Alertas",
+        )
+        if sent:
+            state["teams"] = teams_state
+            save_alert_delivery_state(state)
+            save_log("ALERTAS", "TEAMS", "SUCCESS", "system", count=len(new_alerts))
+            return
+
+        save_log("ALERTAS", "TEAMS", "ERROR", "system", error=error)
 
 
 def serialize_user(user):

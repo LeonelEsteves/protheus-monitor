@@ -3,5 +3,6 @@
   "high_priority_services_stopped": true,
   "production_services_stopped": true,
   "windows_updates_pending": true,
-  "collector_json_missing": true
+  "collector_json_missing": true,
+  "teams_enabled": true
 }

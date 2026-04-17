@@ -234,6 +234,29 @@ document.documentElement.classList.add("dark");
         color: #f8fafc;
     }
 
+    .dark #panel-alerts .text-slate-700,
+    .dark #panel-alerts .font-medium.text-slate-700 {
+        color: #e2e8f0 !important;
+    }
+
+    .dark #panel-alerts input[type="password"],
+    .dark #panel-alerts input[type="text"] {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #334155;
+        color: #f8fafc;
+    }
+
+    .dark #panel-alerts input[type="password"]:focus,
+    .dark #panel-alerts input[type="text"]:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+        outline: none;
+    }
+
+    .dark #panel-alerts input::placeholder {
+        color: #94a3b8;
+    }
+
     .dark #environmentFilterSelect {
         background: rgba(15, 23, 42, 0.92);
         border-color: #334155;
@@ -501,6 +524,20 @@ document.documentElement.classList.add("dark");
                                 </div>
                             </div>
                         </label>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <div class="flex items-start gap-3">
+                            <input id="alertTeamsEnabled" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
+                            <div class="w-full">
+                                <div class="font-semibold text-slate-900">Enviar alertas para o Teams</div>
+                                <div class="mt-1 text-sm text-slate-500">Dispara alertas novos para o canal corporativo usando webhook, com deduplicação para evitar repetição.</div>
+                                <div class="mt-3">
+                                    <label class="mb-1 block text-sm font-medium text-slate-700" for="alertTeamsWebhookUrl">Webhook do Teams</label>
+                                    <input id="alertTeamsWebhookUrl" type="password" placeholder="Cole aqui a URL do webhook do Teams" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex flex-wrap justify-end gap-2">
@@ -1541,6 +1578,8 @@ function applyAlertSettingsToForm(settings = {}) {
     document.getElementById("alertProductionServicesStopped").checked = Boolean(settings.production_services_stopped);
     document.getElementById("alertWindowsUpdatesPending").checked = Boolean(settings.windows_updates_pending);
     document.getElementById("alertCollectorJsonMissing").checked = Boolean(settings.collector_json_missing);
+    document.getElementById("alertTeamsEnabled").checked = Boolean(settings.teams_enabled);
+    document.getElementById("alertTeamsWebhookUrl").value = String(settings.teams_webhook_url || "");
 }
 
 function readAlertSettingsForm() {
@@ -1550,6 +1589,8 @@ function readAlertSettingsForm() {
         production_services_stopped: document.getElementById("alertProductionServicesStopped").checked,
         windows_updates_pending: document.getElementById("alertWindowsUpdatesPending").checked,
         collector_json_missing: document.getElementById("alertCollectorJsonMissing").checked,
+        teams_enabled: document.getElementById("alertTeamsEnabled").checked,
+        teams_webhook_url: document.getElementById("alertTeamsWebhookUrl").value.trim(),
     };
 }
 

@@ -128,3 +128,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Rotina de alertas deve ter opcao separada para alertar quando qualquer servico de producao estiver parado; essa regra nao deve ficar misturada com servicos criticos dos demais ambientes.
 
 - Em qualquer alteracao de layout, manter padrao dark em todos os formularios, modais, filtros e campos de entrada; evitar fundos brancos ou elementos claros destoando do admin/operacao.
+
+- Rotina de alertas deve suportar envio automatico para Teams via webhook configurado no painel administrativo, com deduplicacao para evitar repeticao de mensagens no canal corporativo.
+
+- Segredos como webhook do Teams devem ficar em arquivo local ignorado pelo Git (data/secret_settings.json) ou variavel de ambiente; nunca versionar em data/alert_settings.json.

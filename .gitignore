@@ -9,6 +9,9 @@ Thumbs.db
 # Runtime logs
 *.log
 
+# Local secrets
+data/secret_settings.json
+
 # Gamb coletor temporary outputs (test snapshots)
 gamb-coletor/out-test/
 gamb-coletor/out-test2/

@@ -1,5 +1,86 @@
 [
   {
+    "datetime": "2026-04-17 18:50:58",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 1
+  },
+  {
+    "datetime": "2026-04-17 18:50:46",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 18:49:54",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 18:48:56",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 18:45:41",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 5
+  },
+  {
+    "datetime": "2026-04-17 18:44:44",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 18:43:56",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 18:41:40",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 1
+  },
+  {
+    "datetime": "2026-04-17 18:40:04",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 18:23:55",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 6
+  },
+  {
+    "datetime": "2026-04-17 18:21:42",
+    "service": "ALERTAS",
+    "action": "UPDATE_SETTINGS",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
     "datetime": "2026-04-17 17:11:41",
     "service": "AUTENTICACAO",
     "action": "LOGIN",
