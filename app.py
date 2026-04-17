@@ -1223,15 +1223,27 @@ def discover_services_on_hosts(hosts, credential=None):
     discovered = []
     discovered_keys = set()
     errors = []
-    remote_targets = []
+    host_results = []
 
     for target in targets:
         source_host = (target.get("input") or "").strip()
         connect_host = (target.get("connect") or "").strip()
+        host_result = {
+            "host": source_host,
+            "connect_host": connect_host,
+            "status": "error",
+            "services": 0,
+            "infra_services": 0,
+            "ignored_services": 0,
+            "message": "",
+        }
         collector_payload = load_collector_status_for_host(connect_host or source_host, use_cache=False)
         collector_services = (collector_payload.get("services_by_name") or {})
         if collector_services:
-            step_logs.append(f"[{source_host}] Descoberta via gamb-coletor (status-servico.json).")
+            step_logs.append(f"[{source_host}] status-servico.json carregado com sucesso.")
+            added_services = 0
+            added_infra = 0
+            ignored_without_path = 0
             for service in collector_services.values():
                 name = (service.get("name") or "").strip()
                 if not name:
@@ -1239,6 +1251,7 @@ def discover_services_on_hosts(hosts, credential=None):
                 path_executable = (service.get("path_executable") or "").strip()
                 if not path_executable:
                     step_logs.append(f"[{source_host}] Serviço ignorado sem path_executable no JSON do coletor: {name}.")
+                    ignored_without_path += 1
                     continue
 
                 service_ip = (service.get("service_ip") or source_host).strip()
@@ -1264,6 +1277,26 @@ def discover_services_on_hosts(hosts, credential=None):
                     continue
                 discovered_keys.add(key)
                 discovered.append(row)
+                if is_infra_service(row):
+                    added_infra += 1
+                else:
+                    added_services += 1
+            host_result.update(
+                {
+                    "status": "success",
+                    "services": added_services,
+                    "infra_services": added_infra,
+                    "ignored_services": ignored_without_path,
+                    "message": (
+                        f"Sucesso: {added_services} serviço(s), {added_infra} infra, "
+                        f"{ignored_without_path} ignorado(s)."
+                    ),
+                }
+            )
+            step_logs.append(
+                f"[{source_host}] Busca bem-sucedida: {added_services} serviço(s), "
+                f"{added_infra} infra e {ignored_without_path} ignorado(s)."
+            )
         else:
             errors.append(
                 {
@@ -1273,12 +1306,50 @@ def discover_services_on_hosts(hosts, credential=None):
                 }
             )
             step_logs.append(f"[{source_host}] Falha: status-servico.json indisponivel no gamb-coletor.")
+            host_result["message"] = "Falha: arquivo ausente, vazio ou sem serviços válidos."
+        host_results.append(host_result)
 
-    if discovered:
-        step_logs.append("Descoberta concluida usando exclusivamente dados do gamb-coletor.")
+    success_hosts = sum(1 for item in host_results if item.get("status") == "success")
+    failed_hosts = len(host_results) - success_hosts
+    service_total = sum(int(item.get("services") or 0) for item in host_results)
+    infra_total = sum(int(item.get("infra_services") or 0) for item in host_results)
+    ignored_total = sum(int(item.get("ignored_services") or 0) for item in host_results)
+
+    if success_hosts and not failed_hosts:
+        result_status = "success"
+        result_label = "SUCESSO"
+    elif success_hosts and failed_hosts:
+        result_status = "partial"
+        result_label = "SUCESSO PARCIAL"
     else:
-        step_logs.append("Nenhum servico TOTVS elegivel foi encontrado no gamb-coletor dos hosts informados.")
-    payload = {"steps": step_logs}
+        result_status = "error"
+        result_label = "FALHA"
+
+    step_logs.append(
+        f"Resultado final: {result_label}. Hosts consultados={len(host_results)}, sucesso={success_hosts}, falha={failed_hosts}."
+    )
+    step_logs.append(
+        f"Totais encontrados: Serviços={service_total}, Infra={infra_total}, Ignorados={ignored_total}."
+    )
+    if discovered:
+        step_logs.append("Busca automática concluída usando exclusivamente dados do gamb-coletor.")
+    else:
+        step_logs.append("Nenhum serviço TOTVS elegível foi encontrado no gamb-coletor dos hosts informados.")
+
+    payload = {
+        "steps": step_logs,
+        "summary": {
+            "status": result_status,
+            "label": result_label,
+            "total_hosts": len(host_results),
+            "success_hosts": success_hosts,
+            "failed_hosts": failed_hosts,
+            "services": service_total,
+            "infra_services": infra_total,
+            "ignored_services": ignored_total,
+        },
+        "host_results": host_results,
+    }
     if errors:
         payload["errors"] = errors
     return discovered, payload

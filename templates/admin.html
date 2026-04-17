@@ -121,6 +121,19 @@ document.documentElement.classList.add("dark");
         color: #86efac !important;
     }
 
+    .auto-discover-line {
+        margin-bottom: 0.35rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .auto-discover-line.is-section {
+        margin-top: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+
     .dark #hostPromptInput {
         background: rgba(15, 23, 42, 0.92);
         border-color: #334155;
@@ -818,7 +831,7 @@ document.documentElement.classList.add("dark");
         <div class="flex items-center justify-between border-b border-slate-700 bg-slate-900 px-5 py-4">
             <div>
                 <h2 id="autoDiscoverTitle" class="text-lg font-semibold text-slate-100">Busca automática</h2>
-                <p id="autoDiscoverSubtitle" class="text-sm text-slate-300">Acompanhamento da descoberta de serviços e leitura do appserver.ini.</p>
+                <p id="autoDiscoverSubtitle" class="text-sm text-slate-300">Status, sucesso e falhas da busca automática.</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="clearAutoDiscoverLog()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar</button>
@@ -924,7 +937,8 @@ function setEnvironmentSectionCollapsed(section, collapsed) {
 
 function showToast(message, type = "error") {
     const toast = document.getElementById("toast");
-    toast.className = `fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg ${type === "success" ? "bg-emerald-600" : "bg-rose-600"}`;
+    const toneClass = type === "success" ? "bg-emerald-600" : type === "warn" ? "bg-amber-600 text-slate-950" : "bg-rose-600";
+    toast.className = `fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold shadow-lg ${toneClass}`;
     toast.textContent = message;
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 4000);
@@ -957,10 +971,74 @@ function appendAutoDiscoverLog(message, tone = "info") {
     const time = new Date().toLocaleTimeString("pt-BR");
     const color = tone === "error" ? "text-rose-300" : tone === "warn" ? "text-amber-300" : "text-emerald-300";
     const line = document.createElement("div");
-    line.className = color;
+    line.className = `auto-discover-line ${color}`;
     line.textContent = `[${time}] ${message}`;
     terminal.appendChild(line);
     terminal.scrollTop = terminal.scrollHeight;
+}
+
+function appendAutoDiscoverSection(title, tone = "info") {
+    const terminal = document.getElementById("autoDiscoverTerminal");
+    if (!terminal) return;
+    const color = tone === "error" ? "text-rose-200" : tone === "warn" ? "text-amber-200" : "text-slate-100";
+    const line = document.createElement("div");
+    line.className = `auto-discover-line is-section ${color}`;
+    line.textContent = title;
+    terminal.appendChild(line);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+function getAutoDiscoverSummaryTone(summary) {
+    if (!summary || !summary.status) return "info";
+    if (summary.status === "success") return "info";
+    if (summary.status === "partial") return "warn";
+    return "error";
+}
+
+function renderAutoDiscoverSummary(summary, discoveredServices, discoveredInfra) {
+    const tone = getAutoDiscoverSummaryTone(summary);
+    appendAutoDiscoverSection("Resumo final", tone);
+    if (!summary) {
+        appendAutoDiscoverLog(
+            `Busca automática concluída. Serviços=${discoveredServices.length}, Infra=${discoveredInfra.length}.`,
+            tone
+        );
+        return;
+    }
+
+    appendAutoDiscoverLog(`Resultado: ${summary.label}.`, tone);
+    appendAutoDiscoverLog(
+        `Hosts consultados: ${summary.total_hosts} | Sucesso: ${summary.success_hosts} | Falha: ${summary.failed_hosts}.`,
+        tone
+    );
+    appendAutoDiscoverLog(
+        `Encontrados: ${summary.services} serviço(s) e ${summary.infra_services} infra.`,
+        tone
+    );
+    if (Number(summary.ignored_services || 0) > 0) {
+        appendAutoDiscoverLog(`Ignorados: ${summary.ignored_services} item(ns) sem path_executable.`, "warn");
+    }
+}
+
+function renderAutoDiscoverHostResults(hostResults) {
+    if (!Array.isArray(hostResults) || !hostResults.length) return;
+    appendAutoDiscoverSection("Resultado por host");
+    hostResults.forEach((item) => {
+        const tone = item.status === "success" ? "info" : "error";
+        const prefix = item.status === "success" ? "OK" : "FALHA";
+        appendAutoDiscoverLog(`[${item.host}] ${prefix} - ${item.message || "Sem detalhes."}`, tone);
+    });
+}
+
+function renderAutoDiscoverErrors(errors) {
+    if (!Array.isArray(errors) || !errors.length) return;
+    appendAutoDiscoverSection("Falhas encontradas", "warn");
+    errors.forEach((err) => {
+        appendAutoDiscoverLog(`[${err.server}] ${err.error}`, "warn");
+        if (err.hint) {
+            appendAutoDiscoverLog(`Dica: ${err.hint}`, "warn");
+        }
+    });
 }
 
 function compareEnvironmentNames(left, right) {
@@ -1060,23 +1138,17 @@ async function autoDiscoverServices() {
     }
 
     if (!result.response.ok || !result.data.success) {
+        appendAutoDiscoverSection("Resumo final", "error");
         appendAutoDiscoverLog(`Falha na busca automática (HTTP ${result.response.status}).`, "error");
         appendAutoDiscoverLog(result.data.error || "Não foi possível executar a busca automática.", "error");
         if (Array.isArray(result.data.steps) && result.data.steps.length) {
-            appendAutoDiscoverLog("Passos executados:", "warn");
+            appendAutoDiscoverSection("Etapas executadas", "warn");
             result.data.steps.forEach((step) => appendAutoDiscoverLog(step, "warn"));
         }
         if (result.data.details) {
             appendAutoDiscoverLog(String(result.data.details).slice(0, 1200), "warn");
         }
-        if (Array.isArray(result.data.errors) && result.data.errors.length) {
-            result.data.errors.forEach((err) => {
-                appendAutoDiscoverLog(`[${err.server}] ${err.error}`, "warn");
-                if (err.hint) {
-                    appendAutoDiscoverLog(`Dica: ${err.hint}`, "warn");
-                }
-            });
-        }
+        renderAutoDiscoverErrors(result.data.errors);
         showToast(result.data.error || "Não foi possível executar a busca automática.");
         autoDiscoverRunning = false;
         return;
@@ -1084,11 +1156,12 @@ async function autoDiscoverServices() {
 
     const discoveredServices = result.data.services || [];
     const discoveredInfra = result.data.infra_services || [];
+    renderAutoDiscoverSummary(result.data.summary, discoveredServices, discoveredInfra);
+    renderAutoDiscoverHostResults(result.data.host_results);
     if (Array.isArray(result.data.steps) && result.data.steps.length) {
-        appendAutoDiscoverLog("Passos executados:");
+        appendAutoDiscoverSection("Etapas executadas");
         result.data.steps.forEach((step) => appendAutoDiscoverLog(step));
     }
-    appendAutoDiscoverLog(`Descobertos: Serviços=${discoveredServices.length}, Infra=${discoveredInfra.length}.`);
     const allDiscovered = [...discoveredServices, ...discoveredInfra];
     const withTcp = allDiscovered.filter((service) => (service.tcp_port || "").trim()).length;
     const withWebapp = allDiscovered.filter((service) => (service.webapp_port || "").trim()).length;
@@ -1111,18 +1184,14 @@ async function autoDiscoverServices() {
         discoveredInfra.forEach((service) => addInfraRow(service));
     }
 
-    const summary = `Busca automática concluída (Serviços do coletor: ${discoveredServices.length}; Infra do coletor: ${discoveredInfra.length}).`;
-    showToast(summary, "success");
-    appendAutoDiscoverLog(summary);
+    const summaryLabel = result.data.summary?.label || "SUCESSO";
+    const summaryTone = getAutoDiscoverSummaryTone(result.data.summary);
+    const summary = `Busca automática ${summaryLabel.toLowerCase()} (Serviços=${discoveredServices.length}; Infra=${discoveredInfra.length}).`;
+    showToast(summary, summaryTone === "error" ? "error" : summaryTone === "warn" ? "warn" : "success");
+    appendAutoDiscoverLog(summary, summaryTone);
 
     if (Array.isArray(result.data.errors) && result.data.errors.length) {
-        appendAutoDiscoverLog("Busca automática concluiu com erros em alguns hosts:", "warn");
-        result.data.errors.forEach((err) => {
-            appendAutoDiscoverLog(`[${err.server}] ${err.error}`, "warn");
-            if (err.hint) {
-                appendAutoDiscoverLog(`Dica: ${err.hint}`, "warn");
-            }
-        });
+        renderAutoDiscoverErrors(result.data.errors);
         showToast("Busca automática concluiu com erros em alguns hosts (veja a tela de log).");
     }
 
