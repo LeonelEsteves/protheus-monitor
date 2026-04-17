@@ -129,6 +129,7 @@ HOST_AVAILABILITY_CACHE_TTL_SECONDS = 30
 DEFAULT_ALERT_SETTINGS = {
     "disk_free_below_10": True,
     "high_priority_services_stopped": True,
+    "production_services_stopped": True,
     "windows_updates_pending": True,
     "collector_json_missing": True,
 }
@@ -352,6 +353,9 @@ def sanitize_alert_settings(settings):
         if "collector_json_missing" not in settings and "collector_sync_stale" in settings:
             settings = dict(settings)
             settings["collector_json_missing"] = bool(settings.get("collector_sync_stale"))
+        if "production_services_stopped" not in settings and "high_priority_services_stopped" in settings:
+            settings = dict(settings)
+            settings["production_services_stopped"] = bool(settings.get("high_priority_services_stopped"))
         for key in DEFAULT_ALERT_SETTINGS:
             if key in settings:
                 merged[key] = bool(settings.get(key))
@@ -865,27 +869,46 @@ def build_monitor_alerts_payload(user=None):
                     }
                 )
 
-        if settings.get("high_priority_services_stopped"):
-            environment_type = normalize_environment_type(
-                environment.get("environment_type"),
-                environment.get("name"),
-            )
+        environment_type = normalize_environment_type(
+            environment.get("environment_type"),
+            environment.get("name"),
+        )
+        is_production = environment_type == "producao"
+
+        if settings.get("production_services_stopped") and is_production:
             for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
-                is_production = environment_type == "producao"
-                if not is_production and normalize_service_priority(service.get("priority")) != "alta":
+                if not service_status_is_stopped(service.get("status")):
+                    continue
+                display_name = str(service.get("display_name") or service.get("name") or "Serviço").strip() or "Serviço"
+                alerts.append(
+                    {
+                        "kind": "production_service_stopped",
+                        "severity": "critical",
+                        "environment_id": environment_status.get("id"),
+                        "environment_name": environment_name,
+                        "host": str(service.get("service_ip") or host).strip() or host,
+                        "service_name": str(service.get("name") or "").strip(),
+                        "title": "Serviço parado em produção",
+                        "message": f"{display_name} está parado no ambiente {environment_name}.",
+                    }
+                )
+
+        if settings.get("high_priority_services_stopped") and not is_production:
+            for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
+                if normalize_service_priority(service.get("priority")) != "alta":
                     continue
                 if not service_status_is_stopped(service.get("status")):
                     continue
                 display_name = str(service.get("display_name") or service.get("name") or "Serviço").strip() or "Serviço"
                 alerts.append(
                     {
-                        "kind": "production_service_stopped" if is_production else "high_priority_service",
+                        "kind": "high_priority_service",
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
                         "host": str(service.get("service_ip") or host).strip() or host,
                         "service_name": str(service.get("name") or "").strip(),
-                        "title": "Serviço parado em produção" if is_production else "Serviço crítico parado",
+                        "title": "Serviço crítico parado",
                         "message": f"{display_name} está parado no ambiente {environment_name}.",
                     }
                 )
@@ -3493,8 +3516,11 @@ def login():
     password = data.get("password", "")
 
     user = find_user(username)
-    if not user or not user.get("active", True):
+    if not user:
         return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401
+
+    if not user.get("active", True):
+        return jsonify({"success": False, "error": "Usuário desativado. Procure um administrador."}), 403
 
     if not check_password_hash(user["password_hash"], password):
         return jsonify({"success": False, "error": "Usuário ou senha inválidos."}), 401

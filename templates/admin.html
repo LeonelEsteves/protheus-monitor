@@ -206,6 +206,34 @@ document.documentElement.classList.add("dark");
         color: #f8fafc;
     }
 
+    .dark #panel-users .text-slate-700,
+    .dark #panel-users .font-medium.text-slate-700 {
+        color: #e2e8f0 !important;
+    }
+
+    .dark #panel-users input,
+    .dark #panel-users select {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #334155;
+        color: #f8fafc;
+    }
+
+    .dark #panel-users input:focus,
+    .dark #panel-users select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+        outline: none;
+    }
+
+    .dark #panel-users input::placeholder {
+        color: #94a3b8;
+    }
+
+    .dark #panel-users select option {
+        background: #0f172a;
+        color: #f8fafc;
+    }
+
     .dark #environmentFilterSelect {
         background: rgba(15, 23, 42, 0.92);
         border-color: #334155;
@@ -439,7 +467,17 @@ document.documentElement.classList.add("dark");
                                 <input id="alertHighPriorityServicesStopped" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
                                 <div>
                                     <div class="font-semibold text-slate-900">Serviços críticos parados</div>
-                                    <div class="mt-1 text-sm text-slate-500">Em produção, alerta qualquer serviço parado. Nos demais ambientes, monitora os de prioridade alta.</div>
+                                    <div class="mt-1 text-sm text-slate-500">Nos ambientes que não são produção, monitora serviços de prioridade alta parados.</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="flex items-start gap-3">
+                                <input id="alertProductionServicesStopped" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
+                                <div>
+                                    <div class="font-semibold text-slate-900">Serviços de produção parados</div>
+                                    <div class="mt-1 text-sm text-slate-500">Gera alerta crítico quando qualquer serviço de ambiente de produção estiver parado.</div>
                                 </div>
                             </div>
                         </label>
@@ -471,14 +509,6 @@ document.documentElement.classList.add("dark");
                     </div>
                 </form>
 
-                <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                    <div class="text-lg font-semibold text-slate-900">Sugestões para próximos monitores</div>
-                    <div class="mt-2 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
-                        <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">Monitorar serviços de prioridade média parados por mais tempo.</div>
-                        <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">Monitorar consumo alto de CPU ou memória do servidor.</div>
-                        <div class="rounded-xl border border-slate-200 bg-white px-3 py-2">Avisar quando a base do ambiente estiver há muitos dias sem atualização.</div>
-                    </div>
-                </div>
             </section>
 
             <section id="panel-users" class="surface-panel hidden rounded-3xl bg-white p-6 shadow-sm">
@@ -584,7 +614,7 @@ document.documentElement.classList.add("dark");
 
 <div id="toast" class="hidden fixed right-5 top-5 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg"></div>
 
-<div id="confirmModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4">
+<div id="confirmModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/70 p-4">
     <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
         <div class="mb-4">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Confirmação</p>
@@ -631,38 +661,38 @@ document.documentElement.classList.add("dark");
 </div>
 
 <div id="userEditModal" class="hidden fixed inset-0 z-[66] flex items-center justify-center bg-slate-950/70 p-4">
-    <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+    <div class="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl text-slate-100">
         <div class="mb-4">
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Usuários</p>
-            <h3 id="userEditTitle" class="mt-2 text-xl font-semibold text-slate-900">Editar usuário</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-600">Atualize perfil, status e senha no mesmo padrão visual das demais telas.</p>
+            <h3 id="userEditTitle" class="mt-2 text-xl font-semibold text-slate-100">Editar usuário</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-300">Atualize perfil, status e senha no mesmo padrão visual das demais telas.</p>
         </div>
 
         <form id="userEditForm" class="space-y-3">
             <label class="space-y-1 text-sm">
-                <span class="font-medium text-slate-700">Usuário</span>
-                <input id="editUsername" readonly class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" />
+                <span class="font-medium text-slate-300">Usuário</span>
+                <input id="editUsername" readonly class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300" />
             </label>
             <label class="space-y-1 text-sm">
-                <span class="font-medium text-slate-700">Perfil</span>
-                <select id="editUserRole" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                <span class="font-medium text-slate-300">Perfil</span>
+                <select id="editUserRole" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
                     <option value="operator">Operador</option>
                     <option value="technical">Técnico</option>
                     <option value="admin">Administrador</option>
                 </select>
             </label>
-            <p id="userEditConstraintHint" class="hidden text-xs text-amber-600"></p>
-            <label class="flex items-center gap-2 text-sm text-slate-700">
-                <input id="editUserActive" type="checkbox">
+            <p id="userEditConstraintHint" class="hidden text-xs text-amber-300"></p>
+            <label class="flex items-center gap-2 text-sm text-slate-300">
+                <input id="editUserActive" type="checkbox" class="h-4 w-4 rounded border-slate-600 bg-slate-950 text-blue-500">
                 Usuário ativo
             </label>
             <label class="space-y-1 text-sm">
-                <span class="font-medium text-slate-700">Nova senha (opcional)</span>
-                <input id="editUserPassword" type="password" placeholder="Digite apenas se quiser alterar" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                <span class="font-medium text-slate-300">Nova senha (opcional)</span>
+                <input id="editUserPassword" type="password" placeholder="Digite apenas se quiser alterar" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500" />
             </label>
 
             <div class="flex flex-wrap justify-end gap-2 pt-2">
-                <button id="deleteUserButton" type="button" onclick="removeUser(editingUserUsername)" class="mr-auto rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50">Excluir usuário</button>
+                <button id="deleteUserButton" type="button" onclick="removeUser(editingUserUsername)" class="mr-auto rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50">Excluir usuário</button>
                 <button type="button" onclick="toggleUserEditModal(false)" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Cancelar</button>
                 <button type="submit" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Salvar alterações</button>
             </div>
@@ -1508,6 +1538,7 @@ function applyAlertSettingsToForm(settings = {}) {
     adminAlertSettings = { ...settings };
     document.getElementById("alertDiskFreeBelow10").checked = Boolean(settings.disk_free_below_10);
     document.getElementById("alertHighPriorityServicesStopped").checked = Boolean(settings.high_priority_services_stopped);
+    document.getElementById("alertProductionServicesStopped").checked = Boolean(settings.production_services_stopped);
     document.getElementById("alertWindowsUpdatesPending").checked = Boolean(settings.windows_updates_pending);
     document.getElementById("alertCollectorJsonMissing").checked = Boolean(settings.collector_json_missing);
 }
@@ -1516,6 +1547,7 @@ function readAlertSettingsForm() {
     return {
         disk_free_below_10: document.getElementById("alertDiskFreeBelow10").checked,
         high_priority_services_stopped: document.getElementById("alertHighPriorityServicesStopped").checked,
+        production_services_stopped: document.getElementById("alertProductionServicesStopped").checked,
         windows_updates_pending: document.getElementById("alertWindowsUpdatesPending").checked,
         collector_json_missing: document.getElementById("alertCollectorJsonMissing").checked,
     };

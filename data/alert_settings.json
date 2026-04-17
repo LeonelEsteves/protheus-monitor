@@ -1,6 +1,7 @@
 {
   "disk_free_below_10": true,
   "high_priority_services_stopped": true,
+  "production_services_stopped": true,
   "windows_updates_pending": true,
   "collector_json_missing": true
 }

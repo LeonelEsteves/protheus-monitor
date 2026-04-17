@@ -1,5 +1,180 @@
 [
   {
+    "datetime": "2026-04-17 17:11:41",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:11:30",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:11:16",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:11:09",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "leonel",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:10:52",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "leonel",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:10:43",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:10:27",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:10:03",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:09:47",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:09:42",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "leonel",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:07:16",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "leonel",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:07:11",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:06:50",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:06:21",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-17 17:05:03",
+    "service": "SERVICO :: APEX-PRD :: Infra :: .10 TOTVS | Microsiga Protheus 12 PRD - Balance Master :: 10.85.0.197",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 17:05:03",
+    "service": "SERVICO :: APEX-PRD :: Infra :: .10 TOTVS | Microsiga Protheus 12-P241 PRD - REST Broker :: 10.85.0.90",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 17:05:03",
+    "service": "AMBIENTE :: APEX-PRD",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 17:03:17",
+    "service": "ALERTAS",
+    "action": "UPDATE_SETTINGS",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-17 16:55:26",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-17 16:53:51)",
+    "user": "system"
+  },
+  {
     "datetime": "2026-04-17 16:26:01",
     "service": "APEX-PRD (10.85.0.90) :: TOTVS-Appserver12-P241-PRD-REST-MASTER",
     "action": "start",

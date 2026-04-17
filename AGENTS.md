@@ -124,3 +124,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Em ambientes com multiplos hosts, a sincronizacao do coletor so deve ser considerada saudavel quando todos os hosts relevantes do ambiente estiverem online e com JSON/timestamp validos.
 
 - Toda execucao de start/stop/restart, incluindo lote, deve gravar trilha tecnica separada em data/execution_trace.json com ambiente, host, servico, acao, resultado e erro/retorno para diagnostico futuro.
+
+- Rotina de alertas deve ter opcao separada para alertar quando qualquer servico de producao estiver parado; essa regra nao deve ficar misturada com servicos criticos dos demais ambientes.
+
+- Em qualquer alteracao de layout, manter padrao dark em todos os formularios, modais, filtros e campos de entrada; evitar fundos brancos ou elementos claros destoando do admin/operacao.

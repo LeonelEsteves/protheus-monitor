@@ -849,7 +849,7 @@
         "rest_port": "",
         "service_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_BAL.log",
-        "priority": "media"
+        "priority": "alta"
       },
       {
         "name": "TOTVSDBAccess64",
@@ -882,7 +882,7 @@
         "rest_port": "",
         "service_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_Master.log",
-        "priority": "media"
+        "priority": "alta"
       }
     ]
   }

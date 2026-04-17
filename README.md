@@ -118,7 +118,8 @@ A rotina de alertas avalia:
 - ausência do `status-servico.json`
 - pouco espaço em disco
 - updates pendentes do Windows
-- serviços de prioridade alta parados
+- serviços de prioridade alta parados fora de produção
+- qualquer serviço parado em ambientes de produção
 
 Os alertas são deduplicados para evitar repetição visual e ruído.
 
