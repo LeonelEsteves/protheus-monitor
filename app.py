@@ -2604,6 +2604,9 @@ def build_environment_status(environment):
         built_services[service_type].append(base)
 
     environment_collector = load_collector_status_for_host(host, use_cache=True).get("server") or {}
+    # O total do ambiente deve ser recalculado pelos hosts validos abaixo,
+    # sem reaproveitar um valor agregado antigo do JSON base.
+    environment_collector.pop("windows_updates_pending", None)
     total_pending_updates = 0
     has_pending_updates_value = False
     collector_hosts_summary = []
@@ -2624,9 +2627,8 @@ def build_environment_status(environment):
             pending_updates = int(collector_server.get("windows_updates_pending"))
         except Exception:
             pending_updates = None
-        if pending_updates is None:
-            pending_updates = None
-        else:
+        valid_updates_source = host_online is not False and not payload_missing and not host_stale
+        if pending_updates is not None and valid_updates_source:
             total_pending_updates += pending_updates
             has_pending_updates_value = True
         collector_hosts_summary.append(
@@ -2638,6 +2640,7 @@ def build_environment_status(environment):
                 "disk_total_gb": collector_server.get("disk_total_gb"),
                 "disk_free_gb": collector_server.get("disk_free_gb"),
                 "windows_updates_pending": pending_updates,
+                "windows_updates_valid": valid_updates_source,
                 "timestamp": str(collector_server.get("timestamp") or "").strip(),
                 "is_stale": host_stale,
                 "payload_missing": payload_missing,
@@ -2650,11 +2653,17 @@ def build_environment_status(environment):
             unsynced_hosts.append(summary_server_ip)
     if has_pending_updates_value:
         environment_collector["windows_updates_pending"] = total_pending_updates
+    else:
+        environment_collector["windows_updates_pending"] = None
     environment_collector["windows_updates_by_host"] = [
         {
             "host": item.get("host"),
             "server_ip": item.get("server_ip"),
             "windows_updates_pending": item.get("windows_updates_pending"),
+            "windows_updates_valid": item.get("windows_updates_valid"),
+            "is_stale": item.get("is_stale"),
+            "payload_missing": item.get("payload_missing"),
+            "host_online": item.get("host_online"),
         }
         for item in collector_hosts_summary
     ]
@@ -3894,6 +3903,15 @@ def dispatch_monitor_alerts():
             save_log("ALERTAS", "TEAMS", "ERROR", "system", error="; ".join(errors[:3]))
 
 
+def trigger_monitor_alert_dispatch_async():
+    thread = threading.Thread(
+        target=dispatch_monitor_alerts,
+        name="teams-alert-dispatch",
+        daemon=True,
+    )
+    thread.start()
+
+
 def serialize_user(user):
     return {
         "username": user["username"],
@@ -4164,6 +4182,7 @@ def update_alert_settings():
 @app.route("/alerts", methods=["GET"])
 @login_required
 def get_monitor_alerts():
+    trigger_monitor_alert_dispatch_async()
     return jsonify(build_monitor_alerts_payload(current_user()))
 
 

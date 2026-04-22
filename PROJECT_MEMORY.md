@@ -30,3 +30,14 @@ Notes:
 - Estrutura organizada: arquivos operacionais do monitor foram centralizados em data/ (users, environments, servers, alert_settings, events_log).
 
 - Regra duravel: novas atualizacoes tecnicas relevantes do ambiente/sistema devem ser registradas no README.md da raiz; a tela principal expõe esse conteudo para todos os usuarios autenticados.
+
+## Regras recentes de monitoramento e alertas
+
+- Windows Updates: em todo o sistema considerar apenas atualizacoes de software (`Type='Software'`), ignorando drivers e outros tipos opcionais.
+- Total de updates por ambiente: somar separadamente por `server_ip` de cada JSON do coletor e incluir somente hosts online, com `status-servico.json` presente e coletor sincronizado; hosts offline, sem JSON ou stale devem aparecer como `N/D` e nao entrar na soma.
+- Webhook/Teams: URL do webhook deve ficar somente em `data/secret_settings.json` ou variavel de ambiente, nunca em arquivo versionado.
+- Webhook/Teams: alertas devem ser enviados separadamente, um Adaptive Card por alerta, com icone por cenario, campos organizados e cor conforme criticidade.
+- Webhook/Teams: envio deve respeitar configuracao de ativo/inativo, dias da semana, horario/full-time e severidades (`critical`, `warning`, `info`).
+- Webhook/Teams: manter deduplicacao para evitar repeticao excessiva; alertas repetidos so devem reenviar apos a janela configurada.
+- Coletor: sempre que houver alteracao nos arquivos do coletor, gerar uma nova versao curta em `gamb-coletor/versions` (padrao `vYYYYMMDD` ou `vYYYYMMDD-HHMMSS`).
+- Interface: manter tema dark como padrao unico; inputs, campos de confirmacao e areas de digitacao em modais nunca devem usar fundo branco.

@@ -1,3 +1,9 @@
 {
-  "teams": {}
+  "teams": {
+    "{\"drive\": null, \"environment_id\": \"apex-hml4\", \"host\": \"10.85.0.176\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.176 possui 3 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.176\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 3}": 1776867042.8021219,
+    "{\"drive\": null, \"environment_id\": \"apex-prd\", \"host\": \"10.85.0.198\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.198 possui 1 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.198\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 1}": 1776867042.8021219,
+    "{\"drive\": null, \"environment_id\": \"apex-prd\", \"host\": \"10.85.0.90\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.90 possui 1 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.90\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 1}": 1776867042.8021219,
+    "{\"drive\": null, \"environment_id\": \"apex-hml1\", \"host\": \"10.10.1.68\", \"kind\": \"windows_updates\", \"message\": \"10.10.1.68 possui 4 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.10.1.68\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 4}": 1776867172.498305,
+    "{\"drive\": null, \"environment_id\": \"apex-hml2\", \"host\": \"10.85.0.172\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.172 possui 4 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.172\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 4}": 1776867172.498305
+  }
 }

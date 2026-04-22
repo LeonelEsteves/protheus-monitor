@@ -148,3 +148,9 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Cards do webhook/Teams devem usar Adaptive Card organizado, com icone por cenario e informacoes em campos separados para legibilidade.
 
 - Painel administrativo deve oferecer limpeza protegida de logs operacionais, trilha tecnica e estado de deduplicacao de alertas/webhook, sem apagar usuarios, ambientes, configuracoes ou segredos.
+
+- Campos de confirmacao, inputs e areas de digitacao em modais devem sempre usar fundo dark padronizado (#0f172a/rgba(15,23,42,0.92)), borda slate e texto claro; nunca deixar fundo branco no tema dark.
+
+- Windows Updates por ambiente: somar apenas hosts validos/sincronizados por `server_ip`; hosts offline, sem JSON ou stale nao entram na soma e devem aparecer como N/D.
+- Webhook/Teams: manter segredo fora do git, enviar alertas separados por Adaptive Card, respeitar agenda/severidade e deduplicacao.
+- Coletor: toda alteracao nos arquivos do coletor deve gerar versao curta em `gamb-coletor/versions`.

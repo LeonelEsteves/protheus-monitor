@@ -1,1 +1,69 @@
-[]
+[
+  {
+    "datetime": "2026-04-22 11:12:55",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 2
+  },
+  {
+    "datetime": "2026-04-22 11:10:47",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 3
+  },
+  {
+    "datetime": "2026-04-22 11:06:37",
+    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:06:33",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:06:33",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:06:33",
+    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:06:33",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 10:42:41",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 1
+  },
+  {
+    "datetime": "2026-04-22 10:39:08",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 8
+  }
+]
