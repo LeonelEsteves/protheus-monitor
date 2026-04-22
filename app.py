@@ -137,7 +137,14 @@ DEFAULT_ALERT_SETTINGS = {
     "windows_updates_pending": True,
     "collector_json_missing": True,
     "teams_enabled": False,
+    "teams_schedule_full_time": True,
+    "teams_schedule_days": [0, 1, 2, 3, 4, 5, 6],
+    "teams_schedule_start": "00:00",
+    "teams_schedule_end": "23:59",
+    "teams_alert_severities": ["critical", "warning", "info"],
 }
+
+TEAMS_ALERT_SEVERITY_OPTIONS = {"critical", "warning", "info"}
 
 ALERTS_MAX_ITEMS = 100
 ALERT_TEAMS_DEDUP_SECONDS = 1800
@@ -365,6 +372,37 @@ def sanitize_alert_settings(settings):
             settings["production_services_stopped"] = bool(settings.get("high_priority_services_stopped"))
         for key in DEFAULT_ALERT_SETTINGS:
             if key not in settings:
+                continue
+            if key == "teams_schedule_days":
+                days = []
+                raw_days = settings.get(key)
+                if isinstance(raw_days, list):
+                    for day in raw_days:
+                        try:
+                            day_number = int(day)
+                        except Exception:
+                            continue
+                        if 0 <= day_number <= 6 and day_number not in days:
+                            days.append(day_number)
+                merged[key] = days or list(DEFAULT_ALERT_SETTINGS[key])
+                continue
+            if key in {"teams_schedule_start", "teams_schedule_end"}:
+                time_value = str(settings.get(key) or "").strip()
+                merged[key] = time_value if re.fullmatch(r"\d{2}:\d{2}", time_value) else DEFAULT_ALERT_SETTINGS[key]
+                continue
+            if key == "teams_alert_severities":
+                raw_severities = settings.get(key)
+                if raw_severities is None and "teams_alert_kinds" in settings:
+                    raw_severities = DEFAULT_ALERT_SETTINGS[key]
+                if isinstance(raw_severities, str):
+                    raw_severities = [raw_severities]
+                severities = []
+                if isinstance(raw_severities, list):
+                    for severity in raw_severities:
+                        normalized_severity = str(severity or "").strip().lower()
+                        if normalized_severity in TEAMS_ALERT_SEVERITY_OPTIONS and normalized_severity not in severities:
+                            severities.append(normalized_severity)
+                merged[key] = severities or list(DEFAULT_ALERT_SETTINGS[key])
                 continue
             merged[key] = bool(settings.get(key))
     return merged
@@ -739,7 +777,7 @@ def build_server_alerts_payload(force_refresh=False):
                     "server_name": server_name,
                     "server_ip": server_ip,
                     "type": "updates",
-                    "message": f"{server_name or server_ip} possui {int(item.get('pending_update_count') or 0)} atualização(ões) pendente(s).",
+                    "message": f"{server_name or server_ip} possui {int(item.get('pending_update_count') or 0)} atualização(ões) de software pendente(s).",
                 }
             )
 
@@ -826,15 +864,17 @@ def collector_payload_missing(payload):
 
 def build_alert_signature(alert):
     return json.dumps(
-        {
-            "kind": alert.get("kind"),
-            "severity": alert.get("severity"),
-            "environment_id": alert.get("environment_id"),
-            "host": alert.get("host"),
-            "service_name": alert.get("service_name"),
-            "drive": alert.get("drive"),
-            "message": alert.get("message"),
-        },
+            {
+                "kind": alert.get("kind"),
+                "severity": alert.get("severity"),
+                "environment_id": alert.get("environment_id"),
+                "host": alert.get("host"),
+                "server_ip": alert.get("server_ip"),
+                "service_name": alert.get("service_name"),
+                "drive": alert.get("drive"),
+                "windows_updates_pending": alert.get("windows_updates_pending"),
+                "message": alert.get("message"),
+            },
         ensure_ascii=False,
         sort_keys=True,
     )
@@ -863,6 +903,40 @@ def save_alert_delivery_state(state):
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(ALERT_DELIVERY_STATE_FILE, "w", encoding="utf-8") as file:
         json.dump(state or {"teams": {}}, file, indent=2, ensure_ascii=False)
+
+
+def clear_operational_logs():
+    os.makedirs(DATA_DIR, exist_ok=True)
+    targets = [
+        (LOG_FILE, []),
+        (EXECUTION_TRACE_FILE, []),
+        (ALERT_DELIVERY_STATE_FILE, {"teams": {}}),
+    ]
+    cleared = []
+    for file_path, empty_payload in targets:
+        previous_count = 0
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8-sig") as file:
+                    current_payload = json.load(file)
+                if isinstance(current_payload, list):
+                    previous_count = len(current_payload)
+                elif isinstance(current_payload, dict):
+                    previous_count = sum(
+                        len(value) for value in current_payload.values()
+                        if isinstance(value, dict)
+                    )
+            except Exception:
+                previous_count = 0
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(empty_payload, file, indent=2, ensure_ascii=False)
+        cleared.append(
+            {
+                "file": os.path.basename(file_path),
+                "previous_count": previous_count,
+            }
+        )
+    return cleared
 
 
 def get_teams_webhook_url(settings=None):
@@ -928,21 +1002,39 @@ def build_monitor_alerts_payload(user=None, include_all=False):
             continue
 
         if settings.get("windows_updates_pending"):
-            pending_updates = collector_server.get("windows_updates_pending")
-            try:
-                pending_updates = int(pending_updates)
-            except Exception:
-                pending_updates = None
-            if pending_updates and pending_updates > 0:
+            collector_hosts_for_updates = environment_status.get("collector_hosts") or []
+            if not collector_hosts_for_updates:
+                collector_hosts_for_updates = collector_server.get("windows_updates_by_host") or []
+
+            seen_update_hosts = set()
+            for collector_host in collector_hosts_for_updates:
+                if not isinstance(collector_host, dict):
+                    continue
+                if collector_host.get("payload_missing") or collector_host.get("is_stale") or collector_host.get("host_online") is False:
+                    continue
+                host_ip = str(collector_host.get("server_ip") or collector_host.get("host") or host).strip() or host
+                host_key = _normalize_service_lookup_key(host_ip)
+                if host_key in seen_update_hosts:
+                    continue
+                seen_update_hosts.add(host_key)
+                try:
+                    pending_updates = int(collector_host.get("windows_updates_pending"))
+                except Exception:
+                    pending_updates = None
+                if not pending_updates or pending_updates <= 0:
+                    continue
                 alerts.append(
                     {
                         "kind": "windows_updates",
                         "severity": "warning",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
-                        "host": host,
+                        "host": host_ip,
+                        "server_ip": host_ip,
+                        "server_name": str(collector_host.get("server_name") or "").strip(),
+                        "windows_updates_pending": pending_updates,
                         "title": "Atualizações pendentes do Windows",
-                        "message": f"{environment_name} possui {pending_updates} atualização(ões) pendente(s) no Windows.",
+                        "message": f"{host_ip} possui {pending_updates} atualização(ões) de software pendente(s) no Windows.",
                     }
                 )
 
@@ -1180,7 +1272,7 @@ foreach ($t in $targets) {{
             try {{
                 $updateSession = New-Object -ComObject Microsoft.Update.Session
                 $updateSearcher = $updateSession.CreateUpdateSearcher()
-                $searchResult = $updateSearcher.Search("IsInstalled=0")
+                $searchResult = $updateSearcher.Search("IsInstalled=0 and IsHidden=0 and Type='Software'")
                 $pendingCount = [int]$searchResult.Updates.Count
             }} catch {{
                 $pendingError = $_.Exception.Message
@@ -2558,6 +2650,14 @@ def build_environment_status(environment):
             unsynced_hosts.append(summary_server_ip)
     if has_pending_updates_value:
         environment_collector["windows_updates_pending"] = total_pending_updates
+    environment_collector["windows_updates_by_host"] = [
+        {
+            "host": item.get("host"),
+            "server_ip": item.get("server_ip"),
+            "windows_updates_pending": item.get("windows_updates_pending"),
+        }
+        for item in collector_hosts_summary
+    ]
     environment_collector["any_host_offline"] = bool(offline_hosts)
     environment_collector["offline_hosts"] = offline_hosts
     environment_collector["any_host_unsynced"] = bool(unsynced_hosts)
@@ -3456,6 +3556,143 @@ def build_teams_adaptive_card(title, message):
     }
 
 
+def get_teams_alert_icon(alert):
+    kind = str((alert or {}).get("kind") or "").strip()
+    severity = str((alert or {}).get("severity") or "").strip().lower()
+    if kind == "windows_updates":
+        return "🪟"
+    if kind == "disk":
+        return "💾"
+    if kind in {"collector_json_missing", "collector_host_offline"}:
+        return "🖥️"
+    if kind in {"production_service_stopped", "high_priority_service"}:
+        return "⚙️"
+    if severity == "critical":
+        return "🚨"
+    if severity == "warning":
+        return "⚠️"
+    return "ℹ️"
+
+
+def get_teams_alert_color(alert):
+    severity = str((alert or {}).get("severity") or "").strip().lower()
+    if severity == "critical":
+        return "Attention"
+    if severity == "warning":
+        return "Warning"
+    return "Accent"
+
+
+def get_teams_alert_style(alert):
+    severity = str((alert or {}).get("severity") or "").strip().lower()
+    if severity == "critical":
+        return "attention"
+    if severity == "warning":
+        return "warning"
+    return "accent"
+
+
+def build_teams_alert_card(alert):
+    timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    kind = str(alert.get("kind") or "").strip()
+    severity = str(alert.get("severity") or "info").strip().upper() or "INFO"
+    title = str(alert.get("title") or "Alerta").strip() or "Alerta"
+    environment_name = str(alert.get("environment_name") or "Ambiente").strip() or "Ambiente"
+    host = str(alert.get("host") or "-").strip() or "-"
+    message = str(alert.get("message") or "").strip()
+    icon = get_teams_alert_icon(alert)
+
+    facts = [
+        {"title": "Severidade", "value": severity},
+        {"title": "Ambiente", "value": environment_name},
+        {"title": "Host", "value": host},
+    ]
+
+    if kind == "windows_updates":
+        facts = [
+            {"title": "Severidade", "value": severity},
+            {"title": "Ambiente", "value": environment_name},
+            {"title": "Server IP", "value": str(alert.get("server_ip") or host).strip() or host},
+            {"title": "Updates software", "value": str(alert.get("windows_updates_pending") if alert.get("windows_updates_pending") is not None else "-")},
+        ]
+    elif kind == "disk":
+        facts.append({"title": "Unidade", "value": str(alert.get("drive") or "-")})
+        if alert.get("free_percent") is not None:
+            facts.append({"title": "Livre", "value": f"{alert.get('free_percent')}%"})
+    elif kind in {"production_service_stopped", "high_priority_service"}:
+        facts.append({"title": "Serviço", "value": str(alert.get("service_name") or "-")})
+    elif kind in {"collector_json_missing", "collector_host_offline"}:
+        facts.append({"title": "Coletor", "value": "Sem sincronização válida"})
+
+    facts.append({"title": "Gerado em", "value": timestamp})
+
+    return {
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "type": "AdaptiveCard",
+        "version": "1.4",
+        "msteams": {
+            "width": "Full"
+        },
+        "body": [
+            {
+                "type": "Container",
+                "style": get_teams_alert_style(alert),
+                "bleed": True,
+                "items": [
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": icon,
+                                        "size": "Large",
+                                        "wrap": True
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": f"Protheus Monitor | {title}",
+                                        "weight": "Bolder",
+                                        "size": "Medium",
+                                        "color": get_teams_alert_color(alert),
+                                        "wrap": True
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": environment_name,
+                                        "isSubtle": True,
+                                        "spacing": "None",
+                                        "wrap": True
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "TextBlock",
+                "text": message,
+                "wrap": True,
+                "spacing": "Medium"
+            },
+            {
+                "type": "FactSet",
+                "facts": facts
+            }
+        ]
+    }
+
+
 def send_teams(message, webhook_url="", title="Protheus Monitor"):
     target_webhook = str(webhook_url or "").strip() or TEAMS_WEBHOOK
     if not target_webhook:
@@ -3507,6 +3744,82 @@ def format_teams_alert_digest(alerts):
     return "\n".join(lines).strip()
 
 
+def format_single_teams_alert(alert):
+    severity = str(alert.get("severity") or "").strip().upper() or "INFO"
+    environment_name = str(alert.get("environment_name") or "Ambiente").strip()
+    host = str(alert.get("host") or "-").strip()
+    title = str(alert.get("title") or "Alerta").strip()
+    message = str(alert.get("message") or "").strip()
+    timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    if str(alert.get("kind") or "").strip() == "windows_updates":
+        server_ip = str(alert.get("server_ip") or host).strip() or host
+        pending_updates = alert.get("windows_updates_pending")
+        return "\n".join(
+            [
+                f"Severidade: {severity}",
+                f"Ambiente: {environment_name}",
+                f"Server IP: {server_ip}",
+                f"Updates de software pendentes: {pending_updates}",
+                f"Mensagem: {message}",
+                f"Gerado em: {timestamp}",
+            ]
+        )
+    return "\n".join(
+        [
+            f"Severidade: {severity}",
+            f"Ambiente: {environment_name}",
+            f"Host: {host}",
+            f"Mensagem: {message}",
+            f"Gerado em: {timestamp}",
+        ]
+    )
+
+
+def parse_hhmm_to_minutes(value):
+    text = str(value or "").strip()
+    if not re.fullmatch(r"\d{2}:\d{2}", text):
+        return None
+    hour, minute = [int(part) for part in text.split(":", 1)]
+    if hour > 23 or minute > 59:
+        return None
+    return hour * 60 + minute
+
+
+def is_teams_alert_schedule_active(settings, when=None):
+    when = when or datetime.now()
+    days = settings.get("teams_schedule_days")
+    if not isinstance(days, list):
+        days = DEFAULT_ALERT_SETTINGS["teams_schedule_days"]
+    try:
+        allowed_days = {int(day) for day in days}
+    except Exception:
+        allowed_days = set(DEFAULT_ALERT_SETTINGS["teams_schedule_days"])
+    if when.weekday() not in allowed_days:
+        return False
+
+    if settings.get("teams_schedule_full_time", True):
+        return True
+
+    start_minutes = parse_hhmm_to_minutes(settings.get("teams_schedule_start"))
+    end_minutes = parse_hhmm_to_minutes(settings.get("teams_schedule_end"))
+    if start_minutes is None or end_minutes is None:
+        return True
+
+    current_minutes = when.hour * 60 + when.minute
+    if start_minutes <= end_minutes:
+        return start_minutes <= current_minutes <= end_minutes
+    return current_minutes >= start_minutes or current_minutes <= end_minutes
+
+
+def filter_alerts_for_teams(alerts, settings):
+    allowed_severities = settings.get("teams_alert_severities") or DEFAULT_ALERT_SETTINGS["teams_alert_severities"]
+    allowed_severities = {str(severity or "").strip().lower() for severity in allowed_severities}
+    return [
+        alert for alert in (alerts or [])
+        if str(alert.get("severity") or "").strip().lower() in allowed_severities
+    ]
+
+
 def dispatch_monitor_alerts():
     global ALERT_LAST_DISPATCH_TS
 
@@ -3523,13 +3836,15 @@ def dispatch_monitor_alerts():
         settings = load_alert_settings()
         if not settings.get("teams_enabled"):
             return
+        if not is_teams_alert_schedule_active(settings):
+            return
 
         webhook_url = get_teams_webhook_url(settings)
         if not webhook_url:
             return
 
         payload = build_monitor_alerts_payload(include_all=True)
-        alerts = payload.get("alerts") or []
+        alerts = filter_alerts_for_teams(payload.get("alerts") or [], settings)
         if not alerts:
             return
 
@@ -3559,18 +3874,24 @@ def dispatch_monitor_alerts():
             save_alert_delivery_state(state)
             return
 
-        sent, error = send_teams(
-            format_teams_alert_digest(new_alerts),
-            webhook_url=webhook_url,
-            title="Protheus Monitor | Alertas",
-        )
-        if sent:
+        sent_count = 0
+        errors = []
+        for alert in new_alerts:
+            sent, error = send_teams(
+                build_teams_alert_card(alert),
+                webhook_url=webhook_url,
+            )
+            if sent:
+                sent_count += 1
+            else:
+                errors.append(error)
+
+        if sent_count:
             state["teams"] = teams_state
             save_alert_delivery_state(state)
-            save_log("ALERTAS", "TEAMS", "SUCCESS", "system", count=len(new_alerts))
-            return
-
-        save_log("ALERTAS", "TEAMS", "ERROR", "system", error=error)
+            save_log("ALERTAS", "TEAMS", "SUCCESS", "system", count=sent_count)
+        if errors:
+            save_log("ALERTAS", "TEAMS", "ERROR", "system", error="; ".join(errors[:3]))
 
 
 def serialize_user(user):
@@ -3800,6 +4121,18 @@ def get_servers_inventory():
     result_label = "SUCCESS" if payload.get("success") and not payload.get("errors") else "WARNING"
     save_log("SERVERS", "INVENTORY", result_label, current_user()["username"])
     return jsonify(payload)
+
+
+@app.route("/admin/clear-logs", methods=["POST"])
+@admin_required
+def clear_logs():
+    data = request.get_json(silent=True) or {}
+    confirmation = str(data.get("confirmation") or "").strip().upper()
+    if confirmation != "LIMPAR":
+        return jsonify({"success": False, "error": "Confirmação inválida. Digite LIMPAR para executar."}), 400
+
+    cleared = clear_operational_logs()
+    return jsonify({"success": True, "cleared": cleared})
 
 
 @app.route("/server-alerts", methods=["GET"])

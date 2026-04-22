@@ -10,3 +10,5 @@ Conteudo esperado:
 
 - `alert_delivery_state.json`: controle de envio/deduplica??o de alertas externos, como Teams.
 - `secret_settings.json`: segredos locais, como webhook do Teams. Este arquivo deve ficar fora do Git.
+
+Observacao: o painel administrativo pode limpar `events_log.json`, `execution_trace.json` e `alert_delivery_state.json` sem afetar cadastros ou segredos.

@@ -117,7 +117,7 @@ A rotina de alertas avalia:
 
 - ausência do `status-servico.json`
 - pouco espaço em disco
-- updates pendentes do Windows
+- updates pendentes de software do Windows por servidor
 - serviços de prioridade alta parados fora de produção
 - qualquer serviço parado em ambientes de produção
 
@@ -164,6 +164,8 @@ Cada deploy grava um marcador local de versão no host do coletor.
 - o log de saúde registra apenas transições relevantes para estado parado, evitando ruído excessivo
 
 ### Auditoria
+
+O painel administrativo possui uma a??o protegida para limpar logs operacionais, trilha t?cnica e estado de deduplica??o de alertas/webhook sem apagar cadastros, usu?rios, ambientes ou segredos locais.
 
 O log registra apenas o essencial:
 
@@ -237,7 +239,7 @@ py -3 -m py_compile app.py
 Para gerar uma nova versão do coletor:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File gamb-coletor\versions\new-collector-version.ps1 -SourceVersion multilingual-2026-04-16 -UseCurrentTimestamp
+powershell -ExecutionPolicy Bypass -File gamb-coletor\versions\new-collector-version.ps1 -SourceVersion v20260422 -UseCurrentTimestamp
 ```
 
 Isso cria uma nova pasta em `gamb-coletor/versions/`, pronta para deploy e rollback.
@@ -248,3 +250,6 @@ Isso cria uma nova pasta em `gamb-coletor/versions/`, pronta para deploy e rollb
 - o controle de serviços usa integração com `win32serviceutil` e utilitários nativos
 - o frontend segue uma linguagem visual consistente e centrada em tema escuro
 - a UI evita dependências externas críticas, inclusive com Tailwind local
+
+
+Observa??o: As novas vers?es do coletor usam nomes curtos no padr?o `vYYYYMMDD` ou `vYYYYMMDD-HHMMSS` quando houver mais de uma vers?o no mesmo dia.

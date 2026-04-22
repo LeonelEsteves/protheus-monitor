@@ -132,3 +132,19 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Rotina de alertas deve suportar envio automatico para Teams via webhook configurado no painel administrativo, com deduplicacao para evitar repeticao de mensagens no canal corporativo.
 
 - Segredos como webhook do Teams devem ficar em arquivo local ignorado pelo Git (data/secret_settings.json) ou variavel de ambiente; nunca versionar em data/alert_settings.json.
+
+- Webhook de alertas deve permitir ativar/desativar, escolher dias da semana, horario ou full time, e filtrar tipos de alerta enviados ao Teams.
+
+- Envio de alertas ao Teams deve enviar um card/mensagem separado por alerta novo, respeitando deduplicacao, severidade, dias e horario configurados.
+
+- Contagem de Windows Updates deve considerar apenas atualizacoes de software em todo o sistema, usando filtro IsInstalled=0 and IsHidden=0 and Type='Software'; nao contar drivers/opcionais fora desse criterio.
+
+- Sempre que houver alteracao no gamb-coletor, gerar uma nova pasta versionada em gamb-coletor/versions antes de orientar deploy, preservando rollback da versao anterior.
+
+- Nomes de novas versoes do coletor devem ser curtos no padrao vYYYYMMDD ou vYYYYMMDD-HHMMSS; evitar nomes longos/descritivos na pasta de versoes.
+
+- Alertas de updates enviados ao webhook devem ser separados por servidor e usar exclusivamente server_ip e windows_updates_pending do JSON sincronizado daquele coletor; ignorar hosts offline, stale ou sem payload.
+
+- Cards do webhook/Teams devem usar Adaptive Card organizado, com icone por cenario e informacoes em campos separados para legibilidade.
+
+- Painel administrativo deve oferecer limpeza protegida de logs operacionais, trilha tecnica e estado de deduplicacao de alertas/webhook, sem apagar usuarios, ambientes, configuracoes ou segredos.

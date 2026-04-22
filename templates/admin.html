@@ -240,17 +240,24 @@ document.documentElement.classList.add("dark");
     }
 
     .dark #panel-alerts input[type="password"],
-    .dark #panel-alerts input[type="text"] {
+    .dark #panel-alerts input[type="text"],
+    .dark #panel-alerts input[type="time"] {
         background: rgba(15, 23, 42, 0.92);
         border-color: #334155;
         color: #f8fafc;
     }
 
     .dark #panel-alerts input[type="password"]:focus,
-    .dark #panel-alerts input[type="text"]:focus {
+    .dark #panel-alerts input[type="text"]:focus,
+    .dark #panel-alerts input[type="time"]:focus {
         border-color: #60a5fa;
         box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
         outline: none;
+    }
+
+    .dark #panel-alerts .bg-white\/60 {
+        background: rgba(15, 23, 42, 0.58) !important;
+        border-color: rgba(148, 163, 184, 0.18) !important;
     }
 
     .dark #panel-alerts input::placeholder {
@@ -457,9 +464,12 @@ document.documentElement.classList.add("dark");
                     </div>
                 </div>
 
-                <div class="mt-5 flex justify-end">
+                <div class="mt-5 flex flex-wrap justify-end gap-2">
                     <button type="button" onclick="openExecutionTraceModal()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">
                         Ver trilha técnica de execução
+                    </button>
+                    <button type="button" onclick="clearAllOperationalLogs()" class="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/20">
+                        Limpar logs e alertas
                     </button>
                 </div>
             </section>
@@ -535,6 +545,44 @@ document.documentElement.classList.add("dark");
                                 <div class="mt-3">
                                     <label class="mb-1 block text-sm font-medium text-slate-700" for="alertTeamsWebhookUrl">Webhook do Teams</label>
                                     <input id="alertTeamsWebhookUrl" type="password" placeholder="Cole aqui a URL do webhook do Teams" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                </div>
+                                <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                                    <div class="rounded-2xl border border-slate-200 bg-white/60 p-4">
+                                        <div class="text-sm font-semibold text-slate-900">Dias de envio</div>
+                                        <div class="mt-3 grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
+                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="0">Seg</label>
+                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="1">Ter</label>
+                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="2">Qua</label>
+                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="3">Qui</label>
+                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="4">Sex</label>
+                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="5">Sáb</label>
+                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="6">Dom</label>
+                                        </div>
+                                    </div>
+                                    <div class="rounded-2xl border border-slate-200 bg-white/60 p-4">
+                                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+                                            <input id="alertTeamsFullTime" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600">
+                                            Full time
+                                        </label>
+                                        <div class="mt-3 grid gap-3 md:grid-cols-2">
+                                            <label class="space-y-1 text-sm">
+                                                <span class="font-medium text-slate-700">De</span>
+                                                <input id="alertTeamsStartTime" type="time" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                            </label>
+                                            <label class="space-y-1 text-sm">
+                                                <span class="font-medium text-slate-700">Até</span>
+                                                <input id="alertTeamsEndTime" type="time" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 rounded-2xl border border-slate-200 bg-white/60 p-4">
+                                    <div class="text-sm font-semibold text-slate-900">Severidades enviadas pelo webhook</div>
+                                    <div class="mt-3 grid gap-2 text-sm md:grid-cols-3">
+                                        <label class="inline-flex items-center gap-2"><input class="teams-alert-severity" type="checkbox" value="critical">Critical</label>
+                                        <label class="inline-flex items-center gap-2"><input class="teams-alert-severity" type="checkbox" value="warning">Warning</label>
+                                        <label class="inline-flex items-center gap-2"><input class="teams-alert-severity" type="checkbox" value="info">Info</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1130,6 +1178,37 @@ async function openExecutionTraceModal() {
     await loadExecutionTrace();
 }
 
+async function clearAllOperationalLogs() {
+    const confirmed = await showConfirmModal({
+        title: "Limpar logs e alertas",
+        message: "Esta ação limpa logs operacionais, trilha técnica e histórico de deduplicação dos alertas/webhook. Cadastros, ambientes, usuários e configurações não serão apagados.",
+        confirmLabel: "Limpar tudo",
+        tone: "danger",
+        confirmationText: "LIMPAR",
+        inputLabel: "Digite LIMPAR para confirmar",
+    });
+    if (!confirmed) {
+        showToast("Limpeza cancelada.");
+        return;
+    }
+
+    const result = await apiFetch("/admin/clear-logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: "LIMPAR" }),
+    });
+    if (!result) return;
+
+    if (!result.response.ok || !result.data.success) {
+        showToast(result.data.error || "Não foi possível limpar os logs.");
+        return;
+    }
+
+    executionTraceEntries = [];
+    renderExecutionTrace();
+    showToast("Logs e alertas limpos com sucesso.", "success");
+}
+
 function appendAutoDiscoverLog(message, tone = "info") {
     const terminal = document.getElementById("autoDiscoverTerminal");
     if (!terminal) return;
@@ -1580,6 +1659,17 @@ function applyAlertSettingsToForm(settings = {}) {
     document.getElementById("alertCollectorJsonMissing").checked = Boolean(settings.collector_json_missing);
     document.getElementById("alertTeamsEnabled").checked = Boolean(settings.teams_enabled);
     document.getElementById("alertTeamsWebhookUrl").value = String(settings.teams_webhook_url || "");
+    document.getElementById("alertTeamsFullTime").checked = settings.teams_schedule_full_time !== false;
+    document.getElementById("alertTeamsStartTime").value = String(settings.teams_schedule_start || "00:00");
+    document.getElementById("alertTeamsEndTime").value = String(settings.teams_schedule_end || "23:59");
+    const selectedDays = new Set((Array.isArray(settings.teams_schedule_days) ? settings.teams_schedule_days : [0, 1, 2, 3, 4, 5, 6]).map((item) => String(item)));
+    document.querySelectorAll(".teams-schedule-day").forEach((input) => {
+        input.checked = selectedDays.has(String(input.value));
+    });
+    const selectedSeverities = new Set((Array.isArray(settings.teams_alert_severities) ? settings.teams_alert_severities : ["critical", "warning", "info"]).map((item) => String(item)));
+    document.querySelectorAll(".teams-alert-severity").forEach((input) => {
+        input.checked = selectedSeverities.has(String(input.value));
+    });
 }
 
 function readAlertSettingsForm() {
@@ -1591,6 +1681,11 @@ function readAlertSettingsForm() {
         collector_json_missing: document.getElementById("alertCollectorJsonMissing").checked,
         teams_enabled: document.getElementById("alertTeamsEnabled").checked,
         teams_webhook_url: document.getElementById("alertTeamsWebhookUrl").value.trim(),
+        teams_schedule_full_time: document.getElementById("alertTeamsFullTime").checked,
+        teams_schedule_start: document.getElementById("alertTeamsStartTime").value || "00:00",
+        teams_schedule_end: document.getElementById("alertTeamsEndTime").value || "23:59",
+        teams_schedule_days: [...document.querySelectorAll(".teams-schedule-day:checked")].map((input) => Number(input.value)),
+        teams_alert_severities: [...document.querySelectorAll(".teams-alert-severity:checked")].map((input) => input.value),
     };
 }
 

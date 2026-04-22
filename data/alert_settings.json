@@ -4,5 +4,22 @@
   "production_services_stopped": true,
   "windows_updates_pending": true,
   "collector_json_missing": true,
-  "teams_enabled": true
+  "teams_enabled": true,
+  "teams_schedule_full_time": true,
+  "teams_schedule_days": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "teams_schedule_start": "00:00",
+  "teams_schedule_end": "23:59",
+  "teams_alert_severities": [
+    "critical",
+    "warning",
+    "info"
+  ]
 }

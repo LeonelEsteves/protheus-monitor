@@ -1,14 +1,3 @@
 {
-  "teams": {
-    "{\"drive\": null, \"environment_id\": \"apex-hml5\", \"host\": \"10.10.1.177\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML5 possui 3 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859109.5451324,
-    "{\"drive\": null, \"environment_id\": \"apex-hml3\", \"host\": \"10.10.1.173\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML3 possui 3 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859265.1922116,
-    "{\"drive\": null, \"environment_id\": \"apex-hml2\", \"host\": \"10.10.1.172\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML2 possui 4 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859425.3085577,
-    "{\"drive\": null, \"environment_id\": \"apex-hml4\", \"host\": \"10.10.1.176\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML4 possui 4 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859425.3085577,
-    "{\"drive\": null, \"environment_id\": \"apex-hml1\", \"host\": \"10.10.1.68\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML1 possui 4 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859585.185595,
-    "{\"drive\": null, \"environment_id\": \"apex-hml3\", \"host\": \"10.10.1.173\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML3 possui 4 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859585.185595,
-    "{\"drive\": null, \"environment_id\": \"apex-hml5\", \"host\": \"10.10.1.177\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML5 possui 4 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859585.185595,
-    "{\"drive\": null, \"environment_id\": \"apex-prd\", \"host\": \"10.10.1.197\", \"kind\": \"windows_updates\", \"message\": \"APEX-PRD possui 3 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859585.185595,
-    "{\"drive\": null, \"environment_id\": \"apex-prd\", \"host\": \"10.10.1.197\", \"kind\": \"windows_updates\", \"message\": \"APEX-PRD possui 5 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776859744.9659522,
-    "{\"drive\": null, \"environment_id\": \"apex-hml4\", \"host\": \"10.10.1.176\", \"kind\": \"windows_updates\", \"message\": \"APEX-HML4 possui 3 atualização(ões) pendente(s) no Windows.\", \"service_name\": null, \"severity\": \"warning\"}": 1776860372.571339
-  }
+  "teams": {}
 }

@@ -26,8 +26,8 @@ if ([string]::IsNullOrWhiteSpace($SourceVersion)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($NewVersion)) {
-    $stamp = if ($UseCurrentTimestamp) { Get-Date -Format "yyyy-MM-dd-HHmmss" } else { Get-Date -Format "yyyy-MM-dd" }
-    $baseName = "multilingual-$stamp"
+    $stamp = if ($UseCurrentTimestamp) { Get-Date -Format "yyyyMMdd-HHmmss" } else { Get-Date -Format "yyyyMMdd" }
+    $baseName = "v$stamp"
     $NewVersion = $baseName
     $counter = 2
     while (Test-Path -LiteralPath (Join-Path $versionsRoot $NewVersion)) {
