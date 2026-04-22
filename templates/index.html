@@ -336,7 +336,7 @@ document.documentElement.classList.add("dark");
     <div class="w-full max-w-6xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl">
         <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900 px-5 py-4 text-slate-100">
             <div>
-                <h2 class="text-lg font-semibold">Console Log</h2>
+                <h2 class="text-lg font-semibold">Log do console</h2>
                 <p id="serviceLogSubtitle" class="text-sm text-slate-400">Selecione um serviço para acompanhar o log.</p>
             </div>
             <div class="flex gap-2">
@@ -445,6 +445,23 @@ function normalizeFilterText(value) {
 
 function isProductionEnvironmentType(value) {
     return normalizeFilterText(value) === "producao";
+}
+
+function shouldOrderServicesByDisplayName(environmentType) {
+    return !isProductionEnvironmentType(environmentType);
+}
+
+function getServiceDisplayOrderLabel(service) {
+    return String(service?.display_name || service?.name || "").trim();
+}
+
+function compareServicesByDisplayName(left, right) {
+    return getServiceDisplayOrderLabel(left).localeCompare(getServiceDisplayOrderLabel(right), "pt-BR", { sensitivity: "base", numeric: true });
+}
+
+function orderServicesForEnvironment(env, services) {
+    const items = [...(services || [])];
+    return shouldOrderServicesByDisplayName(env?.environment_type) ? items.sort(compareServicesByDisplayName) : items;
 }
 
 function isLicenseService(service) {
@@ -1002,8 +1019,10 @@ function buildCollectorHostMetric(hostSummary) {
         && hostSummary?.payload_missing !== true
         && hostSummary?.is_stale !== true
         && hostSummary?.host_online !== false;
-    const pendingUpdates = Number(hostSummary?.windows_updates_pending);
-    const pendingUpdatesLabel = updatesValid && Number.isFinite(pendingUpdates) ? String(pendingUpdates) : "N/D";
+    const rawPendingUpdates = hostSummary?.windows_updates_pending;
+    const hasPendingUpdatesValue = rawPendingUpdates !== null && rawPendingUpdates !== undefined && String(rawPendingUpdates).trim() !== "";
+    const pendingUpdates = hasPendingUpdatesValue ? Number(rawPendingUpdates) : NaN;
+    const pendingUpdatesLabel = Number.isFinite(pendingUpdates) ? String(pendingUpdates) : "N/D";
     const diskTotalGb = Number(hostSummary?.disk_total_gb);
     const diskFreeGb = Number(hostSummary?.disk_free_gb);
     const diskUsedGb = (Number.isFinite(diskTotalGb) && Number.isFinite(diskFreeGb)) ? Math.max(0, diskTotalGb - diskFreeGb) : NaN;
@@ -1418,7 +1437,7 @@ function renderContent() {
     const collectorServer = env.collector_server || {};
     const collectorHosts = Array.isArray(env.collector_hosts) ? env.collector_hosts.filter((item) => item && (item.server_ip || item.host)) : [];
     const multiCollectorHosts = collectorHosts.length > 1;
-    const collectorMetrics = multiCollectorHosts
+    const collectorMetrics = collectorHosts.length
         ? collectorHosts.map((item) => buildCollectorHostMetric(item))
         : [buildCollectorHostMetric(collectorServer)];
     const singleCollectorMetric = collectorMetrics[0];
@@ -1474,6 +1493,7 @@ function renderContent() {
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 11-8 11s-8-5-8-11a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                                 <span class="font-semibold text-white">${escapeHtml(metric.serverIp)}:</span>
                                 <span>Updates ${escapeHtml(metric.pendingUpdatesLabel)}</span>
+                                ${metric.updatesValid ? "" : `<span class="text-slate-400">| validar sincronismo</span>`}
                                 <span class="text-slate-500">|</span>
                                 <span>Discos ${escapeHtml(metric.diskUnitsSummary)}</span>
                                 ${metric.hostOnline === false ? `<span class="text-rose-200">| Servidor possivelmente desligado</span>` : ""}
@@ -1485,6 +1505,7 @@ function renderContent() {
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
                                 <span class="font-semibold text-white">Updates pendentes:</span>
                                 <span>${escapeHtml(singleCollectorMetric.pendingUpdatesLabel)}</span>
+                                ${singleCollectorMetric.updatesValid ? "" : `<span class="text-slate-400">| validar sincronismo</span>`}
                             </div>
                             <div class="inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
@@ -1548,7 +1569,7 @@ function renderContent() {
 function renderServiceSection(env, services, sectionLabel, filters = { nameFilter: "", statusFilter: "" }) {
     let html = `<div class="grid gap-3">`;
 
-    const visibleServices = [...services].filter((service) => matchesServiceFilters(service, filters));
+    const visibleServices = orderServicesForEnvironment(env, services).filter((service) => matchesServiceFilters(service, filters));
     if (!visibleServices.length) {
         html += `<div class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">Nenhum serviço encontrado para os filtros em ${escapeHtml(sectionLabel)}.</div>`;
     }
@@ -1596,19 +1617,19 @@ function renderServiceCard(env, service) {
             <div class="flex flex-wrap gap-2">
                 <button ${startRunning ? "disabled" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="start" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${startRunning ? "cursor-wait bg-emerald-300" : "bg-emerald-500 hover:bg-emerald-400"}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l10.5-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z"/></svg>
-                    <span>${startRunning ? "Executando..." : "Start"}</span>
+                    <span>${startRunning ? "Executando..." : "Iniciar"}</span>
                 </button>
                 <button ${(blockLicenseControlInProduction || stopRunning) ? "disabled" : ""} ${blockLicenseControlInProduction ? "title=\"Somente administrador pode parar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="stop" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-rose-300" : (stopRunning ? "cursor-wait bg-rose-300" : "bg-rose-500 hover:bg-rose-400")}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
-                    <span>${stopRunning ? "Executando..." : "Stop"}</span>
+                    <span>${stopRunning ? "Executando..." : "Parar"}</span>
                 </button>
                 <button ${(blockLicenseControlInProduction || restartRunning) ? "disabled" : ""} ${blockLicenseControlInProduction ? "title=\"Somente administrador pode reiniciar o license em produção\"" : ""} data-environment-id="${escapeHtml(env.id)}" data-service-name="${escapeHtml(service.name)}" data-service-ip="${escapeHtml(serviceIp)}" data-action-type="restart" class="service-action-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${blockLicenseControlInProduction ? "cursor-not-allowed bg-amber-300" : (restartRunning ? "cursor-wait bg-amber-300" : "bg-amber-500 hover:bg-amber-400")}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-                    <span>${restartRunning ? "Executando..." : "Restart"}</span>
+                    <span>${restartRunning ? "Executando..." : "Reiniciar"}</span>
                 </button>
                 ${consoleLogFile ? `<button data-environment-id="${escapeHtml(env.id)}" data-log-service-name="${escapeHtml(service.name)}" data-log-display-name="${escapeHtml(displayName)}" data-log-service-ip="${escapeHtml(serviceIp)}" data-log-environment-name="${escapeHtml(env.environment)}" data-log-file="${escapeHtml(consoleLogFile)}" class="service-log-btn inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6"/><path d="M18 20v-10"/><path d="M6 20V10"/><path d="M3 20h18"/></svg>
-                    <span>Console Log</span>
+                    <span>Log do console</span>
                 </button>` : ""}
             </div>
         </div>

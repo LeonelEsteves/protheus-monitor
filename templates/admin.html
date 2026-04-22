@@ -602,6 +602,7 @@ document.documentElement.classList.add("dark");
 
                     <div class="flex flex-wrap justify-end gap-2">
                         <button type="button" onclick="loadAlertSettings()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Recarregar</button>
+                        <button type="button" onclick="sendTeamsAlertsNow()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Enviar alertas agora</button>
                         <button type="submit" class="button-highlight-primary rounded-xl px-4 py-2 text-sm font-semibold">Salvar rotina de alertas</button>
                     </div>
                 </form>
@@ -1525,14 +1526,18 @@ async function autoDiscoverServices() {
     document.getElementById("serviceRows").innerHTML = "";
     document.getElementById("infraRows").innerHTML = "";
 
-    if (discoveredServices.length) {
-        discoveredServices.forEach((service) => addServiceRow(service));
+    const environmentType = document.getElementById("environmentType")?.value || "homologacao";
+    const orderedDiscoveredServices = orderEnvironmentServicesForDisplay(environmentType, discoveredServices);
+    const orderedDiscoveredInfra = orderEnvironmentServicesForDisplay(environmentType, discoveredInfra);
+
+    if (orderedDiscoveredServices.length) {
+        orderedDiscoveredServices.forEach((service) => addServiceRow(service));
     } else {
         addServiceRow();
     }
 
-    if (discoveredInfra.length) {
-        discoveredInfra.forEach((service) => addInfraRow(service));
+    if (orderedDiscoveredInfra.length) {
+        orderedDiscoveredInfra.forEach((service) => addInfraRow(service));
     }
 
     const summaryLabel = result.data.summary?.label || "SUCESSO";
@@ -1709,6 +1714,31 @@ async function loadAlertSettings() {
         return;
     }
     applyAlertSettingsToForm(result.data.settings || {});
+}
+
+async function sendTeamsAlertsNow() {
+    const confirmed = await showConfirmModal({
+        title: "Enviar alertas agora",
+        message: "Confirma o envio imediato de todos os alertas elegíveis para o webhook do Teams? A agenda configurada não será alterada.",
+        confirmLabel: "Enviar agora",
+        tone: "success",
+    });
+    if (!confirmed) {
+        showToast("Envio imediato cancelado.");
+        return;
+    }
+
+    const result = await apiFetch("/alerts/teams/send-now", { method: "POST" });
+    if (!result) return;
+    if (!result.response.ok || !result.data.success) {
+        const errors = Array.isArray(result.data.errors) && result.data.errors.length
+            ? ` Detalhe: ${result.data.errors.slice(0, 2).join("; ")}`
+            : "";
+        showToast((result.data.error || "Não foi possível enviar os alertas agora.") + errors);
+        return;
+    }
+
+    showToast(`${result.data.sent_count || 0} alerta(s) enviado(s) ao Teams.`, "success");
 }
 
 async function apiFetch(url, options = {}) {
@@ -2000,16 +2030,43 @@ function addInfraRow(service = {}) {
 }
 
 function compareServicePresentation(left, right) {
-    const leftIp = String(left.service_ip || "").trim();
-    const rightIp = String(right.service_ip || "").trim();
-    const ipComparison = leftIp.localeCompare(rightIp, "pt-BR", { sensitivity: "base" });
-    if (ipComparison !== 0) {
-        return ipComparison;
-    }
-
     const leftLabel = String(left.display_name || left.name || "").trim();
     const rightLabel = String(right.display_name || right.name || "").trim();
-    return leftLabel.localeCompare(rightLabel, "pt-BR", { sensitivity: "base" });
+    return leftLabel.localeCompare(rightLabel, "pt-BR", { sensitivity: "base", numeric: true });
+}
+
+function shouldOrderEnvironmentServicesByDisplayName(environmentType) {
+    return environmentType !== "producao";
+}
+
+function orderEnvironmentServicesForDisplay(environmentType, services = []) {
+    const items = [...services];
+    return shouldOrderEnvironmentServicesByDisplayName(environmentType) ? items.sort(compareServicePresentation) : items;
+}
+
+function getRowDisplayName(row, prefix) {
+    return String(
+        row.querySelector(`.${prefix}-display-name`)?.value
+        || row.querySelector(`.${prefix}-name`)?.value
+        || ""
+    ).trim();
+}
+
+function reorderEnvironmentFormRowsIfNeeded() {
+    const environmentType = document.getElementById("environmentType")?.value || "homologacao";
+    if (!shouldOrderEnvironmentServicesByDisplayName(environmentType)) {
+        return;
+    }
+    [
+        { containerId: "serviceRows", prefix: "service" },
+        { containerId: "infraRows", prefix: "infra" },
+    ].forEach(({ containerId, prefix }) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        [...container.children]
+            .sort((left, right) => getRowDisplayName(left, prefix).localeCompare(getRowDisplayName(right, prefix), "pt-BR", { sensitivity: "base", numeric: true }))
+            .forEach((row) => container.appendChild(row));
+    });
 }
 
 function addRow(containerId, prefix, service = {}) {
@@ -2245,8 +2302,9 @@ function fillEnvironmentForm(environment) {
     document.getElementById("infraRows").innerHTML = "";
     setEnvironmentSectionCollapsed("service", false);
     setEnvironmentSectionCollapsed("infra", false);
-    [...(environment.services || [])].sort(compareServicePresentation).forEach((service) => addServiceRow(service));
-    [...(environment.infra_services || [])].sort(compareServicePresentation).forEach((service) => addInfraRow(service));
+    const environmentType = environment.environment_type || "homologacao";
+    orderEnvironmentServicesForDisplay(environmentType, environment.services || []).forEach((service) => addServiceRow(service));
+    orderEnvironmentServicesForDisplay(environmentType, environment.infra_services || []).forEach((service) => addInfraRow(service));
     applyEnvironmentTypeDefaults();
     updateEnvironmentServiceNamesDatalist();
     applyEnvironmentServiceFilter();
@@ -2569,6 +2627,8 @@ document.getElementById("environmentFilterSelect").addEventListener("change", (e
 });
 document.getElementById("environmentType").addEventListener("change", () => {
     applyEnvironmentTypeDefaults();
+    reorderEnvironmentFormRowsIfNeeded();
+    applyEnvironmentServiceFilter();
 });
 document.getElementById("environmentDatabaseUpdateDate").addEventListener("input", () => {
     updateEnvironmentDatabaseDatePreview();

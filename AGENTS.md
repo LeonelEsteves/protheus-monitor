@@ -154,3 +154,12 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Windows Updates por ambiente: somar apenas hosts validos/sincronizados por `server_ip`; hosts offline, sem JSON ou stale nao entram na soma e devem aparecer como N/D.
 - Webhook/Teams: manter segredo fora do git, enviar alertas separados por Adaptive Card, respeitar agenda/severidade e deduplicacao.
 - Coletor: toda alteracao nos arquivos do coletor deve gerar versao curta em `gamb-coletor/versions`.
+- Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.
+
+- Tela principal de servicos: exibir o valor bruto de windows_updates_pending vindo do JSON por host quando existir; soma/webhook continuam usando somente hosts validos/sincronizados.
+
+- Cards de Windows Update no Teams devem ler JSON fresco por host, usar server_ip/windows_updates_pending do proprio JSON, deduplicar por server_ip e nao usar soma agregada/cache para contagem.
+
+- Painel admin deve ter botao para envio imediato de todos os alertas elegiveis ao webhook/Teams, sem alterar agenda/tempo configurado.
+
+- Ordenacao de servicos: tela principal e cadastro de ambientes devem exibir homologacao/desenvolvimento por display_name; producao preserva ordem original.

@@ -41,3 +41,12 @@ Notes:
 - Webhook/Teams: manter deduplicacao para evitar repeticao excessiva; alertas repetidos so devem reenviar apos a janela configurada.
 - Coletor: sempre que houver alteracao nos arquivos do coletor, gerar uma nova versao curta em `gamb-coletor/versions` (padrao `vYYYYMMDD` ou `vYYYYMMDD-HHMMSS`).
 - Interface: manter tema dark como padrao unico; inputs, campos de confirmacao e areas de digitacao em modais nunca devem usar fundo branco.
+- Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.
+
+- Tela principal de servicos: exibir o valor bruto de windows_updates_pending vindo do JSON por host quando existir; a validacao de sincronismo deve afetar soma/webhook, nao esconder o numero da tela.
+
+- Cards de Windows Update no Teams devem ler o JSON fresco de cada host no momento do envio, usar server_ip e windows_updates_pending do proprio JSON, deduplicar por server_ip e nunca usar soma agregada/cache antigo para a contagem.
+
+- Painel admin deve ter botao para envio imediato de todos os alertas elegiveis ao webhook/Teams; esse envio manual nao altera agenda/tempo configurado e usa a configuracao atual de severidades/webhook.
+
+- Ordenacao de servicos: na tela principal e no cadastro de ambientes, homologacao/desenvolvimento devem exibir servicos por display_name; producao deve preservar a ordem cadastrada/original.

@@ -253,3 +253,8 @@ Isso cria uma nova pasta em `gamb-coletor/versions/`, pronta para deploy e rollb
 
 
 Observa??o: As novas vers?es do coletor usam nomes curtos no padr?o `vYYYYMMDD` ou `vYYYYMMDD-HHMMSS` quando houver mais de uma vers?o no mesmo dia.
+
+
+### Regra de webhook - Windows Update
+
+- Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.

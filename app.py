@@ -148,6 +148,7 @@ TEAMS_ALERT_SEVERITY_OPTIONS = {"critical", "warning", "info"}
 
 ALERTS_MAX_ITEMS = 100
 ALERT_TEAMS_DEDUP_SECONDS = 1800
+ALERT_TEAMS_WINDOWS_UPDATES_DEDUP_SECONDS = 86400
 ALERT_DISPATCH_INTERVAL_SECONDS = 60
 README_FILE = "README.md"
 
@@ -880,6 +881,28 @@ def build_alert_signature(alert):
     )
 
 
+def build_teams_alert_signature(alert):
+    if str((alert or {}).get("kind") or "").strip() == "windows_updates":
+        return json.dumps(
+            {
+                "kind": alert.get("kind"),
+                "severity": alert.get("severity"),
+                "environment_id": alert.get("environment_id"),
+                "host": alert.get("host"),
+                "server_ip": alert.get("server_ip"),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+    return build_alert_signature(alert)
+
+
+def get_teams_alert_dedup_seconds(alert):
+    if str((alert or {}).get("kind") or "").strip() == "windows_updates":
+        return ALERT_TEAMS_WINDOWS_UPDATES_DEDUP_SECONDS
+    return ALERT_TEAMS_DEDUP_SECONDS
+
+
 def load_alert_delivery_state():
     os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(ALERT_DELIVERY_STATE_FILE):
@@ -947,6 +970,69 @@ def get_teams_webhook_url(settings=None):
     return TEAMS_WEBHOOK
 
 
+def get_environment_collector_target_hosts(environment, environment_status=None):
+    hosts = []
+
+    def add_host(value):
+        host_value = str(value or "").strip()
+        if host_value:
+            hosts.append(host_value)
+
+    add_host((environment or {}).get("host"))
+    for service in ((environment or {}).get("services") or []) + ((environment or {}).get("infra_services") or []):
+        add_host((service or {}).get("service_ip"))
+    if isinstance(environment_status, dict):
+        for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
+            add_host((service or {}).get("service_ip"))
+
+    unique_hosts = []
+    seen_hosts = set()
+    for host_value in hosts:
+        host_key = _normalize_service_lookup_key(host_value)
+        if host_key in seen_hosts:
+            continue
+        seen_hosts.add(host_key)
+        unique_hosts.append(host_value)
+    return unique_hosts
+
+
+def build_windows_update_alerts_for_environment(environment, environment_status, environment_name, default_host):
+    alerts = []
+    seen_server_ips = set()
+    for target_host in get_environment_collector_target_hosts(environment, environment_status):
+        collector_payload = load_collector_status_for_host(target_host, use_cache=False)
+        collector_server = (collector_payload or {}).get("server") or {}
+        if collector_payload_missing(collector_payload) or is_collector_stale(collector_server):
+            continue
+        if is_host_online(target_host, use_cache=True) is False:
+            continue
+
+        server_ip = str(collector_server.get("server_ip") or target_host or default_host).strip() or default_host
+        server_key = _normalize_service_lookup_key(server_ip)
+        if server_key in seen_server_ips:
+            continue
+        seen_server_ips.add(server_key)
+
+        pending_updates = read_collector_pending_updates(collector_server)
+        if not pending_updates or pending_updates <= 0:
+            continue
+        alerts.append(
+            {
+                "kind": "windows_updates",
+                "severity": "warning",
+                "environment_id": (environment_status or {}).get("id") or (environment or {}).get("id"),
+                "environment_name": environment_name,
+                "host": server_ip,
+                "server_ip": server_ip,
+                "server_name": str(collector_server.get("server_name") or "").strip(),
+                "windows_updates_pending": pending_updates,
+                "title": "Atualizações pendentes do Windows",
+                "message": f"{server_ip} possui {pending_updates} atualização(ões) de software pendente(s) no Windows.",
+            }
+        )
+    return alerts
+
+
 def build_monitor_alerts_payload(user=None, include_all=False):
     settings = load_alert_settings()
     alerts = []
@@ -998,45 +1084,11 @@ def build_monitor_alerts_payload(user=None, include_all=False):
                     }
                 )
 
+        if settings.get("windows_updates_pending"):
+            alerts.extend(build_windows_update_alerts_for_environment(environment, environment_status, environment_name, host))
+
         if collector_stale:
             continue
-
-        if settings.get("windows_updates_pending"):
-            collector_hosts_for_updates = environment_status.get("collector_hosts") or []
-            if not collector_hosts_for_updates:
-                collector_hosts_for_updates = collector_server.get("windows_updates_by_host") or []
-
-            seen_update_hosts = set()
-            for collector_host in collector_hosts_for_updates:
-                if not isinstance(collector_host, dict):
-                    continue
-                if collector_host.get("payload_missing") or collector_host.get("is_stale") or collector_host.get("host_online") is False:
-                    continue
-                host_ip = str(collector_host.get("server_ip") or collector_host.get("host") or host).strip() or host
-                host_key = _normalize_service_lookup_key(host_ip)
-                if host_key in seen_update_hosts:
-                    continue
-                seen_update_hosts.add(host_key)
-                try:
-                    pending_updates = int(collector_host.get("windows_updates_pending"))
-                except Exception:
-                    pending_updates = None
-                if not pending_updates or pending_updates <= 0:
-                    continue
-                alerts.append(
-                    {
-                        "kind": "windows_updates",
-                        "severity": "warning",
-                        "environment_id": environment_status.get("id"),
-                        "environment_name": environment_name,
-                        "host": host_ip,
-                        "server_ip": host_ip,
-                        "server_name": str(collector_host.get("server_name") or "").strip(),
-                        "windows_updates_pending": pending_updates,
-                        "title": "Atualizações pendentes do Windows",
-                        "message": f"{host_ip} possui {pending_updates} atualização(ões) de software pendente(s) no Windows.",
-                    }
-                )
 
         if settings.get("disk_free_below_10"):
             for disk in extract_collector_disk_units(collector_server):
@@ -1935,6 +1987,27 @@ def map_collector_status(status_text):
     return str(status_text or "").strip().upper() or "UNKNOWN"
 
 
+def read_collector_pending_updates(server_info):
+    if not isinstance(server_info, dict):
+        return None
+    for field in (
+        "windows_updates_pending",
+        "windows_update_pending",
+        "windows_updates",
+        "software_updates_pending",
+        "updates_pending",
+        "pending_updates",
+    ):
+        value = server_info.get(field)
+        if value is None or str(value).strip() == "":
+            continue
+        try:
+            return int(value)
+        except Exception:
+            continue
+    return None
+
+
 def parse_collector_status_payload(payload):
     server_info = {}
     services = []
@@ -1979,7 +2052,7 @@ def parse_collector_status_payload(payload):
         "disk_space": (server_info.get("disk_space") or "").strip(),
         "disk_total_gb": server_info.get("disk_total_gb"),
         "disk_free_gb": server_info.get("disk_free_gb"),
-        "windows_updates_pending": server_info.get("windows_updates_pending"),
+        "windows_updates_pending": read_collector_pending_updates(server_info),
         "timestamp": (server_info.get("timestamp") or "").strip(),
     }
     return {"server": server, "services_by_name": by_name, "services": normalized_services}
@@ -2627,6 +2700,20 @@ def build_environment_status(environment):
             pending_updates = int(collector_server.get("windows_updates_pending"))
         except Exception:
             pending_updates = None
+        if pending_updates is None:
+            refreshed_payload = load_collector_status_for_host(target_host, use_cache=False)
+            refreshed_server = (refreshed_payload or {}).get("server") or {}
+            try:
+                refreshed_pending_updates = int(refreshed_server.get("windows_updates_pending"))
+            except Exception:
+                refreshed_pending_updates = None
+            if refreshed_pending_updates is not None:
+                pending_updates = refreshed_pending_updates
+                collector_payload = refreshed_payload
+                collector_server = refreshed_server
+                summary_server_ip = str(collector_server.get("server_ip") or target_host).strip() or target_host
+                payload_missing = collector_payload_missing(collector_payload)
+                host_stale = is_collector_stale(collector_server)
         valid_updates_source = host_online is not False and not payload_missing and not host_stale
         if pending_updates is not None and valid_updates_source:
             total_pending_updates += pending_updates
@@ -3862,16 +3949,18 @@ def dispatch_monitor_alerts():
         if not isinstance(teams_state, dict):
             teams_state = {}
 
-        cutoff = now - ALERT_TEAMS_DEDUP_SECONDS
+        max_cutoff = now - max(ALERT_TEAMS_DEDUP_SECONDS, ALERT_TEAMS_WINDOWS_UPDATES_DEDUP_SECONDS)
         teams_state = {
             signature: sent_at
             for signature, sent_at in teams_state.items()
-            if isinstance(sent_at, (int, float)) and sent_at >= cutoff
+            if isinstance(sent_at, (int, float)) and sent_at >= max_cutoff
         }
 
         new_alerts = []
         for alert in alerts:
-            signature = build_alert_signature(alert)
+            dedup_seconds = get_teams_alert_dedup_seconds(alert)
+            cutoff = now - dedup_seconds
+            signature = build_teams_alert_signature(alert)
             sent_at = teams_state.get(signature, 0)
             if isinstance(sent_at, (int, float)) and sent_at >= cutoff:
                 continue
@@ -3901,6 +3990,71 @@ def dispatch_monitor_alerts():
             save_log("ALERTAS", "TEAMS", "SUCCESS", "system", count=sent_count)
         if errors:
             save_log("ALERTAS", "TEAMS", "ERROR", "system", error="; ".join(errors[:3]))
+
+
+def send_all_teams_alerts_now(actor="system"):
+    settings = load_alert_settings()
+    if not settings.get("teams_enabled"):
+        return {
+            "success": False,
+            "error": "Webhook do Teams desativado na rotina de alertas.",
+            "sent_count": 0,
+            "errors": [],
+        }
+
+    webhook_url = get_teams_webhook_url(settings)
+    if not webhook_url:
+        return {
+            "success": False,
+            "error": "Webhook do Teams não configurado.",
+            "sent_count": 0,
+            "errors": [],
+        }
+
+    payload = build_monitor_alerts_payload(include_all=True)
+    alerts = filter_alerts_for_teams(payload.get("alerts") or [], settings)
+    if not alerts:
+        save_log("ALERTAS", "TEAMS_MANUAL", "SUCCESS", actor, count=0)
+        return {
+            "success": True,
+            "sent_count": 0,
+            "errors": [],
+            "message": "Nenhum alerta elegível para envio.",
+        }
+
+    sent_count = 0
+    errors = []
+    for alert in alerts:
+        sent, error = send_teams(
+            build_teams_alert_card(alert),
+            webhook_url=webhook_url,
+        )
+        if sent:
+            sent_count += 1
+        else:
+            errors.append(error)
+
+    state = load_alert_delivery_state()
+    teams_state = state.get("teams") if isinstance(state, dict) else {}
+    if not isinstance(teams_state, dict):
+        teams_state = {}
+    now = time.time()
+    for alert in alerts:
+        teams_state[build_teams_alert_signature(alert)] = now
+    state["teams"] = teams_state
+    save_alert_delivery_state(state)
+
+    if sent_count:
+        save_log("ALERTAS", "TEAMS_MANUAL", "SUCCESS", actor, count=sent_count)
+    if errors:
+        save_log("ALERTAS", "TEAMS_MANUAL", "ERROR", actor, error="; ".join(errors[:3]))
+
+    return {
+        "success": not errors,
+        "sent_count": sent_count,
+        "errors": errors,
+        "message": f"{sent_count} alerta(s) enviado(s).",
+    }
 
 
 def trigger_monitor_alert_dispatch_async():
@@ -4177,6 +4331,15 @@ def update_alert_settings():
     settings = save_alert_settings(data)
     save_log("ALERTAS", "UPDATE_SETTINGS", "SUCCESS", actor.get("username", "unknown"))
     return jsonify({"success": True, "settings": settings})
+
+
+@app.route("/alerts/teams/send-now", methods=["POST"])
+@admin_required
+def send_teams_alerts_now():
+    actor = current_user()
+    result = send_all_teams_alerts_now(actor.get("username", "unknown"))
+    status_code = 200 if result.get("success") else 400
+    return jsonify(result), status_code
 
 
 @app.route("/alerts", methods=["GET"])

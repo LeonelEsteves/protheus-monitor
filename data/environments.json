@@ -123,17 +123,6 @@
     "database_update_date": "2026-01-19",
     "services": [
       {
-        "name": "TOTVS-Appserver12-APEX-HML1",
-        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML1",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver",
-        "tcp_port": "6001",
-        "webapp_port": "4001",
-        "rest_port": "",
-        "service_ip": "10.85.0.68",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
-        "priority": "media"
-      },
-      {
         "name": "TOTVS-Appserver12-APEX-HML1-SCHED",
         "display_name": ".04 TOTVS | Microsiga Protheus 12 APEX-HML1 - Schedule",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched",
@@ -175,7 +164,7 @@
         "rest_port": "9103",
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1_rest.log",
-        "priority": "media"
+        "priority": "alta"
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS-TAF",
@@ -198,6 +187,17 @@
         "service_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_WS2.log",
         "priority": "baixa"
+      },
+      {
+        "name": "TOTVS-Appserver12-APEX-HML1",
+        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML1",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver",
+        "tcp_port": "6001",
+        "webapp_port": "4001",
+        "rest_port": "",
+        "service_ip": "10.85.0.68",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
+        "priority": "alta"
       }
     ],
     "infra_services": [

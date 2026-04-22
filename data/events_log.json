@@ -1,57 +1,27 @@
 [
   {
-    "datetime": "2026-04-22 11:12:55",
-    "service": "ALERTAS",
-    "action": "TEAMS",
+    "datetime": "2026-04-22 11:59:15",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.85.0.68",
+    "action": "SERVICE_UPDATE",
     "result": "SUCCESS",
-    "user": "system",
-    "count": 2
+    "user": "admin"
   },
   {
-    "datetime": "2026-04-22 11:10:47",
-    "service": "ALERTAS",
-    "action": "TEAMS",
+    "datetime": "2026-04-22 11:59:15",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
+    "action": "SERVICE_UPDATE",
     "result": "SUCCESS",
-    "user": "system",
-    "count": 3
+    "user": "admin"
   },
   {
-    "datetime": "2026-04-22 11:06:37",
-    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
-    "action": "COLLECTOR_HEALTH",
-    "result": "PARADO - timestamp indisponivel no gamb-coletor",
-    "user": "system"
+    "datetime": "2026-04-22 11:59:15",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
   },
   {
-    "datetime": "2026-04-22 11:06:33",
-    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
-    "action": "COLLECTOR_HEALTH",
-    "result": "PARADO - timestamp indisponivel no gamb-coletor",
-    "user": "system"
-  },
-  {
-    "datetime": "2026-04-22 11:06:33",
-    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
-    "action": "COLLECTOR_HEALTH",
-    "result": "PARADO - timestamp indisponivel no gamb-coletor",
-    "user": "system"
-  },
-  {
-    "datetime": "2026-04-22 11:06:33",
-    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
-    "action": "COLLECTOR_HEALTH",
-    "result": "PARADO - timestamp indisponivel no gamb-coletor",
-    "user": "system"
-  },
-  {
-    "datetime": "2026-04-22 11:06:33",
-    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
-    "action": "COLLECTOR_HEALTH",
-    "result": "PARADO - timestamp indisponivel no gamb-coletor",
-    "user": "system"
-  },
-  {
-    "datetime": "2026-04-22 10:42:41",
+    "datetime": "2026-04-22 11:55:57",
     "service": "ALERTAS",
     "action": "TEAMS",
     "result": "SUCCESS",
@@ -59,11 +29,106 @@
     "count": 1
   },
   {
-    "datetime": "2026-04-22 10:39:08",
+    "datetime": "2026-04-22 11:55:41",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-22 11:55:37",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-22 11:55:35",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-22 11:55:26",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-22 11:54:28",
+    "service": "COLETOR :: APEX-PRD (10.10.1.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:54:24",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:54:24",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:54:24",
+    "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:54:24",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 11:38:54",
     "service": "ALERTAS",
     "action": "TEAMS",
     "result": "SUCCESS",
     "user": "system",
-    "count": 8
+    "count": 7
+  },
+  {
+    "datetime": "2026-04-22 11:38:50",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-22 11:38:44",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
   }
 ]

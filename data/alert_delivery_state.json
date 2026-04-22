@@ -1,9 +1,11 @@
 {
   "teams": {
-    "{\"drive\": null, \"environment_id\": \"apex-hml4\", \"host\": \"10.85.0.176\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.176 possui 3 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.176\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 3}": 1776867042.8021219,
-    "{\"drive\": null, \"environment_id\": \"apex-prd\", \"host\": \"10.85.0.198\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.198 possui 1 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.198\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 1}": 1776867042.8021219,
-    "{\"drive\": null, \"environment_id\": \"apex-prd\", \"host\": \"10.85.0.90\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.90 possui 1 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.90\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 1}": 1776867042.8021219,
-    "{\"drive\": null, \"environment_id\": \"apex-hml1\", \"host\": \"10.10.1.68\", \"kind\": \"windows_updates\", \"message\": \"10.10.1.68 possui 4 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.10.1.68\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 4}": 1776867172.498305,
-    "{\"drive\": null, \"environment_id\": \"apex-hml2\", \"host\": \"10.85.0.172\", \"kind\": \"windows_updates\", \"message\": \"10.85.0.172 possui 4 atualização(ões) de software pendente(s) no Windows.\", \"server_ip\": \"10.85.0.172\", \"service_name\": null, \"severity\": \"warning\", \"windows_updates_pending\": 4}": 1776867172.498305
+    "{\"environment_id\": \"apex-hml1\", \"host\": \"10.10.1.68\", \"kind\": \"windows_updates\", \"server_ip\": \"10.10.1.68\", \"severity\": \"warning\"}": 1776868723.416729,
+    "{\"environment_id\": \"apex-hml2\", \"host\": \"10.85.0.172\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.172\", \"severity\": \"warning\"}": 1776868723.416729,
+    "{\"environment_id\": \"apex-hml4\", \"host\": \"10.85.0.176\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.176\", \"severity\": \"warning\"}": 1776868723.416729,
+    "{\"environment_id\": \"apex-hml5\", \"host\": \"10.10.1.177\", \"kind\": \"windows_updates\", \"server_ip\": \"10.10.1.177\", \"severity\": \"warning\"}": 1776868723.416729,
+    "{\"environment_id\": \"apex-prd\", \"host\": \"10.85.0.198\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.198\", \"severity\": \"warning\"}": 1776868723.416729,
+    "{\"environment_id\": \"apex-prd\", \"host\": \"10.85.0.90\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.90\", \"severity\": \"warning\"}": 1776868723.416729,
+    "{\"environment_id\": \"apex-hml3\", \"host\": \"10.85.0.173\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.173\", \"severity\": \"warning\"}": 1776869752.7137525
   }
 }
