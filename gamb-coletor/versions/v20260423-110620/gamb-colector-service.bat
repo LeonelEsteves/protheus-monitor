@@ -9,7 +9,7 @@ REM Exemplo:
 REM   gamb-colector-service.bat TOTVS C:\gamb-coletor 5
 REM ============================================================
 
-set "COLLECTOR_VERSION=multilingual-2026-04-16"
+set "COLLECTOR_VERSION=v20260423-110620"
 set "FILTER_TERM=TOTVS"
 set "OUTPUT_DIR=C:\gamb-coletor"
 set "INTERVAL=5"

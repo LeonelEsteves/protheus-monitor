@@ -1,27 +1,6 @@
 [
   {
-    "datetime": "2026-04-22 11:59:15",
-    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.85.0.68",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-22 11:59:15",
-    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
-    "action": "SERVICE_UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-22 11:59:15",
-    "service": "AMBIENTE :: APEX-HML1",
-    "action": "UPDATE",
-    "result": "SUCCESS",
-    "user": "admin"
-  },
-  {
-    "datetime": "2026-04-22 11:55:57",
+    "datetime": "2026-04-23 12:00:35",
     "service": "ALERTAS",
     "action": "TEAMS",
     "result": "SUCCESS",
@@ -29,7 +8,57 @@
     "count": 1
   },
   {
-    "datetime": "2026-04-22 11:55:41",
+    "datetime": "2026-04-23 12:00:27",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.85.0.173",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 12:00:27",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:56:26",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:54:46)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:51:08",
+    "service": "ALERTAS",
+    "action": "TEAMS_MANUAL",
+    "result": "SUCCESS",
+    "user": "admin",
+    "count": 4
+  },
+  {
+    "datetime": "2026-04-23 11:49:19",
+    "service": "ALERTAS",
+    "action": "UPDATE_SETTINGS",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:48:53",
+    "service": "ALERTAS",
+    "action": "UPDATE_SETTINGS",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:48:44",
+    "service": "ALERTAS",
+    "action": "UPDATE_SETTINGS",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:45:18",
     "service": "AUTENTICACAO",
     "action": "LOGIN",
     "result": "SUCCESS",
@@ -39,80 +68,1411 @@
     "method": "POST"
   },
   {
-    "datetime": "2026-04-22 11:55:37",
+    "datetime": "2026-04-23 11:45:07",
     "service": "AUTENTICACAO",
     "action": "LOGOUT",
     "result": "SUCCESS",
-    "user": "operador",
+    "user": "admin",
     "ip": "10.85.0.173",
     "path": "/logout",
     "method": "POST"
   },
   {
-    "datetime": "2026-04-22 11:55:35",
+    "datetime": "2026-04-23 11:39:29",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:37:01)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:33:28",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:31:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:32:59",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:31:20)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:29:29",
+    "service": "COLETOR :: APEX-HML3 (10.85.0.173)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:27:55)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:27:48",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:26:06)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:24:28",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:22:48)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:23:38",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:23:35",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-WS2",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:23:31",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-WS-TAF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:23:24",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-WS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:23:19",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-WF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:23:18",
+    "service": "APEX-HML1 (10.10.1.68) :: TOTVS-Appserver12-APEX-HML1-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:20:52",
+    "service": "COLETOR :: APEX-HML2",
+    "action": "DEPLOY::v20260423-110620",
+    "result": "SUCCESS",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.172",
+      "10.85.0.172"
+    ],
+    "failures": []
+  },
+  {
+    "datetime": "2026-04-23 11:18:49",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:18:49",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:17:26",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:17:26",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:17:26",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:16:17",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:16:17",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:14:58",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:14:58",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:14:58",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "stop",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:13:23",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423-110620",
+    "result": "SUCCESS",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173"
+    ],
+    "failures": []
+  },
+  {
+    "datetime": "2026-04-23 11:12:34",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 09:17:34)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:11:42",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:10:59",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-SCHED",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:10:31",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 11:08:50)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 11:10:16",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:09:34",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:08:20",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-REST",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:07:37",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:06:54",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:06:11",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:05:29",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-FIS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:04:46",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-WS2",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:04:04",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-WS-TAF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:03:22",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-WS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:02:39",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-WF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:01:55",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVS-Appserver12-APEX-HML2-NGF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 11:01:08",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 10:59:28)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 10:59:26",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:59:25",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:58:23",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:58:08",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 10:56:27)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 10:57:16",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:57:15",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-REST",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:57:14",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:57:13",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-SCHED",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:56:37",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-WF",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:56:32",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-WS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:56:26",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVS-Appserver12-APEX-HML3-WS2",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:56:20",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:53:05",
     "service": "AUTENTICACAO",
     "action": "LOGIN",
     "result": "SUCCESS",
-    "user": "operador",
+    "user": "admin",
     "ip": "10.85.0.173",
     "path": "/login",
     "method": "POST"
   },
   {
-    "datetime": "2026-04-22 11:55:26",
+    "datetime": "2026-04-23 10:52:57",
     "service": "AUTENTICACAO",
     "action": "LOGOUT",
     "result": "SUCCESS",
-    "user": "operador",
+    "user": "admin",
     "ip": "10.85.0.173",
     "path": "/logout",
     "method": "POST"
   },
   {
-    "datetime": "2026-04-22 11:54:28",
+    "datetime": "2026-04-23 10:52:38",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 10:51:04)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 10:51:20",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML1 :: 10.85.0.68",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:51:20",
+    "service": "SERVICO :: APEX-HML1 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML1 - REST :: 10.10.1.68",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:51:20",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.10.1.68",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:51:20",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .10 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker :: 10.10.1.68",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:51:20",
+    "service": "SERVICO :: APEX-HML1 :: Infra :: .11 TOTVS | Microsiga Protheus 12-P2410 HML1 - Balance Broker Rest :: 10.10.1.68",
+    "action": "SERVICE_UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:51:20",
+    "service": "AMBIENTE :: APEX-HML1",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML3 :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML3 - Web Service :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML3 - Workflow :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML3 - Schedule :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML3 - REST :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:39",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: TOTVS | License Server Virtual :: 10.85.0.173",
+    "action": "SERVICE_CREATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:49:38",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:48:22",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:43:00",
+    "service": "DISCOVER",
+    "action": "AUTO_DISCOVER",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .03 TOTVS | Microsiga Protheus 12 APEX-HML3 :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .06 TOTVS | Microsiga Protheus 12 APEX-HML3 - Web Service :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .09 TOTVS | Microsiga Protheus 12 APEX-HML3 - HUB Cielo :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .05 TOTVS | Microsiga Protheus 12 APEX-HML3 - Workflow :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .04 TOTVS | Microsiga Protheus 12 APEX-HML3 - Schedule :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Aplicacao :: .07 TOTVS | Microsiga Protheus 12 APEX-HML3 - REST :: 10.10.1.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .01 TOTVS | DBAccess 64 bits ERP :: 10.85.0.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: .02 TOTVS | DBAccess 64 bits TSS :: 10.85.0.173",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "SERVICO :: APEX-HML3 :: Infra :: TOTVS | License Server Virtual :: LOCALHOST",
+    "action": "SERVICE_DELETE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:41:39",
+    "service": "AMBIENTE :: APEX-HML3",
+    "action": "UPDATE",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:38:59",
+    "service": "COLETOR :: APEX-HML2",
+    "action": "DEPLOY::v20260423",
+    "result": "SUCCESS",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.172",
+      "10.85.0.172"
+    ],
+    "failures": []
+  },
+  {
+    "datetime": "2026-04-23 10:37:10",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVSDBAccess64TSS",
+    "action": "restart",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:35:27",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:34:37",
+    "service": "APEX-HML2 (10.85.0.172) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:32:11",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 10:30:28)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 10:31:27",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 10:29:45)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 10:30:33",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "restart",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:30:17",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:30:07",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:29:57",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:29:43",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:29:13",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:28:50",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:28:41",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:28:22",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:23:18",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:22:52",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:22:28",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:19:31",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:19:11",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:18:38",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:13:23",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:12:53",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:12:12",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:11:50",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:11:20",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:11:05",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "restart",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:10:39",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:10:28",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:09:38",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:09:05",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "start",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:08:41",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "SUCCESS_FORCED",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:08:27",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 09:17:34)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 10:07:21",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "SUCCESS",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173"
+    ],
+    "failures": []
+  },
+  {
+    "datetime": "2026-04-23 10:05:07",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:04:58",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:04:57",
+    "service": "COLETOR :: APEX-HML1",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.68",
+      "10.85.0.68"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.68",
+        "error": "[WinError 5] Access is denied: '\\\\\\\\10.10.1.68\\\\C$\\\\'"
+      },
+      {
+        "host": "10.85.0.68",
+        "error": "[WinError 5] Access is denied: '\\\\\\\\10.85.0.68\\\\C$\\\\'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:04:12",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "Sem permissao para gravar em C:\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "Sem permissao para gravar em C:\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:03:47",
+    "service": "COLETOR :: APEX-HML1",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.68",
+      "10.85.0.68"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.68",
+        "error": "Sem permissao para gravar em \\\\10.10.1.68\\C$\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      },
+      {
+        "host": "10.85.0.68",
+        "error": "Sem permissao para gravar em \\\\10.85.0.68\\C$\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:03:46",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "Sem permissao para gravar em C:\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "Sem permissao para gravar em C:\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:03:06",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:02:44",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:02:35",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:01:53",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:01:40",
+    "service": "APEX-HML3 (10.85.0.173) :: TOTVSDBAccess64TSS",
+    "action": "stop",
+    "result": "ERROR",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 10:01:25",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "Sem permissao para gravar em C:\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "Sem permissao para gravar em C:\\gamb-coletor\\gamb-colector-service.bat. Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 10:00:18",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 09:59:29",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 09:57:50",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260423",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 09:57:40",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260422",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 09:57:31",
+    "service": "COLETOR :: APEX-HML3",
+    "action": "DEPLOY::v20260422",
+    "result": "ERROR",
+    "user": "admin",
+    "hosts": [
+      "10.10.1.173",
+      "10.85.0.173",
+      "LOCALHOST"
+    ],
+    "failures": [
+      {
+        "host": "10.10.1.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "10.85.0.173",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      },
+      {
+        "host": "LOCALHOST",
+        "error": "[Errno 13] Permission denied: 'C:\\\\gamb-coletor\\\\gamb-colector-service.bat'"
+      }
+    ]
+  },
+  {
+    "datetime": "2026-04-23 09:56:21",
+    "service": "ALERTAS",
+    "action": "UPDATE_SETTINGS",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-23 09:55:25",
     "service": "COLETOR :: APEX-PRD (10.10.1.197)",
     "action": "COLLECTOR_HEALTH",
     "result": "PARADO - timestamp indisponivel no gamb-coletor",
     "user": "system"
   },
   {
-    "datetime": "2026-04-22 11:54:24",
+    "datetime": "2026-04-23 09:55:20",
     "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
     "action": "COLLECTOR_HEALTH",
     "result": "PARADO - timestamp indisponivel no gamb-coletor",
     "user": "system"
   },
   {
-    "datetime": "2026-04-22 11:54:24",
+    "datetime": "2026-04-23 09:55:20",
     "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
     "action": "COLLECTOR_HEALTH",
     "result": "PARADO - timestamp indisponivel no gamb-coletor",
     "user": "system"
   },
   {
-    "datetime": "2026-04-22 11:54:24",
+    "datetime": "2026-04-23 09:55:20",
     "service": "COLETOR :: APEX-HML2 (10.10.1.172)",
     "action": "COLLECTOR_HEALTH",
     "result": "PARADO - timestamp indisponivel no gamb-coletor",
     "user": "system"
   },
   {
-    "datetime": "2026-04-22 11:54:24",
+    "datetime": "2026-04-23 09:55:20",
     "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
     "action": "COLLECTOR_HEALTH",
     "result": "PARADO - timestamp indisponivel no gamb-coletor",
     "user": "system"
   },
   {
-    "datetime": "2026-04-22 11:38:54",
-    "service": "ALERTAS",
-    "action": "TEAMS",
+    "datetime": "2026-04-23 09:53:15",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
     "result": "SUCCESS",
-    "user": "system",
-    "count": 7
+    "user": "admin",
+    "ip": "10.10.1.173",
+    "path": "/login",
+    "method": "POST"
   },
   {
-    "datetime": "2026-04-22 11:38:50",
+    "datetime": "2026-04-23 09:02:02",
+    "service": "AUTENTICACAO",
+    "action": "LOGIN",
+    "result": "SUCCESS",
+    "user": "admin",
+    "ip": "10.85.0.173",
+    "path": "/login",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-23 08:57:51",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 08:55:54)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 08:17:05",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 08:15:21)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 07:36:11",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 07:34:04)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 07:14:24",
+    "service": "COLETOR :: APEX-HML2 (10.85.0.172)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 07:11:59)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 07:08:58",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 07:07:21)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 04:58:12",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 04:56:05)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 01:48:09",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 01:46:35)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-23 01:23:36",
+    "service": "COLETOR :: APEX-HML4 (10.85.0.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-23 01:22:05)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 21:58:35",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-22 21:55:57)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 21:47:45",
+    "service": "COLETOR :: APEX-HML5 (10.10.1.177)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-22 21:45:38)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 21:45:07",
+    "service": "COLETOR :: APEX-PRD (10.85.0.197)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-22 21:42:59)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 21:14:51",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-22 21:13:10)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 20:44:58",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - sem sincronizacao recente (ultima: 2026-04-22 20:43:13)",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 19:58:32",
+    "service": "AUTENTICACAO",
+    "action": "LOGOUT",
+    "result": "SUCCESS",
+    "user": "operador",
+    "ip": "10.85.0.173",
+    "path": "/logout",
+    "method": "POST"
+  },
+  {
+    "datetime": "2026-04-22 19:56:49",
     "service": "AUTENTICACAO",
     "action": "LOGIN",
     "result": "SUCCESS",
@@ -122,7 +1482,7 @@
     "method": "POST"
   },
   {
-    "datetime": "2026-04-22 11:38:44",
+    "datetime": "2026-04-22 19:56:40",
     "service": "AUTENTICACAO",
     "action": "LOGOUT",
     "result": "SUCCESS",
@@ -130,5 +1490,42 @@
     "ip": "10.85.0.173",
     "path": "/logout",
     "method": "POST"
+  },
+  {
+    "datetime": "2026-04-22 19:39:30",
+    "service": "ALERTAS",
+    "action": "UPDATE_SETTINGS",
+    "result": "SUCCESS",
+    "user": "admin"
+  },
+  {
+    "datetime": "2026-04-22 19:18:45",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 2
+  },
+  {
+    "datetime": "2026-04-22 19:18:26",
+    "service": "COLETOR :: APEX-HML1 (10.10.1.68)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
+  },
+  {
+    "datetime": "2026-04-22 17:15:30",
+    "service": "ALERTAS",
+    "action": "TEAMS",
+    "result": "SUCCESS",
+    "user": "system",
+    "count": 1
+  },
+  {
+    "datetime": "2026-04-22 17:15:29",
+    "service": "COLETOR :: APEX-HML4 (10.10.1.176)",
+    "action": "COLLECTOR_HEALTH",
+    "result": "PARADO - timestamp indisponivel no gamb-coletor",
+    "user": "system"
   }
 ]

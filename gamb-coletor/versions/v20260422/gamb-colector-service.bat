@@ -9,8 +9,7 @@ REM Exemplo:
 REM   gamb-colector-service.bat TOTVS C:\gamb-coletor 5
 REM ============================================================
 
-for %%I in ("%~dp0.") do set "COLLECTOR_VERSION=%%~nxI"
-if not defined COLLECTOR_VERSION set "COLLECTOR_VERSION=multilingual-2026-04-16"
+set "COLLECTOR_VERSION=v20260422"
 set "FILTER_TERM=TOTVS"
 set "OUTPUT_DIR=C:\gamb-coletor"
 set "INTERVAL=5"
@@ -100,7 +99,7 @@ if not exist "%COLLECTOR_PS1%" (
     exit /b 1
 )
 
-for /f "usebackq delims=" %%A in (`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "%COLLECTOR_PS1%" -FilterTerm "%FILTER_TERM%" -OutputFile "%OUTPUT_FILE%" -ServerName "%SERVER_NAME%" -ServerIp "%SERVER_IP%"`) do (
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "%COLLECTOR_PS1%" -FilterTerm "%FILTER_TERM%" -OutputFile "%OUTPUT_FILE%" -ServerName "%SERVER_NAME%" -ServerIp "%SERVER_IP%" -CollectorVersion "%COLLECTOR_VERSION%"`) do (
     set "TOTAL_SERVICOS=%%A"
 )
 

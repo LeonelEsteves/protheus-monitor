@@ -243,7 +243,8 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
         return;
     }
 
-    window.location.href = "/";
+    const nextUrl = new URLSearchParams(window.location.search).get("next");
+    window.location.href = nextUrl && nextUrl.startsWith("/") ? nextUrl : "/";
 });
 </script>
 </body>

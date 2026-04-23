@@ -548,52 +548,72 @@ document.documentElement.classList.add("dark");
                         </label>
                     </div>
 
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="rounded-2xl border border-slate-700 bg-slate-900/70 p-4 text-slate-100">
                         <div class="flex items-start gap-3">
                             <input id="alertTeamsEnabled" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600">
                             <div class="w-full">
-                                <div class="font-semibold text-slate-900">Enviar alertas para o Teams</div>
-                                <div class="mt-1 text-sm text-slate-500">Dispara alertas novos para o canal corporativo usando webhook, com deduplicação para evitar repetição.</div>
-                                <div class="mt-3">
-                                    <label class="mb-1 block text-sm font-medium text-slate-700" for="alertTeamsWebhookUrl">Webhook do Teams</label>
-                                    <input id="alertTeamsWebhookUrl" type="password" placeholder="Cole aqui a URL do webhook do Teams" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                <div class="font-semibold text-slate-100">Enviar alertas para o Teams</div>
+                                <div class="mt-1 text-sm text-slate-400">Dispara alertas novos para o canal ativo usando webhook, com deduplicação para evitar repetição.</div>
+                                <div class="mt-3 rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+                                    <div class="text-sm font-semibold text-slate-100">Canal ativo para envio</div>
+                                    <div class="mt-3 grid gap-2 text-sm md:grid-cols-2">
+                                        <label class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100">
+                                            <input name="alertTeamsWebhookActive" type="radio" value="production" class="teams-webhook-active h-4 w-4 border-slate-300 text-blue-600">
+                                            Produção
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100">
+                                            <input name="alertTeamsWebhookActive" type="radio" value="homologation" class="teams-webhook-active h-4 w-4 border-slate-300 text-blue-600">
+                                            Homologação
+                                        </label>
+                                    </div>
+                                    <p class="mt-2 text-xs text-slate-400">Ao ativar um canal, o outro fica automaticamente inativo para envio.</p>
+                                </div>
+                                <div class="mt-3 grid gap-3 lg:grid-cols-2">
+                                    <label class="space-y-1 text-sm">
+                                        <span class="font-medium text-slate-300">Webhook Teams - Produção</span>
+                                        <input id="alertTeamsWebhookProductionUrl" type="password" placeholder="URL do webhook de produção" class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500" />
+                                    </label>
+                                    <label class="space-y-1 text-sm">
+                                        <span class="font-medium text-slate-300">Webhook Teams - Homologação</span>
+                                        <input id="alertTeamsWebhookHomologationUrl" type="password" placeholder="URL do webhook de homologação/testes" class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500" />
+                                    </label>
                                 </div>
                                 <div class="mt-4 grid gap-4 lg:grid-cols-2">
-                                    <div class="rounded-2xl border border-slate-200 bg-white/60 p-4">
-                                        <div class="text-sm font-semibold text-slate-900">Dias de envio</div>
+                                    <div class="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+                                        <div class="text-sm font-semibold text-slate-100">Dias de envio</div>
                                         <div class="mt-3 grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
-                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="0">Seg</label>
-                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="1">Ter</label>
-                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="2">Qua</label>
-                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="3">Qui</label>
-                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="4">Sex</label>
-                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="5">Sáb</label>
-                                            <label class="inline-flex items-center gap-2"><input class="teams-schedule-day" type="checkbox" value="6">Dom</label>
+                                            <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-schedule-day" type="checkbox" value="0">Seg</label>
+                                            <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-schedule-day" type="checkbox" value="1">Ter</label>
+                                            <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-schedule-day" type="checkbox" value="2">Qua</label>
+                                            <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-schedule-day" type="checkbox" value="3">Qui</label>
+                                            <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-schedule-day" type="checkbox" value="4">Sex</label>
+                                            <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-schedule-day" type="checkbox" value="5">Sáb</label>
+                                            <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-schedule-day" type="checkbox" value="6">Dom</label>
                                         </div>
                                     </div>
-                                    <div class="rounded-2xl border border-slate-200 bg-white/60 p-4">
-                                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+                                    <div class="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+                                        <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-100">
                                             <input id="alertTeamsFullTime" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600">
                                             Full time
                                         </label>
                                         <div class="mt-3 grid gap-3 md:grid-cols-2">
                                             <label class="space-y-1 text-sm">
-                                                <span class="font-medium text-slate-700">De</span>
-                                                <input id="alertTeamsStartTime" type="time" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                                <span class="font-medium text-slate-300">De</span>
+                                                <input id="alertTeamsStartTime" type="time" class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3 py-2 text-sm text-slate-100" />
                                             </label>
                                             <label class="space-y-1 text-sm">
-                                                <span class="font-medium text-slate-700">Até</span>
-                                                <input id="alertTeamsEndTime" type="time" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                                                <span class="font-medium text-slate-300">Até</span>
+                                                <input id="alertTeamsEndTime" type="time" class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3 py-2 text-sm text-slate-100" />
                                             </label>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mt-4 rounded-2xl border border-slate-200 bg-white/60 p-4">
-                                    <div class="text-sm font-semibold text-slate-900">Severidades enviadas pelo webhook</div>
+                                <div class="mt-4 rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+                                    <div class="text-sm font-semibold text-slate-100">Severidades enviadas pelo webhook</div>
                                     <div class="mt-3 grid gap-2 text-sm md:grid-cols-3">
-                                        <label class="inline-flex items-center gap-2"><input class="teams-alert-severity" type="checkbox" value="critical">Critical</label>
-                                        <label class="inline-flex items-center gap-2"><input class="teams-alert-severity" type="checkbox" value="warning">Warning</label>
-                                        <label class="inline-flex items-center gap-2"><input class="teams-alert-severity" type="checkbox" value="info">Info</label>
+                                        <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-alert-severity" type="checkbox" value="critical">Critical</label>
+                                        <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-alert-severity" type="checkbox" value="warning">Warning</label>
+                                        <label class="inline-flex items-center gap-2 text-slate-200"><input class="teams-alert-severity" type="checkbox" value="info">Info</label>
                                     </div>
                                 </div>
                             </div>
@@ -1370,7 +1390,11 @@ async function deployCollectorVersion(environmentId) {
     }
 
     if (!result.response.ok || !result.data.success) {
-        showToast(result.data.error || "Não foi possível atualizar o coletor.");
+        const failures = Array.isArray(result.data.failures) ? result.data.failures : [];
+        const failureMessage = failures.length
+            ? failures.slice(0, 2).map((item) => `${item.host}: ${item.error}`).join(" | ")
+            : "";
+        showToast(result.data.error || failureMessage || "Não foi possível atualizar o coletor.");
         await loadEnvironmentAdmin();
         return;
     }
@@ -1410,14 +1434,14 @@ function formatDateBr(value) {
     return text || "Não informado";
 }
 
-function normalizeServiceIp(ip) {
+function normalizeServerIp(ip) {
     return String(ip || "").trim().toLowerCase();
 }
 
 function mergeDiscoveredServices(existing, discovered) {
     const map = new Map();
     existing.forEach((service) => {
-        const key = `${normalizeServiceName(service.name)}|${normalizeServiceIp(service.service_ip)}`;
+        const key = `${normalizeServiceName(service.name)}|${normalizeServerIp(service.server_ip)}`;
         if (!key) return;
         map.set(key, { ...service });
     });
@@ -1425,7 +1449,7 @@ function mergeDiscoveredServices(existing, discovered) {
     let added = 0;
     let updated = 0;
     discovered.forEach((service) => {
-        const byIpKey = `${normalizeServiceName(service.name)}|${normalizeServiceIp(service.service_ip)}`;
+        const byIpKey = `${normalizeServiceName(service.name)}|${normalizeServerIp(service.server_ip)}`;
         const noIpKey = `${normalizeServiceName(service.name)}|`;
         const key = byIpKey;
         if (!key) return;
@@ -1434,7 +1458,7 @@ function mergeDiscoveredServices(existing, discovered) {
             const current = map.get(key);
             map.set(key, { ...current, ...service, name: current.name || service.name });
             updated += 1;
-        } else if (normalizeServiceIp(service.service_ip) && map.has(noIpKey)) {
+        } else if (normalizeServerIp(service.server_ip) && map.has(noIpKey)) {
             const current = map.get(noIpKey);
             map.delete(noIpKey);
             map.set(key, { ...current, ...service, name: current.name || service.name });
@@ -1675,7 +1699,12 @@ function applyAlertSettingsToForm(settings = {}) {
     document.getElementById("alertWindowsUpdatesPending").checked = Boolean(settings.windows_updates_pending);
     document.getElementById("alertCollectorJsonMissing").checked = Boolean(settings.collector_json_missing);
     document.getElementById("alertTeamsEnabled").checked = Boolean(settings.teams_enabled);
-    document.getElementById("alertTeamsWebhookUrl").value = String(settings.teams_webhook_url || "");
+    document.getElementById("alertTeamsWebhookProductionUrl").value = String(settings.teams_webhook_production_url || settings.teams_webhook_url || "");
+    document.getElementById("alertTeamsWebhookHomologationUrl").value = String(settings.teams_webhook_homologation_url || "");
+    const activeWebhook = String(settings.teams_webhook_active || "production");
+    document.querySelectorAll(".teams-webhook-active").forEach((input) => {
+        input.checked = input.value === activeWebhook;
+    });
     document.getElementById("alertTeamsFullTime").checked = settings.teams_schedule_full_time !== false;
     document.getElementById("alertTeamsStartTime").value = String(settings.teams_schedule_start || "00:00");
     document.getElementById("alertTeamsEndTime").value = String(settings.teams_schedule_end || "23:59");
@@ -1697,7 +1726,9 @@ function readAlertSettingsForm() {
         windows_updates_pending: document.getElementById("alertWindowsUpdatesPending").checked,
         collector_json_missing: document.getElementById("alertCollectorJsonMissing").checked,
         teams_enabled: document.getElementById("alertTeamsEnabled").checked,
-        teams_webhook_url: document.getElementById("alertTeamsWebhookUrl").value.trim(),
+        teams_webhook_active: document.querySelector(".teams-webhook-active:checked")?.value || "production",
+        teams_webhook_production_url: document.getElementById("alertTeamsWebhookProductionUrl").value.trim(),
+        teams_webhook_homologation_url: document.getElementById("alertTeamsWebhookHomologationUrl").value.trim(),
         teams_schedule_full_time: document.getElementById("alertTeamsFullTime").checked,
         teams_schedule_start: document.getElementById("alertTeamsStartTime").value || "00:00",
         teams_schedule_end: document.getElementById("alertTeamsEndTime").value || "23:59",
@@ -2036,7 +2067,7 @@ function compareServicePresentation(left, right) {
 }
 
 function shouldOrderEnvironmentServicesByDisplayName(environmentType) {
-    return environmentType !== "producao";
+    return normalizeSearchText(environmentType) !== "producao";
 }
 
 function orderEnvironmentServicesForDisplay(environmentType, services = []) {
@@ -2078,7 +2109,7 @@ function addRow(containerId, prefix, service = {}) {
     const tcpPort = service.tcp_port ?? service.port ?? "";
     const webappPort = service.webapp_port || "";
     const restPort = service.rest_port || "";
-    const serviceIp = service.service_ip || "";
+    const serverIp = service.server_ip || "";
     const consoleLogFile = service.console_log_file || "";
     const priority = prefix === "infra" ? (service.priority || "alta") : (service.priority || "media");
     const rowTypeLabel = prefix === "infra" ? "Infra" : "Serviço";
@@ -2096,18 +2127,14 @@ function addRow(containerId, prefix, service = {}) {
                 <button type="button" class="${prefix}-remove button-highlight-secondary rounded-xl px-3 py-2 text-xs font-semibold">Remover</button>
             </div>
         </div>
-        <div class="${prefix}-row-body mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <label class="space-y-1 text-sm md:col-span-2">
+        <div class="${prefix}-row-body mt-3 grid gap-3 md:grid-cols-3">
+            <label class="space-y-1 text-sm">
                 <span class="font-medium text-slate-700">Nome do serviço</span>
                 <input value="${escapeHtml(name)}" list="serviceNamesDatalist" placeholder="Nome do serviço" class="${prefix}-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
             </label>
-            <label class="space-y-1 text-sm md:col-span-2">
+            <label class="space-y-1 text-sm">
                 <span class="font-medium text-slate-700">Display Name</span>
                 <input value="${escapeHtml(displayName)}" placeholder="Display Name do serviço" class="${prefix}-display-name w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            </label>
-            <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
-                <span class="font-medium text-slate-700">Path Executable</span>
-                <input value="${escapeHtml(pathExecutable)}" placeholder="Caminho do executável" class="${prefix}-path-executable w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
             </label>
             <label class="space-y-1 text-sm">
                 <span class="font-medium text-slate-700">Prioridade</span>
@@ -2117,33 +2144,19 @@ function addRow(containerId, prefix, service = {}) {
                     <option value="alta" ${priority === "alta" ? "selected" : ""}>Alta</option>
                 </select>
             </label>
-            <label class="space-y-1 text-sm">
-                <span class="font-medium text-slate-700">IP</span>
-                <input value="${escapeHtml(serviceIp)}" placeholder="IP do serviço" class="${prefix}-service-ip w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            </label>
-            <label class="space-y-1 text-sm">
-                <span class="font-medium text-slate-700">TCP</span>
-                <input value="${escapeHtml(tcpPort)}" placeholder="TCP Port" class="${prefix}-tcp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            </label>
-            <label class="space-y-1 text-sm">
-                <span class="font-medium text-slate-700">WebApp</span>
-                <input value="${escapeHtml(webappPort)}" placeholder="WebApp Port" class="${prefix}-webapp-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            </label>
-            <label class="space-y-1 text-sm">
-                <span class="font-medium text-slate-700">REST</span>
-                <input value="${escapeHtml(restPort)}" placeholder="Rest Port" class="${prefix}-rest-port w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            </label>
-            <label class="space-y-1 text-sm md:col-span-2 xl:col-span-4">
-                <span class="font-medium text-slate-700">Console log</span>
-                <input value="${escapeHtml(consoleLogFile)}" placeholder="Caminho do log" class="${prefix}-console-log-file w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            </label>
+            <input type="hidden" value="${escapeHtml(pathExecutable)}" class="${prefix}-path-executable">
+            <input type="hidden" value="${escapeHtml(serverIp)}" class="${prefix}-server-ip">
+            <input type="hidden" value="${escapeHtml(tcpPort)}" class="${prefix}-tcp-port">
+            <input type="hidden" value="${escapeHtml(webappPort)}" class="${prefix}-webapp-port">
+            <input type="hidden" value="${escapeHtml(restPort)}" class="${prefix}-rest-port">
+            <input type="hidden" value="${escapeHtml(consoleLogFile)}" class="${prefix}-console-log-file">
         </div>
     `;
     const nameInput = row.querySelector(`.${prefix}-name`);
     const displayInput = row.querySelector(`.${prefix}-display-name`);
     const pathInput = row.querySelector(`.${prefix}-path-executable`);
     const priorityInput = row.querySelector(`.${prefix}-priority`);
-    const ipInput = row.querySelector(`.${prefix}-service-ip`);
+    const serverInput = row.querySelector(`.${prefix}-server-ip`);
     const tcpInput = row.querySelector(`.${prefix}-tcp-port`);
     const webappInput = row.querySelector(`.${prefix}-webapp-port`);
     const restInput = row.querySelector(`.${prefix}-rest-port`);
@@ -2157,12 +2170,7 @@ function addRow(containerId, prefix, service = {}) {
         const title = displayInput.value.trim() || nameInput.value.trim() || `Novo ${rowTypeLabel.toLowerCase()}`;
         const summaryParts = [];
         if (nameInput.value.trim()) summaryParts.push(nameInput.value.trim());
-        if (ipInput.value.trim()) summaryParts.push(`IP ${ipInput.value.trim()}`);
-        if (tcpInput.value.trim()) summaryParts.push(`TCP ${tcpInput.value.trim()}`);
-        if (webappInput.value.trim()) summaryParts.push(`WebApp ${webappInput.value.trim()}`);
-        if (restInput.value.trim()) summaryParts.push(`REST ${restInput.value.trim()}`);
         if (priorityInput.value.trim()) summaryParts.push(`Prioridade ${priorityInput.value.trim()}`);
-        if (logInput.value.trim()) summaryParts.push("Com log");
         titleNode.textContent = title;
         summaryNode.textContent = summaryParts.length ? summaryParts.join(" | ") : "Sem detalhes preenchidos.";
     };
@@ -2197,7 +2205,7 @@ function addRow(containerId, prefix, service = {}) {
         applyEnvironmentServiceFilter();
     });
 
-    [pathInput, priorityInput, ipInput, tcpInput, webappInput, restInput, logInput].forEach((input) => {
+    [pathInput, priorityInput, serverInput, tcpInput, webappInput, restInput, logInput].forEach((input) => {
         input.addEventListener("input", updateRowSummary);
         input.addEventListener("change", updateRowSummary);
     });
@@ -2237,7 +2245,7 @@ function readEnvironmentServices() {
         display_name: row.querySelector(".service-display-name").value.trim(),
         path_executable: row.querySelector(".service-path-executable").value.trim(),
         priority: row.querySelector(".service-priority").value,
-        service_ip: row.querySelector(".service-service-ip").value.trim(),
+        server_ip: row.querySelector(".service-server-ip").value.trim(),
         tcp_port: row.querySelector(".service-tcp-port").value.trim(),
         webapp_port: row.querySelector(".service-webapp-port").value.trim(),
         rest_port: row.querySelector(".service-rest-port").value.trim(),
@@ -2251,7 +2259,7 @@ function readInfraServices() {
         display_name: row.querySelector(".infra-display-name").value.trim(),
         path_executable: row.querySelector(".infra-path-executable").value.trim(),
         priority: row.querySelector(".infra-priority").value,
-        service_ip: row.querySelector(".infra-service-ip").value.trim(),
+        server_ip: row.querySelector(".infra-server-ip").value.trim(),
         tcp_port: row.querySelector(".infra-tcp-port").value.trim(),
         webapp_port: row.querySelector(".infra-webapp-port").value.trim(),
         rest_port: row.querySelector(".infra-rest-port").value.trim(),

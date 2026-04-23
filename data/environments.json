@@ -16,7 +16,7 @@
         "tcp_port": "12210",
         "webapp_port": "8099",
         "rest_port": "",
-        "service_ip": "10.10.1.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML3.log",
         "priority": "media"
       },
@@ -27,7 +27,7 @@
         "tcp_port": "12060",
         "webapp_port": "8090",
         "rest_port": "",
-        "service_ip": "10.10.1.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML3_SCHED.log",
         "priority": "baixa"
       },
@@ -38,7 +38,7 @@
         "tcp_port": "12050",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML3_WF.log",
         "priority": "baixa"
       },
@@ -49,7 +49,7 @@
         "tcp_port": "12040",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML3_WS.log",
         "priority": "baixa"
       },
@@ -60,7 +60,7 @@
         "tcp_port": "13001",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.10.1.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML3_rest.log",
         "priority": "media"
       },
@@ -71,7 +71,7 @@
         "tcp_port": "12041",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.10.1.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML3_WS2.log",
         "priority": "baixa"
       }
@@ -84,7 +84,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "",
         "priority": "media"
       },
@@ -95,9 +95,9 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.173",
+        "server_ip": "10.85.0.173",
         "console_log_file": "",
-        "priority": "baixa"
+        "priority": "alta"
       },
       {
         "name": "licenseVirtual",
@@ -106,8 +106,8 @@
         "tcp_port": "2234",
         "webapp_port": "8020",
         "rest_port": "",
-        "service_ip": "LOCALHOST",
-        "console_log_file": "",
+        "server_ip": "10.85.0.173",
+        "console_log_file": "C:\\TOTVS\\TOTVSLicenseVirtual\\bin\\appserver\\logs\\APEX-HML3-LICENSE.log",
         "priority": "alta"
       }
     ]
@@ -123,13 +123,24 @@
     "database_update_date": "2026-01-19",
     "services": [
       {
+        "name": "TOTVS-Appserver12-APEX-HML1",
+        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML1",
+        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver",
+        "tcp_port": "6001",
+        "webapp_port": "4001",
+        "rest_port": "",
+        "server_ip": "10.85.0.68",
+        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
+        "priority": "media"
+      },
+      {
         "name": "TOTVS-Appserver12-APEX-HML1-SCHED",
         "display_name": ".04 TOTVS | Microsiga Protheus 12 APEX-HML1 - Schedule",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_sched",
         "tcp_port": "12060",
         "webapp_port": "7002",
         "rest_port": "",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_SCHED.log",
         "priority": "baixa"
       },
@@ -140,7 +151,7 @@
         "tcp_port": "12050",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_WF.log",
         "priority": "baixa"
       },
@@ -151,7 +162,7 @@
         "tcp_port": "12040",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_WS.log",
         "priority": "baixa"
       },
@@ -162,9 +173,9 @@
         "tcp_port": "13001",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1_rest.log",
-        "priority": "alta"
+        "priority": "media"
       },
       {
         "name": "TOTVS-Appserver12-APEX-HML1-WS-TAF",
@@ -173,7 +184,7 @@
         "tcp_port": "19001",
         "webapp_port": "",
         "rest_port": "8085",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_TAF.log",
         "priority": "baixa"
       },
@@ -184,20 +195,9 @@
         "tcp_port": "12041",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML1_WS2.log",
         "priority": "baixa"
-      },
-      {
-        "name": "TOTVS-Appserver12-APEX-HML1",
-        "display_name": ".03 TOTVS | Microsiga Protheus 12 APEX-HML1",
-        "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver",
-        "tcp_port": "6001",
-        "webapp_port": "4001",
-        "rest_port": "",
-        "service_ip": "10.85.0.68",
-        "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML1.log",
-        "priority": "alta"
       }
     ],
     "infra_services": [
@@ -208,9 +208,9 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "",
-        "priority": "alta"
+        "priority": "media"
       },
       {
         "name": "TOTVSDBAccess64TSS",
@@ -219,7 +219,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "",
         "priority": "baixa"
       },
@@ -230,9 +230,9 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-HML1_BROKER.log",
-        "priority": "alta"
+        "priority": "media"
       },
       {
         "name": "TOTVS-Appserver12-P2410-HML1-BROKER_REST",
@@ -241,9 +241,9 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.68",
+        "server_ip": "10.10.1.68",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-HML1_BROKER_REST.log",
-        "priority": "alta"
+        "priority": "media"
       }
     ]
   },
@@ -264,7 +264,7 @@
         "tcp_port": "12210",
         "webapp_port": "8099",
         "rest_port": "",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2.log",
         "priority": "media"
       },
@@ -275,7 +275,7 @@
         "tcp_port": "12230",
         "webapp_port": "8100",
         "rest_port": "",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2-NGF.log",
         "priority": "baixa"
       },
@@ -286,7 +286,7 @@
         "tcp_port": "12060",
         "webapp_port": "7002",
         "rest_port": "",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML2_SCHED.log",
         "priority": "media"
       },
@@ -297,7 +297,7 @@
         "tcp_port": "12050",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML2_WF.log",
         "priority": "baixa"
       },
@@ -308,7 +308,7 @@
         "tcp_port": "12040",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML2_WS.log",
         "priority": "baixa"
       },
@@ -319,7 +319,7 @@
         "tcp_port": "13001",
         "webapp_port": "8015",
         "rest_port": "9103",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2_rest.log",
         "priority": "media"
       },
@@ -330,7 +330,7 @@
         "tcp_port": "19001",
         "webapp_port": "",
         "rest_port": "8085",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML2_TAF.log",
         "priority": "baixa"
       },
@@ -341,7 +341,7 @@
         "tcp_port": "12041",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML2_WS2.log",
         "priority": "baixa"
       },
@@ -352,7 +352,7 @@
         "tcp_port": "12220",
         "webapp_port": "8090",
         "rest_port": "",
-        "service_ip": "10.10.1.172",
+        "server_ip": "10.10.1.172",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML2-fisc.log",
         "priority": "baixa"
       }
@@ -365,7 +365,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.172",
+        "server_ip": "10.85.0.172",
         "console_log_file": "",
         "priority": "alta"
       },
@@ -376,7 +376,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.172",
+        "server_ip": "10.85.0.172",
         "console_log_file": "",
         "priority": "baixa"
       }
@@ -399,7 +399,7 @@
         "tcp_port": "6001",
         "webapp_port": "4001",
         "rest_port": "",
-        "service_ip": "10.10.1.176",
+        "server_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4.log",
         "priority": "media"
       },
@@ -410,7 +410,7 @@
         "tcp_port": "12060",
         "webapp_port": "7002",
         "rest_port": "",
-        "service_ip": "10.10.1.176",
+        "server_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML4_SCHED.log",
         "priority": "baixa"
       },
@@ -421,7 +421,7 @@
         "tcp_port": "12050",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.176",
+        "server_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML4_WF.log",
         "priority": "baixa"
       },
@@ -432,7 +432,7 @@
         "tcp_port": "12040",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.176",
+        "server_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML4_WS.log",
         "priority": "baixa"
       },
@@ -443,7 +443,7 @@
         "tcp_port": "13001",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.10.1.176",
+        "server_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4_rest.log",
         "priority": "media"
       },
@@ -454,7 +454,7 @@
         "tcp_port": "19001",
         "webapp_port": "",
         "rest_port": "8085",
-        "service_ip": "10.10.1.176",
+        "server_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML4_TAF.log",
         "priority": "baixa"
       },
@@ -465,7 +465,7 @@
         "tcp_port": "13006",
         "webapp_port": "",
         "rest_port": "9104",
-        "service_ip": "10.10.1.176",
+        "server_ip": "10.10.1.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML4_SVW.log",
         "priority": "media"
       }
@@ -478,7 +478,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.176",
+        "server_ip": "10.85.0.176",
         "console_log_file": "",
         "priority": "alta"
       },
@@ -489,7 +489,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.176",
+        "server_ip": "10.85.0.176",
         "console_log_file": "",
         "priority": "baixa"
       },
@@ -500,7 +500,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.176",
+        "server_ip": "10.85.0.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-HML4_BROKER.log",
         "priority": "media"
       },
@@ -511,7 +511,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.176",
+        "server_ip": "10.85.0.176",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-HML4_BROKER_REST.log",
         "priority": "media"
       }
@@ -534,7 +534,7 @@
         "tcp_port": "12210",
         "webapp_port": "8099",
         "rest_port": "",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML5.log",
         "priority": "media"
       },
@@ -545,7 +545,7 @@
         "tcp_port": "12060",
         "webapp_port": "8090",
         "rest_port": "",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML5_SCHED.log",
         "priority": "baixa"
       },
@@ -556,7 +556,7 @@
         "tcp_port": "12050",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML5_WF.log",
         "priority": "baixa"
       },
@@ -567,7 +567,7 @@
         "tcp_port": "12040",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML5_WS.log",
         "priority": "baixa"
       },
@@ -578,7 +578,7 @@
         "tcp_port": "13001",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\console_APEX-HML5_rest.log",
         "priority": "media"
       },
@@ -589,7 +589,7 @@
         "tcp_port": "19001",
         "webapp_port": "",
         "rest_port": "8085",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-APEX-HML5_TAF.log",
         "priority": "baixa"
       },
@@ -600,7 +600,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "",
         "priority": "baixa"
       }
@@ -613,7 +613,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "",
         "priority": "media"
       },
@@ -624,7 +624,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.10.1.177",
+        "server_ip": "10.10.1.177",
         "console_log_file": "",
         "priority": "baixa"
       }
@@ -642,23 +642,23 @@
     "services": [
       {
         "name": "TOTVS-Appserver12-PRD-COMPILA",
-        "display_name": ".11 TOTVS | Microsiga Protheus 12 PRD - Compilação",
+        "display_name": ".11 TOTVS | Microsiga Protheus 12 PRD - CompilaÃ§Ã£o",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_cmp",
         "tcp_port": "12110",
         "webapp_port": "7001",
         "rest_port": "",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_COMPILA.log",
         "priority": "media"
       },
       {
         "name": "TOTVS-Appserver12-PRD-PADRAO",
-        "display_name": ".12 TOTVS | Microsiga Protheus 12 PRD - Padrão",
+        "display_name": ".12 TOTVS | Microsiga Protheus 12 PRD - PadrÃ£o",
         "path_executable": "E:\\TOTVS\\Microsiga\\Protheus\\bin\\appserver_ixb",
         "tcp_port": "12400",
         "webapp_port": "9002",
         "rest_port": "",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_PADRAO.log",
         "priority": "media"
       },
@@ -669,7 +669,7 @@
         "tcp_port": "12060",
         "webapp_port": "7002",
         "rest_port": "",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_SCHED.log",
         "priority": "media"
       },
@@ -680,7 +680,7 @@
         "tcp_port": "12040",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WS.log",
         "priority": "media"
       },
@@ -691,7 +691,7 @@
         "tcp_port": "12050",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WF.log",
         "priority": "media"
       },
@@ -702,7 +702,7 @@
         "tcp_port": "19001",
         "webapp_port": "",
         "rest_port": "8085",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_TAF.log",
         "priority": "media"
       },
@@ -713,7 +713,7 @@
         "tcp_port": "12041",
         "webapp_port": "",
         "rest_port": "9103",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_WS2.log",
         "priority": "media"
       },
@@ -724,7 +724,7 @@
         "tcp_port": "12001",
         "webapp_port": "4001",
         "rest_port": "",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\Console-slave_01.log",
         "priority": "media"
       },
@@ -735,7 +735,7 @@
         "tcp_port": "12002",
         "webapp_port": "4002",
         "rest_port": "",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\Console-slave_02.log",
         "priority": "media"
       },
@@ -746,7 +746,7 @@
         "tcp_port": "12003",
         "webapp_port": "4003",
         "rest_port": "",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\Console-slave_03.log",
         "priority": "media"
       },
@@ -757,7 +757,7 @@
         "tcp_port": "12004",
         "webapp_port": "4004",
         "rest_port": "",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\Console-slave_04.log",
         "priority": "media"
       },
@@ -768,7 +768,7 @@
         "tcp_port": "12005",
         "webapp_port": "4005",
         "rest_port": "",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\Console-slave_05.log",
         "priority": "media"
       },
@@ -779,7 +779,7 @@
         "tcp_port": "13001",
         "webapp_port": "",
         "rest_port": "9104",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE01.log",
         "priority": "media"
       },
@@ -790,7 +790,7 @@
         "tcp_port": "13002",
         "webapp_port": "",
         "rest_port": "9105",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE02.log",
         "priority": "media"
       },
@@ -801,7 +801,7 @@
         "tcp_port": "13003",
         "webapp_port": "",
         "rest_port": "9106",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE03.log",
         "priority": "media"
       },
@@ -812,7 +812,7 @@
         "tcp_port": "13004",
         "webapp_port": "",
         "rest_port": "9107",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE04.log",
         "priority": "media"
       },
@@ -823,7 +823,7 @@
         "tcp_port": "13005",
         "webapp_port": "",
         "rest_port": "9108",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE05.log",
         "priority": "media"
       },
@@ -834,7 +834,7 @@
         "tcp_port": "13006",
         "webapp_port": "",
         "rest_port": "9109",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_SLAVE06.log",
         "priority": "media"
       }
@@ -847,7 +847,7 @@
         "tcp_port": "12200",
         "webapp_port": "8099",
         "rest_port": "",
-        "service_ip": "10.85.0.197",
+        "server_ip": "10.85.0.197",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus_Data\\logs\\Console-PRD_BAL.log",
         "priority": "alta"
       },
@@ -858,7 +858,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.198",
+        "server_ip": "10.85.0.198",
         "console_log_file": "",
         "priority": "alta"
       },
@@ -869,7 +869,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.198",
+        "server_ip": "10.85.0.198",
         "console_log_file": "",
         "priority": "alta"
       },
@@ -880,7 +880,7 @@
         "tcp_port": "",
         "webapp_port": "",
         "rest_port": "",
-        "service_ip": "10.85.0.90",
+        "server_ip": "10.85.0.90",
         "console_log_file": "E:\\TOTVS\\Microsiga\\Protheus\\logs\\ConsoleLog_REST_Master.log",
         "priority": "alta"
       }

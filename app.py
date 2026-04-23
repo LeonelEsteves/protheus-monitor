@@ -16,7 +16,8 @@ import uuid
 from html import escape
 
 from email.mime.text import MIMEText
-from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for, has_request_context
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 try:
     from werkzeug.middleware.proxy_fix import ProxyFix
 except Exception:  # pragma: no cover
@@ -69,12 +70,12 @@ DEFAULT_ENVIRONMENTS = [
         "environment_type": "homologacao",
         "host": "127.0.0.1",
         "services": [
-            {"name": "TOTVS-Appserver12-APEX-HML3", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-REST", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-SCHED", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WF", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WS", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVS-Appserver12-APEX-HML3-WS2", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-REST", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-SCHED", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WF", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WS", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVS-Appserver12-APEX-HML3-WS2", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
         ],
         "infra_services": [],
     },
@@ -84,10 +85,10 @@ DEFAULT_ENVIRONMENTS = [
         "environment_type": "desenvolvimento",
         "host": "127.0.0.1",
         "services": [
-            {"name": "licenseVirtual", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVSDBAccess64", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVSDBAccess64TSS", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
-            {"name": "TOTVSservice", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "licenseVirtual", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSDBAccess64", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSDBAccess64TSS", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
+            {"name": "TOTVSservice", "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"},
         ],
         "infra_services": [],
     },
@@ -113,6 +114,8 @@ COLLECTOR_STATUS_PATH = r"C:\gamb-coletor\status-servico.json"
 COLLECTOR_DEPLOY_ROOT = r"C:\gamb-coletor"
 COLLECTOR_VERSION_MARKER_PATH = os.path.join(COLLECTOR_DEPLOY_ROOT, "collector-version.json")
 COLLECTOR_REPO_VERSIONS_DIR = os.path.join("gamb-coletor", "versions")
+COLLECTOR_BULK_ACTION_BAT = "gamb-bulk-services.bat"
+COLLECTOR_BULK_ACTION_BAT_PATH = os.path.join("gamb-coletor", COLLECTOR_BULK_ACTION_BAT)
 COLLECTOR_SERVICE_NAME = "GambColetorService"
 COLLECTOR_VERSION_HISTORY_LIMIT = 20
 COLLECTOR_DATA_CACHE = {}
@@ -137,6 +140,7 @@ DEFAULT_ALERT_SETTINGS = {
     "windows_updates_pending": True,
     "collector_json_missing": True,
     "teams_enabled": False,
+    "teams_webhook_active": "production",
     "teams_schedule_full_time": True,
     "teams_schedule_days": [0, 1, 2, 3, 4, 5, 6],
     "teams_schedule_start": "00:00",
@@ -156,6 +160,8 @@ _FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
 GAMB_BEHIND_PROXY = os.getenv("GAMB_BEHIND_PROXY", "0").strip() == "1"
 GAMB_SSL_CERT_FILE = (os.getenv("GAMB_SSL_CERT_FILE") or "").strip()
 GAMB_SSL_KEY_FILE = (os.getenv("GAMB_SSL_KEY_FILE") or "").strip()
+APP_PUBLIC_BASE_URL = (os.getenv("APP_PUBLIC_BASE_URL") or "").strip().rstrip("/")
+TEAMS_ACTION_TOKEN_MAX_AGE_SECONDS = 6 * 60 * 60
 
 _HAS_TLS_FILES = bool(
     GAMB_SSL_CERT_FILE
@@ -254,10 +260,21 @@ def sanitize_service(service):
         "tcp_port": normalize_port(service.get("tcp_port") or legacy_port),
         "webapp_port": normalize_port(service.get("webapp_port")),
         "rest_port": normalize_port(service.get("rest_port")),
-        "service_ip": (service.get("service_ip") or service.get("ip_address") or service.get("ip") or "").strip(),
+        "server_ip": (
+            service.get("server_ip")
+            or service.get("ip_address")
+            or service.get("ip")
+            or ""
+        ).strip(),
         "console_log_file": (service.get("console_log_file") or service.get("console_log") or service.get("log_file") or "").strip(),
         "priority": normalize_service_priority(service.get("priority")),
     }
+
+
+def get_service_server_ip(service, default_host=""):
+    if not isinstance(service, dict):
+        return str(default_host or "").strip()
+    return str(service.get("server_ip") or default_host or "").strip()
 
 
 def is_infra_service(service):
@@ -374,6 +391,10 @@ def sanitize_alert_settings(settings):
         for key in DEFAULT_ALERT_SETTINGS:
             if key not in settings:
                 continue
+            if key == "teams_webhook_active":
+                active_target = str(settings.get(key) or "").strip().lower()
+                merged[key] = active_target if active_target in {"production", "homologation"} else DEFAULT_ALERT_SETTINGS[key]
+                continue
             if key == "teams_schedule_days":
                 days = []
                 raw_days = settings.get(key)
@@ -468,26 +489,41 @@ def load_alert_settings():
         save_secret_settings(secret_settings)
         changed = True
     if changed:
-        save_alert_settings(normalized)
-    normalized["teams_webhook_url"] = str(load_secret_settings().get("teams_webhook_url") or "").strip()
+        save_alert_settings(
+            {
+                **normalized,
+                "teams_webhook_production_url": str(secret_settings.get("teams_webhook_url") or "").strip(),
+                "teams_webhook_homologation_url": str(secret_settings.get("teams_webhook_homologation_url") or "").strip(),
+            }
+        )
+    secret_settings = load_secret_settings()
+    normalized["teams_webhook_url"] = str(secret_settings.get("teams_webhook_url") or "").strip()
+    normalized["teams_webhook_production_url"] = normalized["teams_webhook_url"]
+    normalized["teams_webhook_homologation_url"] = str(secret_settings.get("teams_webhook_homologation_url") or "").strip()
     return normalized
 
 
 def save_alert_settings(settings):
     os.makedirs(DATA_DIR, exist_ok=True)
-    webhook_url = ""
+    production_webhook_url = ""
+    homologation_webhook_url = ""
     if isinstance(settings, dict):
-        webhook_url = str(settings.get("teams_webhook_url") or "").strip()
+        production_webhook_url = str(
+            settings.get("teams_webhook_production_url")
+            or settings.get("teams_webhook_url")
+            or ""
+        ).strip()
+        homologation_webhook_url = str(settings.get("teams_webhook_homologation_url") or "").strip()
     normalized = sanitize_alert_settings(settings)
     with open(ALERT_SETTINGS_FILE, "w", encoding="utf-8") as file:
         json.dump(normalized, file, indent=2, ensure_ascii=False)
     secret_settings = load_secret_settings()
-    if webhook_url:
-        secret_settings["teams_webhook_url"] = webhook_url
-    elif "teams_webhook_url" in secret_settings:
-        secret_settings["teams_webhook_url"] = ""
+    secret_settings["teams_webhook_url"] = production_webhook_url
+    secret_settings["teams_webhook_homologation_url"] = homologation_webhook_url
     save_secret_settings(secret_settings)
     normalized["teams_webhook_url"] = str(secret_settings.get("teams_webhook_url") or "").strip()
+    normalized["teams_webhook_production_url"] = normalized["teams_webhook_url"]
+    normalized["teams_webhook_homologation_url"] = str(secret_settings.get("teams_webhook_homologation_url") or "").strip()
     return normalized
 
 
@@ -505,7 +541,7 @@ def save_users(users):
 
 def load_environments():
     ensure_environments_file()
-    with open(ENVIRONMENTS_FILE, "r", encoding="utf-8") as file:
+    with open(ENVIRONMENTS_FILE, "r", encoding="utf-8-sig") as file:
         data = json.load(file)
 
     normalized = []
@@ -513,7 +549,7 @@ def load_environments():
     for item in data:
         infra_list = item.get("infra_services", [])
         if isinstance(infra_list, list) and infra_list and isinstance(infra_list[0], str):
-            item["infra_services"] = [{"name": service_name, "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in infra_list]
+            item["infra_services"] = [{"name": service_name, "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"} for service_name in infra_list]
             changed = True
 
         if isinstance(item.get("services", []), list) and item.get("services") and isinstance(item["services"][0], str):
@@ -521,7 +557,7 @@ def load_environments():
                 "id": item.get("id") or slugify_environment_name(item.get("name")),
                 "name": item.get("name"),
                 "host": item.get("host", "127.0.0.1"),
-                "services": [{"name": service_name, "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "service_ip": "", "console_log_file": "", "priority": "media"} for service_name in item["services"]],
+                "services": [{"name": service_name, "display_name": "", "path_executable": "", "tcp_port": "", "webapp_port": "", "rest_port": "", "server_ip": "", "console_log_file": "", "priority": "media"} for service_name in item["services"]],
                 "infra_services": item.get("infra_services", []),
             }
             changed = True
@@ -539,7 +575,7 @@ def load_environments():
                 "tcp_port" not in service
                 or "webapp_port" not in service
                 or "rest_port" not in service
-                or "service_ip" not in service
+                or "server_ip" not in service
                 or "console_log_file" not in service
                 or "priority" not in service
             ):
@@ -964,10 +1000,58 @@ def clear_operational_logs():
 
 def get_teams_webhook_url(settings=None):
     if isinstance(settings, dict):
-        configured = str(settings.get("teams_webhook_url") or "").strip()
+        active_target = str(settings.get("teams_webhook_active") or "production").strip().lower()
+        if active_target == "homologation":
+            configured = str(settings.get("teams_webhook_homologation_url") or "").strip()
+        else:
+            configured = str(settings.get("teams_webhook_production_url") or settings.get("teams_webhook_url") or "").strip()
         if configured:
             return configured
     return TEAMS_WEBHOOK
+
+
+def get_teams_action_serializer():
+    return URLSafeTimedSerializer(app.secret_key, salt="teams-service-action")
+
+
+def get_public_app_base_url():
+    if APP_PUBLIC_BASE_URL:
+        return APP_PUBLIC_BASE_URL
+    if has_request_context():
+        return request.url_root.rstrip("/")
+    return ""
+
+
+def build_teams_service_action_token(environment_id, service_name, host, action_type="start"):
+    payload = {
+        "environment_id": str(environment_id or "").strip(),
+        "service_name": str(service_name or "").strip(),
+        "host": str(host or "").strip(),
+        "action": str(action_type or "start").strip().lower(),
+    }
+    return get_teams_action_serializer().dumps(payload)
+
+
+def load_teams_service_action_token(token, max_age=TEAMS_ACTION_TOKEN_MAX_AGE_SECONDS):
+    try:
+        return get_teams_action_serializer().loads(str(token or "").strip(), max_age=max_age)
+    except SignatureExpired as exc:
+        raise ValueError("O link de ação do Teams expirou.") from exc
+    except BadSignature as exc:
+        raise ValueError("O link de ação do Teams é inválido.") from exc
+
+
+def build_teams_service_action_url(alert, action_type="start"):
+    base_url = get_public_app_base_url()
+    if not base_url:
+        return ""
+    environment_id = str((alert or {}).get("environment_id") or "").strip()
+    service_name = str((alert or {}).get("service_name") or "").strip()
+    host = str((alert or {}).get("host") or "").strip()
+    if not environment_id or not service_name:
+        return ""
+    token = build_teams_service_action_token(environment_id, service_name, host, action_type=action_type)
+    return f"{base_url}/teams/service-action?token={token}"
 
 
 def get_environment_collector_target_hosts(environment, environment_status=None):
@@ -980,10 +1064,10 @@ def get_environment_collector_target_hosts(environment, environment_status=None)
 
     add_host((environment or {}).get("host"))
     for service in ((environment or {}).get("services") or []) + ((environment or {}).get("infra_services") or []):
-        add_host((service or {}).get("service_ip"))
+        add_host(get_service_server_ip(service))
     if isinstance(environment_status, dict):
         for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
-            add_host((service or {}).get("service_ip"))
+            add_host(get_service_server_ip(service))
 
     unique_hosts = []
     seen_hosts = set()
@@ -1054,12 +1138,7 @@ def build_monitor_alerts_payload(user=None, include_all=False):
 
         if settings.get("collector_json_missing"):
             checked_hosts = set()
-            collector_hosts = [host]
-            collector_hosts.extend(
-                str(service.get("service_ip") or "").strip()
-                for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or [])
-                if str(service.get("service_ip") or "").strip()
-            )
+            collector_hosts = get_environment_collector_target_hosts(environment, environment_status)
             for collector_host in collector_hosts:
                 normalized_host = collector_host.lower()
                 if normalized_host in checked_hosts:
@@ -1127,7 +1206,7 @@ def build_monitor_alerts_payload(user=None, include_all=False):
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
-                        "host": str(service.get("service_ip") or host).strip() or host,
+                        "host": get_service_server_ip(service, host),
                         "service_name": str(service.get("name") or "").strip(),
                         "title": "Serviço parado em produção",
                         "message": f"{display_name} está parado no ambiente {environment_name}.",
@@ -1147,7 +1226,7 @@ def build_monitor_alerts_payload(user=None, include_all=False):
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
-                        "host": str(service.get("service_ip") or host).strip() or host,
+                        "host": get_service_server_ip(service, host),
                         "service_name": str(service.get("name") or "").strip(),
                         "title": "Serviço crítico parado",
                         "message": f"{display_name} está parado no ambiente {environment_name}.",
@@ -1568,11 +1647,10 @@ def discover_services_on_hosts(hosts, credential=None):
                     ignored_without_path += 1
                     continue
 
-                service_ip = collector_server_ip
                 row = {
                     "name": name,
                     "display_name": (service.get("display_name") or "").strip(),
-                    "service_ip": service_ip,
+                    "server_ip": collector_server_ip or source_host,
                     "path_executable": path_executable,
                     "tcp_port": service.get("tcp_port", ""),
                     "webapp_port": service.get("webapp_port", ""),
@@ -1586,7 +1664,7 @@ def discover_services_on_hosts(hosts, credential=None):
                         "service_state": (service.get("status") or "").upper(),
                     },
                 }
-                key = (_normalize_service_lookup_key(row["service_ip"]), _normalize_service_lookup_key(row["name"]))
+                key = (_normalize_service_lookup_key(row["server_ip"]), _normalize_service_lookup_key(row["name"]))
                 if key in discovered_keys:
                     continue
                 discovered_keys.add(key)
@@ -1930,7 +2008,7 @@ if ($results.Count -eq 0) {{
         row_data = {
             "name": service_name,
             "display_name": (row.get("display_name") or "").strip(),
-            "service_ip": server,
+            "server_ip": server,
             "path_executable": exe_path,
             "tcp_port": ini_payload.get("tcp_port", ""),
             "webapp_port": ini_payload.get("webapp_port", ""),
@@ -1948,7 +2026,7 @@ if ($results.Count -eq 0) {{
                 "source": "winrm",
             },
         }
-        key = (_normalize_service_lookup_key(row_data["service_ip"]), _normalize_service_lookup_key(row_data["name"]))
+        key = (_normalize_service_lookup_key(row_data["server_ip"]), _normalize_service_lookup_key(row_data["name"]))
         if key in discovered_keys:
             continue
         discovered_keys.add(key)
@@ -1962,7 +2040,7 @@ if ($results.Count -eq 0) {{
             meta_state = str((item.get("_meta") or {}).get("service_state") or "").upper()
             running_label = "SIM" if meta_state in {"RUNNING", "RODANDO"} else "NÃO"
             step_logs.append(
-                f"[{item.get('service_ip')}] {item.get('name')}: {meta_state or 'UNKNOWN'} (Rodando: {running_label})."
+                f"[{item.get('server_ip')}] {item.get('name')}: {meta_state or 'UNKNOWN'} (Rodando: {running_label})."
             )
 
     payload = {"steps": step_logs}
@@ -1972,7 +2050,7 @@ if ($results.Count -eq 0) {{
 
 
 def build_status_service(service, host):
-    resolved_host = (service or {}).get("service_ip") or host
+    resolved_host = get_service_server_ip(service, host)
     base = dict(service or {})
     base["name"] = service["name"]
     base["status"] = get_service_status_for_host(service["name"], resolved_host, service.get("display_name", ""))
@@ -2020,6 +2098,7 @@ def parse_collector_status_payload(payload):
     elif isinstance(payload, list):
         services = payload
 
+    payload_server_ip = (server_info.get("server_ip") or "").strip()
     by_name = {}
     normalized_services = []
     for raw_service in services:
@@ -2035,7 +2114,7 @@ def parse_collector_status_payload(payload):
             "tcp_port": normalize_port(raw_service.get("tcp_port")),
             "webapp_port": normalize_port(raw_service.get("webapp_port")),
             "rest_port": normalize_port(raw_service.get("rest_port")),
-            "service_ip": (raw_service.get("service_ip") or "").strip(),
+            "server_ip": payload_server_ip,
             "console_log_file": (raw_service.get("console_log_file") or raw_service.get("console_log") or "").strip(),
             "sourcepath": (raw_service.get("sourcepath") or "").strip(),
             "rpocustom": (raw_service.get("rpocustom") or "").strip(),
@@ -2047,6 +2126,7 @@ def parse_collector_status_payload(payload):
     server = {
         "server_name": (server_info.get("server_name") or "").strip(),
         "server_ip": (server_info.get("server_ip") or "").strip(),
+        "collector_version": (server_info.get("collector_version") or "").strip(),
         "os_version": (server_info.get("os_version") or "").strip(),
         "os_build": (server_info.get("os_build") or "").strip(),
         "disk_space": (server_info.get("disk_space") or "").strip(),
@@ -2161,9 +2241,9 @@ def refresh_collector_cache_for_environment(environment):
         (environment or {}).get("host", "").strip()
     }
     for service in ((environment or {}).get("services") or []):
-        target_hosts.add(((service or {}).get("service_ip") or "").strip())
+        target_hosts.add(get_service_server_ip(service))
     for service in ((environment or {}).get("infra_services") or []):
-        target_hosts.add(((service or {}).get("service_ip") or "").strip())
+        target_hosts.add(get_service_server_ip(service))
 
     for host in sorted(target_hosts):
         load_collector_status_for_host(host, use_cache=False)
@@ -2210,6 +2290,7 @@ def get_collector_version_info(version_name):
 def _collect_environment_hosts_for_collector(environment):
     hosts = []
     seen = set()
+    local_aliases = {"localhost", "127.0.0.1", ".", "(local)"}
 
     def add_host(value):
         host_value = str(value or "").strip()
@@ -2223,9 +2304,16 @@ def _collect_environment_hosts_for_collector(environment):
 
     add_host((environment or {}).get("host"))
     for service in ((environment or {}).get("services") or []):
-        add_host((service or {}).get("service_ip"))
+        add_host(get_service_server_ip(service))
     for service in ((environment or {}).get("infra_services") or []):
-        add_host((service or {}).get("service_ip"))
+        add_host(get_service_server_ip(service))
+    non_local_hosts = [
+        host
+        for host in hosts
+        if _normalize_service_lookup_key(host) not in local_aliases
+    ]
+    if non_local_hosts:
+        return non_local_hosts
     return hosts
 
 
@@ -2273,8 +2361,14 @@ def _copy_file_to_host(host, source_path, destination_name):
     destination_path = _collector_destination_path_for_host(host, destination_name)
     if not destination_path:
         raise RuntimeError("Nao foi possivel resolver o caminho de destino do coletor.")
-    os.makedirs(os.path.dirname(destination_path), exist_ok=True)
-    shutil.copy2(source_path, destination_path)
+    try:
+        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+        shutil.copy2(source_path, destination_path)
+    except PermissionError as exc:
+        raise RuntimeError(
+            f"Sem permissao para gravar em {destination_path}. "
+            "Execute o monitor com permissao administrativa ou libere escrita no compartilhamento administrativo do host."
+        ) from exc
     return destination_path
 
 
@@ -2341,7 +2435,7 @@ def build_environment_collector_deployment_status(environment, latest_version=""
         if normalized_display_host in seen_display_hosts:
             continue
         seen_display_hosts.add(normalized_display_host)
-        current_version = str(marker.get("current_version") or "").strip()
+        current_version = str(marker.get("current_version") or collector_server.get("collector_version") or "").strip()
         if current_version:
             current_versions.add(current_version)
         else:
@@ -2390,7 +2484,7 @@ def deploy_collector_version_to_host(host, version_name, actor_username):
     source_dir = version_info["path"]
     source_files = [
         name
-        for name in ("gamb-colector-service.bat", "gamb-colector-service.ps1", "README.md")
+        for name in ("gamb-colector-service.bat", "gamb-colector-service.ps1", COLLECTOR_BULK_ACTION_BAT, "README.md")
         if os.path.exists(os.path.join(source_dir, name))
     ]
     if not source_files:
@@ -2534,7 +2628,7 @@ def _collect_monitored_hosts(environments=None):
         if environment_host:
             hosts.add(environment_host)
         for service in (environment.get("services", []) + environment.get("infra_services", [])):
-            service_host = (service.get("service_ip") or "").strip()
+            service_host = get_service_server_ip(service)
             if service_host:
                 hosts.add(service_host)
     if not hosts:
@@ -2610,7 +2704,7 @@ def _build_previous_status_lookup(cached_environment):
             key = (
                 section,
                 _normalize_service_lookup_key(service.get("name")),
-                _normalize_service_lookup_key(service.get("service_ip")),
+                _normalize_service_lookup_key(get_service_server_ip(service)),
             )
             lookup[key] = service.get("status", "UNKNOWN")
     return lookup
@@ -2631,7 +2725,7 @@ def build_environment_status(environment):
             current_host
             for current_host in (
                 [str(host or "").strip()]
-                + [((service or {}).get("service_ip") or host or "").strip() for _, service in all_services]
+                + [get_service_server_ip(service, host) for _, service in all_services]
             )
             if current_host
         }
@@ -2641,11 +2735,15 @@ def build_environment_status(environment):
         host_availability_by_host[target_host] = is_host_online(target_host, use_cache=True)
 
     for service_type, service in all_services:
-        resolved_host = (service or {}).get("service_ip") or host
+        resolved_host = get_service_server_ip(service, host)
         base = dict(service or {})
         base["name"] = service["name"]
         collector_payload = collector_by_host.get((resolved_host or "").strip()) or {}
         collector_server = collector_payload.get("server") or {}
+        collector_server_ip = str(collector_server.get("server_ip") or resolved_host or "").strip()
+        if collector_server_ip:
+            base["server_ip"] = collector_server_ip
+        base.pop("service" + "_ip", None)
         collector_is_stale = is_collector_stale(collector_server)
         collector_service = (collector_payload.get("services_by_name") or {}).get(_normalize_service_lookup_key(service.get("name")))
         if collector_service:
@@ -2655,7 +2753,6 @@ def build_environment_status(environment):
                 "tcp_port",
                 "webapp_port",
                 "rest_port",
-                "service_ip",
                 "console_log_file",
                 "sourcepath",
                 "rpocustom",
@@ -2670,7 +2767,7 @@ def build_environment_status(environment):
             fallback_key = (
                 service_type,
                 _normalize_service_lookup_key(service.get("name")),
-                _normalize_service_lookup_key(service.get("service_ip")),
+                _normalize_service_lookup_key(get_service_server_ip(service)),
             )
             # Regra operacional: status vem sempre do gamb-coletor; sem fallback ao SCM/Windows.
             base["status"] = previous_status_lookup.get(fallback_key, "UNKNOWN")
@@ -2793,7 +2890,7 @@ def build_initial_environment_payload(environment):
                 "tcp_port": service.get("tcp_port", ""),
                 "webapp_port": service.get("webapp_port", ""),
                 "rest_port": service.get("rest_port", ""),
-                "service_ip": service.get("service_ip", ""),
+                "server_ip": get_service_server_ip(service),
                 "console_log_file": service.get("console_log_file", ""),
                 "priority": service.get("priority", "media"),
                 "status": "LOADING",
@@ -2808,7 +2905,7 @@ def build_initial_environment_payload(environment):
                 "tcp_port": service.get("tcp_port", ""),
                 "webapp_port": service.get("webapp_port", ""),
                 "rest_port": service.get("rest_port", ""),
-                "service_ip": service.get("service_ip", ""),
+                "server_ip": get_service_server_ip(service),
                 "console_log_file": service.get("console_log_file", ""),
                 "priority": service.get("priority", "media"),
                 "status": "LOADING",
@@ -2921,10 +3018,21 @@ def _get_service_pid_via_sc(service_name, host):
         return 0
 
 
+def _get_service_status_from_windows_direct(service_name, host):
+    status_code = win32serviceutil.QueryServiceStatus(service_name, machine=resolve_service_machine(host))[1]
+    mapping = {
+        win32service.SERVICE_RUNNING: "RUNNING",
+        win32service.SERVICE_STOPPED: "STOPPED",
+        win32service.SERVICE_START_PENDING: "STARTING",
+        win32service.SERVICE_STOP_PENDING: "STOPPING",
+    }
+    return mapping.get(status_code, "UNKNOWN")
+
+
 def _force_kill_service_process(service_name, host):
     pid = _get_service_pid_via_sc(service_name, host)
     if pid <= 0:
-        return False, "PID do serviço não encontrado para forçar parada."
+        return False, "PID do serviço não encontrado para forçar parada.", 0
 
     command = ["taskkill"]
     if not _is_local_machine_host(host):
@@ -2933,45 +3041,61 @@ def _force_kill_service_process(service_name, host):
     completed = subprocess.run(command, capture_output=True, text=True)
     if completed.returncode != 0:
         details = (completed.stderr or completed.stdout or "").strip()
-        return False, details or f"Falha ao executar taskkill para PID {pid}."
-    return True, f"Parada forçada executada via taskkill no PID {pid}."
+        return False, details or f"Falha ao executar taskkill para PID {pid}.", pid
+    return True, f"Parada forçada executada via taskkill no PID {pid}.", pid
 
 
-def stop_service_with_force(service_name, host, timeout_seconds=8):
+def stop_service_with_force(service_name, host, display_name="", timeout_seconds=8):
     # Regra solicitada: sempre parar usando taskkill para maior velocidade.
-    killed, details = _force_kill_service_process(service_name, host)
+    kill_result = _force_kill_service_process(service_name, host)
+    killed = bool(kill_result[0])
+    details = kill_result[1]
+    killed_pid = kill_result[2] if len(kill_result) > 2 else 0
     if not killed:
         return {"success": False, "forced": False, "message": f"Falha no taskkill: {details}"}
 
-    ok, current_status = wait_for_collector_service_status(
+    ok, current_status = wait_for_windows_service_status(
         service_name,
         host,
-        expected_statuses={"PARADO", "STOPPED"},
+        expected_statuses={"STOPPED"},
+        display_name=display_name,
         timeout_seconds=max(timeout_seconds, 6),
         poll_interval=0.8,
     )
     if ok:
         return {"success": True, "forced": True, "message": details, "status": current_status}
 
+    current_pid = _get_service_pid_via_sc(service_name, host)
+    if killed_pid > 0 and current_pid != killed_pid:
+        status_label = current_status
+        if current_pid > 0 and current_status == "RUNNING":
+            status_label = "RESTARTED"
+        return {
+            "success": True,
+            "forced": True,
+            "message": f"{details} PID atual: {current_pid or 'nenhum'}.",
+            "status": status_label,
+        }
+
     return {
         "success": False,
         "forced": True,
-        "message": f"Taskkill executado, mas o gamb-coletor ainda reporta status {current_status}.",
+        "message": f"Taskkill executado, mas o Windows ainda reporta status {current_status}.",
         "status": current_status,
     }
 
 
-def find_service_in_environment(environment, service_name, service_ip=""):
+def find_service_in_environment(environment, service_name, server_ip=""):
     # Regra operacional: toda ação deve consultar o gamb-coletor antes de executar.
     environment = hydrate_environment_from_collector(environment, use_cache=False)
 
     all_environment_services = environment.get("services", []) + environment.get("infra_services", [])
-    if service_ip:
+    if server_ip:
         return next(
             (
                 item
                 for item in all_environment_services
-                if item.get("name") == service_name and (item.get("service_ip") or "").strip() == service_ip
+                if item.get("name") == service_name and get_service_server_ip(item) == server_ip
             ),
             None,
         )
@@ -2992,7 +3116,7 @@ def hydrate_environment_from_collector(environment, use_cache=False):
         if not service_name:
             return base
 
-        target_host = (base.get("service_ip") or environment_host).strip()
+        target_host = get_service_server_ip(base, environment_host)
         cache_key = _normalize_service_lookup_key(target_host)
         if cache_key not in collector_by_host:
             collector_by_host[cache_key] = load_collector_status_for_host(target_host, use_cache=use_cache)
@@ -3001,6 +3125,9 @@ def hydrate_environment_from_collector(environment, use_cache=False):
         collector_service = (collector_payload.get("services_by_name") or {}).get(_normalize_service_lookup_key(service_name))
         if not collector_service:
             return base
+        collector_server_ip = str((collector_payload.get("server") or {}).get("server_ip") or target_host).strip()
+        if collector_server_ip:
+            base["server_ip"] = collector_server_ip
 
         mapping = {
             "display_name": "display_name",
@@ -3008,7 +3135,6 @@ def hydrate_environment_from_collector(environment, use_cache=False):
             "tcp_port": "tcp_port",
             "webapp_port": "webapp_port",
             "rest_port": "rest_port",
-            "service_ip": "service_ip",
             "console_log_file": "console_log_file",
             "sourcepath": "sourcepath",
             "rpocustom": "rpocustom",
@@ -3024,16 +3150,14 @@ def hydrate_environment_from_collector(environment, use_cache=False):
     return hydrated
 
 
-def get_service_status_from_collector(service_name, host, use_cache=False):
-    payload = load_collector_status_for_host(host, use_cache=use_cache)
-    services_by_name = payload.get("services_by_name") or {}
-    service_data = services_by_name.get(_normalize_service_lookup_key(service_name))
-    if not service_data:
-        return "UNKNOWN"
-    return (service_data.get("status") or "UNKNOWN").strip().upper()
+def get_service_status_from_windows(service_name, host, display_name=""):
+    try:
+        return _get_service_status_from_windows_direct(service_name, host)
+    except Exception:
+        return get_service_status_for_host(service_name, host, display_name=display_name, snapshot=None)
 
 
-def wait_for_collector_service_status(service_name, host, expected_statuses, timeout_seconds=20, poll_interval=0.8):
+def wait_for_windows_service_status(service_name, host, expected_statuses, display_name="", timeout_seconds=20, poll_interval=0.8):
     expected = {str(item or "").strip().upper() for item in (expected_statuses or []) if str(item or "").strip()}
     if not expected:
         return False, "UNKNOWN"
@@ -3041,7 +3165,7 @@ def wait_for_collector_service_status(service_name, host, expected_statuses, tim
     deadline = time.time() + max(timeout_seconds, 3)
     latest_status = "UNKNOWN"
     while time.time() < deadline:
-        latest_status = get_service_status_from_collector(service_name, host, use_cache=False)
+        latest_status = get_service_status_from_windows(service_name, host, display_name=display_name)
         if latest_status in expected:
             return True, latest_status
         time.sleep(max(0.2, poll_interval))
@@ -3421,8 +3545,8 @@ def _normalize_service_key(value):
 def _build_service_registry_target(environment_name, section, service):
     section_label = "Infra" if section == "infra_services" else "Aplicacao"
     service_name = (service.get("display_name") or service.get("name") or "servico-sem-nome").strip()
-    service_ip = (service.get("service_ip") or "").strip() or "-"
-    return f"SERVICO :: {environment_name} :: {section_label} :: {service_name} :: {service_ip}"
+    server_ip = get_service_server_ip(service) or "-"
+    return f"SERVICO :: {environment_name} :: {section_label} :: {service_name} :: {server_ip}"
 
 
 def _service_snapshot(environment):
@@ -3433,7 +3557,7 @@ def _service_snapshot(environment):
     for section in ("services", "infra_services"):
         for raw_service in environment.get(section, []) or []:
             service = sanitize_service(raw_service)
-            key = f"{section}|{_normalize_service_key(service.get('name'))}|{_normalize_service_key(service.get('service_ip'))}"
+            key = f"{section}|{_normalize_service_key(service.get('name'))}|{_normalize_service_key(get_service_server_ip(service))}"
             if not _normalize_service_key(service.get("name")):
                 continue
             snapshot[key] = (section, service)
@@ -3511,44 +3635,48 @@ def _run_service_action(environment, resolved_host, service, action_type, userna
     machine = resolve_service_machine(resolved_host)
     forced_stop = False
     final_status = "UNKNOWN"
+    resolved_service = find_service_in_environment(environment, service, server_ip=resolved_host) or {}
+    display_name = resolved_service.get("display_name", "")
     if action_type == "start":
         win32serviceutil.StartService(service, machine=machine)
-        ok, collector_status = wait_for_collector_service_status(
+        ok, windows_status = wait_for_windows_service_status(
             service,
             resolved_host,
-            expected_statuses={"RODANDO", "RUNNING"},
+            expected_statuses={"RUNNING"},
+            display_name=display_name,
             timeout_seconds=20,
             poll_interval=0.8,
         )
         if not ok:
             raise RuntimeError(
-                f"Start executado, mas o gamb-coletor ainda reporta status {collector_status}."
+                f"Start executado, mas o Windows ainda reporta status {windows_status}."
             )
-        final_status = collector_status
+        final_status = windows_status
     elif action_type == "stop":
-        stop_result = stop_service_with_force(service, resolved_host)
+        stop_result = stop_service_with_force(service, resolved_host, display_name=display_name)
         if not stop_result.get("success"):
             raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço.")
         forced_stop = bool(stop_result.get("forced"))
         final_status = str(stop_result.get("status") or "PARADO")
     elif action_type == "restart":
-        stop_result = stop_service_with_force(service, resolved_host)
+        stop_result = stop_service_with_force(service, resolved_host, display_name=display_name)
         if not stop_result.get("success"):
             raise RuntimeError(stop_result.get("message") or "Falha ao parar serviço para reinício.")
         forced_stop = bool(stop_result.get("forced"))
         win32serviceutil.StartService(service, machine=machine)
-        ok, collector_status = wait_for_collector_service_status(
+        ok, windows_status = wait_for_windows_service_status(
             service,
             resolved_host,
-            expected_statuses={"RODANDO", "RUNNING"},
+            expected_statuses={"RUNNING"},
+            display_name=display_name,
             timeout_seconds=20,
             poll_interval=0.8,
         )
         if not ok:
             raise RuntimeError(
-                f"Restart executado, mas o gamb-coletor ainda reporta status {collector_status}."
+                f"Restart executado, mas o Windows ainda reporta status {windows_status}."
             )
-        final_status = collector_status
+        final_status = windows_status
     else:
         raise ValueError("Ação inválida.")
 
@@ -3566,7 +3694,102 @@ def _run_service_action(environment, resolved_host, service, action_type, userna
         status=final_status,
         forced_stop=forced_stop,
     )
-    return {"success": True, "service_ip": resolved_host, "forced_stop": forced_stop, "status": final_status}
+    return {"success": True, "server_ip": resolved_host, "forced_stop": forced_stop, "status": final_status}
+
+
+def _safe_bulk_file_token(value):
+    token = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value or "").strip())
+    return token.strip("._") or "local"
+
+
+def _parse_collector_bulk_output(stdout, stderr=""):
+    results = []
+    fatals = []
+    for raw_line in str(stdout or "").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.startswith("GAMB_BULK_RESULT|"):
+            parts = line.split("|", 5)
+            if len(parts) >= 6:
+                results.append(
+                    {
+                        "service": parts[1].strip(),
+                        "action": parts[2].strip(),
+                        "result": parts[3].strip(),
+                        "status": parts[4].strip(),
+                        "message": parts[5].strip(),
+                    }
+                )
+        elif line.startswith("GAMB_BULK_FATAL|"):
+            fatals.append(line.split("|", 1)[1].strip())
+
+    stderr_text = str(stderr or "").strip()
+    if stderr_text:
+        fatals.append(stderr_text)
+    return results, fatals
+
+
+def _run_collector_bulk_action_for_host(environment, host, services, action_type, username, job_id):
+    script_path = os.path.abspath(COLLECTOR_BULK_ACTION_BAT_PATH)
+    if not os.path.exists(script_path):
+        raise RuntimeError(f"BAT de lote do coletor nao encontrado: {script_path}")
+
+    os.makedirs(DATA_DIR, exist_ok=True)
+    host_label = str(host or "").strip() or "localhost"
+    file_token = _safe_bulk_file_token(f"{job_id}-{host_label}")
+    list_path = os.path.abspath(os.path.join(DATA_DIR, f"bulk-services-{file_token}.txt"))
+    log_path = os.path.abspath(os.path.join(DATA_DIR, f"bulk-services-{file_token}.log"))
+    service_names = [str(service.get("name") or "").strip() for service in services if str(service.get("name") or "").strip()]
+
+    with open(list_path, "w", encoding="utf-8") as file:
+        file.write("\n".join(service_names))
+        file.write("\n")
+
+    try:
+        completed = subprocess.run(
+            ["cmd.exe", "/c", script_path, action_type, host_label, list_path, log_path],
+            capture_output=True,
+            text=True,
+            timeout=max(90, len(service_names) * 70),
+        )
+    finally:
+        try:
+            os.remove(list_path)
+        except OSError:
+            pass
+
+    parsed_results, fatal_errors = _parse_collector_bulk_output(completed.stdout, completed.stderr)
+    results_by_service = {
+        _normalize_service_lookup_key(item.get("service")): item
+        for item in parsed_results
+        if item.get("service")
+    }
+    fallback_error = "; ".join(fatal_errors) or "BAT de lote nao retornou resultado para o servico."
+    output_tail = "\n".join(
+        [str(completed.stdout or "").strip(), str(completed.stderr or "").strip()]
+    ).strip()[-3000:]
+
+    rows = []
+    for service in services:
+        service_name = str(service.get("name") or "").strip()
+        result = results_by_service.get(_normalize_service_lookup_key(service_name))
+        if not result:
+            result = {
+                "service": service_name,
+                "action": action_type,
+                "result": "ERROR",
+                "status": "UNKNOWN",
+                "message": fallback_error,
+            }
+            if output_tail:
+                result["details"] = output_tail
+        result["server_ip"] = host_label
+        rows.append(result)
+
+    invalidate_service_status_cache(host_label)
+    invalidate_environment_status_cache(environment.get("id"))
+    return rows
 
 
 def _normalize_bulk_priority(value):
@@ -3605,7 +3828,7 @@ def _build_bulk_ordered_services(environment, action_type):
         for service in services:
             service_key = (
                 str(service.get("name") or "").strip().lower(),
-                str(service.get("service_ip") or "").strip().lower(),
+                get_service_server_ip(service).lower(),
             )
             if service_key in seen:
                 continue
@@ -3617,7 +3840,7 @@ def _build_bulk_ordered_services(environment, action_type):
         for service in services:
             service_key = (
                 str(service.get("name") or "").strip().lower(),
-                str(service.get("service_ip") or "").strip().lower(),
+                get_service_server_ip(service).lower(),
             )
             if service_key in seen:
                 continue
@@ -3722,7 +3945,7 @@ def build_teams_alert_card(alert):
 
     facts.append({"title": "Gerado em", "value": timestamp})
 
-    return {
+    card = {
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "type": "AdaptiveCard",
         "version": "1.4",
@@ -3787,6 +4010,19 @@ def build_teams_alert_card(alert):
             }
         ]
     }
+
+    if kind in {"production_service_stopped", "high_priority_service"}:
+        action_url = build_teams_service_action_url(alert, action_type="start")
+        if action_url:
+            card["actions"] = [
+                {
+                    "type": "Action.OpenUrl",
+                    "title": "Iniciar serviço",
+                    "url": action_url,
+                }
+            ]
+
+    return card
 
 
 def send_teams(message, webhook_url="", title="Protheus Monitor"):
@@ -4200,6 +4436,9 @@ def sync_session_user():
 def login():
     if request.method == "GET":
         if current_user():
+            next_url = (request.args.get("next") or "").strip()
+            if next_url.startswith("/"):
+                return redirect(next_url)
             return redirect(url_for("index"))
         return render_template("login.html")
 
@@ -4230,6 +4469,147 @@ def login():
     )
 
     return jsonify({"success": True, "user": serialize_user(user)})
+
+
+@app.route("/teams/service-action", methods=["GET", "POST"])
+def teams_service_action():
+    token = (request.values.get("token") or "").strip()
+    if not token:
+        return render_template(
+            "teams_service_action.html",
+            action_context=None,
+            error_message="Link de ação do Teams não informado.",
+            success_message="",
+            already_running=False,
+        ), 400
+
+    try:
+        action_payload = load_teams_service_action_token(token)
+    except ValueError as exc:
+        return render_template(
+            "teams_service_action.html",
+            action_context=None,
+            error_message=str(exc),
+            success_message="",
+            already_running=False,
+        ), 400
+
+    environment_id = str(action_payload.get("environment_id") or "").strip()
+    service_name = str(action_payload.get("service_name") or "").strip()
+    action_type = str(action_payload.get("action") or "start").strip().lower()
+    token_host = str(action_payload.get("host") or "").strip()
+    environment = find_environment(environment_id)
+    user = current_user()
+
+    if not user:
+        return redirect(url_for("login", next=request.full_path.rstrip("?")))
+
+    if not environment:
+        return render_template(
+            "teams_service_action.html",
+            action_context=None,
+            error_message="Ambiente não encontrado para esta ação.",
+            success_message="",
+            already_running=False,
+        ), 404
+
+    if not can_user_access_environment(user, environment):
+        return render_template(
+            "teams_service_action.html",
+            action_context=None,
+            error_message="Seu usuário não tem permissão para operar este ambiente.",
+            success_message="",
+            already_running=False,
+        ), 403
+
+    hydrated_environment = hydrate_environment_from_collector(environment, use_cache=False)
+    resolved_service = find_service_in_environment(hydrated_environment, service_name, server_ip=token_host)
+    if not resolved_service:
+        resolved_service = find_service_in_environment(hydrated_environment, service_name)
+    if not resolved_service:
+        return render_template(
+            "teams_service_action.html",
+            action_context=None,
+            error_message="Serviço não encontrado no ambiente informado.",
+            success_message="",
+            already_running=False,
+        ), 404
+
+    resolved_host = get_service_server_ip(resolved_service, hydrated_environment.get("host"))
+    current_status = str(resolved_service.get("status") or "").strip().upper() or "UNKNOWN"
+    action_context = {
+        "environment_name": str(hydrated_environment.get("name") or environment_id).strip(),
+        "environment_id": environment_id,
+        "service_name": str(resolved_service.get("name") or service_name).strip(),
+        "display_name": str(resolved_service.get("display_name") or resolved_service.get("name") or service_name).strip(),
+        "host": resolved_host,
+        "current_status": current_status,
+        "token": token,
+        "action": action_type,
+    }
+
+    if request.method == "GET":
+        return render_template(
+            "teams_service_action.html",
+            action_context=action_context,
+            error_message="",
+            success_message="",
+            already_running=service_status_is_running(current_status),
+        )
+
+    if action_type != "start":
+        return render_template(
+            "teams_service_action.html",
+            action_context=action_context,
+            error_message="Somente a ação de iniciar serviço está disponível no card do Teams.",
+            success_message="",
+            already_running=False,
+        ), 400
+
+    if service_status_is_running(current_status):
+        return render_template(
+            "teams_service_action.html",
+            action_context=action_context,
+            error_message="",
+            success_message="O serviço já estava em execução.",
+            already_running=True,
+        )
+
+    try:
+        result = _run_service_action(
+            hydrated_environment,
+            resolved_host,
+            action_context["service_name"],
+            "start",
+            user["username"],
+        )
+        final_status = str(result.get("status") or "RUNNING").strip().upper()
+        action_context["current_status"] = final_status
+        return render_template(
+            "teams_service_action.html",
+            action_context=action_context,
+            error_message="",
+            success_message=f"Serviço iniciado com sucesso. Status confirmado: {final_status}.",
+            already_running=False,
+        )
+    except Exception as exc:
+        save_execution_trace(
+            hydrated_environment.get("name"),
+            resolved_host,
+            action_context["service_name"],
+            "start",
+            "ERROR",
+            user["username"],
+            error=str(exc),
+            mode="teams_card",
+        )
+        return render_template(
+            "teams_service_action.html",
+            action_context=action_context,
+            error_message=str(exc),
+            success_message="",
+            already_running=False,
+        ), 500
 
 
 @app.route("/logout", methods=["POST"])
@@ -4441,7 +4821,7 @@ def action():
     data = request.get_json(silent=True) or {}
     environment_id = data.get("environment_id")
     service = data.get("service")
-    service_ip = (data.get("service_ip") or "").strip()
+    server_ip = (data.get("server_ip") or "").strip()
     action_type = data.get("action")
     async_requested = _as_bool(data.get("async"))
     user = current_user()
@@ -4460,12 +4840,12 @@ def action():
     if not any(item["name"] == service for item in all_environment_services):
         return jsonify({"success": False, "error": "Serviço não cadastrado para o ambiente."}), 404
 
-    resolved_service = find_service_in_environment(environment, service, service_ip=service_ip)
+    resolved_service = find_service_in_environment(environment, service, server_ip=server_ip)
 
     if not resolved_service:
-        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
+        return jsonify({"success": False, "error": "Serviço não cadastrado para o servidor informado."}), 404
 
-    resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
+    resolved_host = get_service_server_ip(resolved_service, environment.get("host"))
     if action_type not in {"start", "stop", "restart"}:
         return jsonify({"success": False, "error": "Ação inválida."}), 400
 
@@ -4488,7 +4868,7 @@ def action():
             environment_id=environment_id,
             environment=environment["name"],
             service=service,
-            service_ip=resolved_host,
+            server_ip=resolved_host,
             action=action_type,
             requested_by=user["username"],
         )
@@ -4501,6 +4881,8 @@ def action():
                     job_id,
                     status="completed",
                     success=True,
+                    server_ip=result.get("server_ip") or resolved_host,
+                    confirmed_status=result.get("status"),
                     forced_stop=bool(result.get("forced_stop")),
                     finished_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 )
@@ -4529,7 +4911,7 @@ def action():
                 )
 
         ACTION_EXECUTOR.submit(_worker)
-        return jsonify({"success": True, "queued": True, "job_id": job_id, "service_ip": resolved_host})
+        return jsonify({"success": True, "queued": True, "job_id": job_id, "server_ip": resolved_host})
 
     try:
         return jsonify(_run_service_action(environment, resolved_host, service, action_type, user["username"]))
@@ -4549,7 +4931,7 @@ def action():
         )
         send_teams(msg)
         send_email(msg)
-        return jsonify({"success": False, "error": str(exc), "service_ip": resolved_host}), 500
+        return jsonify({"success": False, "error": str(exc), "server_ip": resolved_host}), 500
 
 
 @app.route("/action-job/<job_id>")
@@ -4614,46 +4996,17 @@ def action_bulk():
         fail_count = 0
         skipped_count = 0
         errors = []
+        services_by_host = {}
 
         for service in ordered_services:
             service_name = service.get("name")
-            service_ip = (service.get("service_ip") or "").strip()
-            resolved_host = service_ip or (environment.get("host") or "").strip()
+            resolved_host = get_service_server_ip(service, environment.get("host"))
             try:
-                resolved_service = find_service_in_environment(environment, service_name, service_ip=service_ip)
+                resolved_service = find_service_in_environment(environment, service_name, server_ip=resolved_host)
                 if not resolved_service:
-                    raise ValueError("Servico nao encontrado no ambiente para o IP informado.")
-
-                current_status = str(resolved_service.get("status") or "").strip()
-                if action_type == "start" and service_status_is_running(current_status):
-                    skipped_count += 1
-                    save_execution_trace(
-                        environment.get("name"),
-                        resolved_host,
-                        resolved_service.get("name") or service_name,
-                        action_type,
-                        "SKIPPED_ALREADY_RUNNING",
-                        user["username"],
-                        status=current_status,
-                        mode="bulk",
-                        job_id=job_id,
-                    )
-                elif action_type == "stop" and service_status_is_stopped(current_status):
-                    skipped_count += 1
-                    save_execution_trace(
-                        environment.get("name"),
-                        resolved_host,
-                        resolved_service.get("name") or service_name,
-                        action_type,
-                        "SKIPPED_ALREADY_STOPPED",
-                        user["username"],
-                        status=current_status,
-                        mode="bulk",
-                        job_id=job_id,
-                    )
-                else:
-                    _run_service_action(environment, resolved_host, resolved_service.get("name") or service_name, action_type, user["username"])
-                success_count += 1
+                    raise ValueError("Servico nao encontrado no ambiente para o servidor informado.")
+                host_key = resolved_host or "localhost"
+                services_by_host.setdefault(host_key, []).append(resolved_service)
             except Exception as exc:
                 fail_count += 1
                 save_execution_trace(
@@ -4669,6 +5022,90 @@ def action_bulk():
                 )
                 if len(errors) < 20:
                     errors.append(f"{service_name} [{resolved_host or 'local'}]: {str(exc)}")
+
+            _set_action_job(job_id, success_count=success_count, fail_count=fail_count, skipped_count=skipped_count)
+
+        for host, host_services in services_by_host.items():
+            try:
+                batch_rows = _run_collector_bulk_action_for_host(
+                    environment,
+                    host,
+                    host_services,
+                    action_type,
+                    user["username"],
+                    job_id,
+                )
+            except Exception as exc:
+                for service in host_services:
+                    service_name = service.get("name")
+                    fail_count += 1
+                    save_execution_trace(
+                        environment.get("name"),
+                        host,
+                        service_name,
+                        action_type,
+                        "ERROR",
+                        user["username"],
+                        error=str(exc),
+                        mode="bulk_bat",
+                        job_id=job_id,
+                    )
+                    if len(errors) < 20:
+                        errors.append(f"{service_name} [{host or 'local'}]: {str(exc)}")
+                _set_action_job(job_id, success_count=success_count, fail_count=fail_count, skipped_count=skipped_count)
+                continue
+
+            for row in batch_rows:
+                service_name = row.get("service") or ""
+                result_label = str(row.get("result") or "ERROR").strip().upper()
+                status_label = str(row.get("status") or "").strip().upper()
+                message = str(row.get("message") or "").strip()
+
+                if result_label.startswith("SKIPPED"):
+                    skipped_count += 1
+                    success_count += 1
+                    save_execution_trace(
+                        environment.get("name"),
+                        host,
+                        service_name,
+                        action_type,
+                        result_label,
+                        user["username"],
+                        status=status_label,
+                        mode="bulk_bat",
+                        job_id=job_id,
+                    )
+                elif result_label == "SUCCESS":
+                    success_count += 1
+                    save_environment_log(environment["name"], host, service_name, action_type, "SUCCESS", user["username"])
+                    save_execution_trace(
+                        environment.get("name"),
+                        host,
+                        service_name,
+                        action_type,
+                        "SUCCESS",
+                        user["username"],
+                        status=status_label,
+                        forced_stop=action_type == "stop",
+                        mode="bulk_bat",
+                        job_id=job_id,
+                    )
+                else:
+                    fail_count += 1
+                    save_execution_trace(
+                        environment.get("name"),
+                        host,
+                        service_name,
+                        action_type,
+                        "ERROR",
+                        user["username"],
+                        status=status_label,
+                        error=message or row.get("details") or "Falha na execucao do BAT de lote.",
+                        mode="bulk_bat",
+                        job_id=job_id,
+                    )
+                    if len(errors) < 20:
+                        errors.append(f"{service_name} [{host or 'local'}]: {message or 'Falha na execucao do BAT de lote.'}")
 
             _set_action_job(job_id, success_count=success_count, fail_count=fail_count, skipped_count=skipped_count)
 
@@ -4693,7 +5130,7 @@ def service_console_log():
     data = request.get_json(silent=True) or {}
     environment_id = (data.get("environment_id") or "").strip()
     service_name = (data.get("service") or "").strip()
-    service_ip = (data.get("service_ip") or "").strip()
+    server_ip = (data.get("server_ip") or "").strip()
     last_signature = (data.get("last_signature") or "").strip()
     max_lines = int(data.get("max_lines") or 300)
 
@@ -4710,15 +5147,15 @@ def service_console_log():
     # Regra operacional: toda ação deve consultar o gamb-coletor antes de executar.
     environment = hydrate_environment_from_collector(environment, use_cache=False)
 
-    resolved_service = find_service_in_environment(environment, service_name, service_ip=service_ip)
+    resolved_service = find_service_in_environment(environment, service_name, server_ip=server_ip)
     if not resolved_service:
-        return jsonify({"success": False, "error": "Serviço não cadastrado para o IP informado."}), 404
+        return jsonify({"success": False, "error": "Serviço não cadastrado para o servidor informado."}), 404
 
     log_path = (resolved_service.get("console_log_file") or "").strip()
     if not log_path:
         return jsonify({"success": False, "error": "Console log file não cadastrado para este serviço."}), 400
 
-    resolved_host = (resolved_service.get("service_ip") or environment.get("host") or "").strip()
+    resolved_host = get_service_server_ip(resolved_service, environment.get("host"))
     if resolve_service_machine(resolved_host) is None:
         read_result = read_local_console_log_tail(log_path, max_lines=max_lines)
     else:
@@ -4735,7 +5172,7 @@ def service_console_log():
             "success": True,
             "changed": changed,
             "signature": signature,
-            "service_ip": resolved_host,
+            "server_ip": resolved_host,
             "content": read_result.get("content", "") if changed else "",
             "size": read_result.get("size", 0),
             "last_write_utc": read_result.get("last_write_utc", ""),
@@ -4941,6 +5378,13 @@ def deploy_collector_to_environment(environment_id):
             failures.append({"host": host, "error": str(exc)})
 
     result_label = "SUCCESS" if not failures else ("PARTIAL" if results else "ERROR")
+    error_message = ""
+    if failures and not results:
+        error_message = " | ".join(
+            f"{item.get('host')}: {item.get('error')}"
+            for item in failures[:2]
+            if item.get("error")
+        )
     save_log(
         f"COLETOR :: {environment.get('name')}",
         f"DEPLOY::{version_name}",
@@ -4956,6 +5400,7 @@ def deploy_collector_to_environment(environment_id):
             "environment_id": environment_id,
             "environment_name": environment.get("name"),
             "target_version": version_name,
+            "error": error_message,
             "results": results,
             "failures": failures,
             "current_status": build_environment_collector_deployment_status(environment, version_name),

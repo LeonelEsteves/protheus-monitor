@@ -3,7 +3,7 @@ param(
     [string]$OutputFile,
     [string]$ServerName,
     [string]$ServerIp,
-    [string]$CollectorVersion = "v20260422"
+    [string]$CollectorVersion = "v20260423"
 )
 
 $ErrorActionPreference = "SilentlyContinue"

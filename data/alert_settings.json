@@ -3,8 +3,9 @@
   "high_priority_services_stopped": true,
   "production_services_stopped": true,
   "windows_updates_pending": true,
-  "collector_json_missing": true,
+  "collector_json_missing": false,
   "teams_enabled": true,
+  "teams_webhook_active": "homologation",
   "teams_schedule_full_time": true,
   "teams_schedule_days": [
     0,

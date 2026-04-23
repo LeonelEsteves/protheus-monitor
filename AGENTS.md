@@ -17,7 +17,7 @@ Este reposit√≥rio √© um app **Flask** (Windows) para **monitorar e controlar ser
 - `templates/login.html`: tela de login.
 - `users.json`: base de usu√°rios (hash de senha + role + active).
 - `environments.json`: cadastro de ambientes e servi√ßos (appserver/rest/etc).
-- `environments.json` (servi√ßos): `display_name`, `path_executable`, `tcp_port`, `webapp_port`, `rest_port`, `service_ip`, `console_log_file`, `priority` (`baixa`/`media`/`alta`).
+- `environments.json` (servi√ßos): `display_name`, `path_executable`, `tcp_port`, `webapp_port`, `rest_port`, `server_ip`, `console_log_file`, `priority` (`baixa`/`media`/`alta`).
 - `events_log.json`: log de a√ß√µes (start/stop/restart) e alertas.
 - Auto-discovery (admin): endpoint `POST /discover-services` tenta descobrir servi√ßos via PowerShell Remoting (WinRM) e ler `bin\\appserver.ini`.
 
@@ -28,7 +28,8 @@ Este reposit√≥rio √© um app **Flask** (Windows) para **monitorar e controlar ser
 - A√ß√µes dispon√≠veis por servi√ßo: `start`, `stop`, `restart` (via `win32serviceutil.*`).
 - Status dos ambientes √© calculado por ambiente e pode ser buscado em paralelo (`ThreadPoolExecutor`).
 - Regra: `operator` n√£o pode acessar ambientes `environment_type=producao` (index/status/action filtram/bloqueiam).
-- `service_ip` (quando informado) √© usado para status/a√ß√µes do servi√ßo (sobrescreve o host do ambiente).
+- Regra vigente: n√£o usar IP por servi√ßo; status/a√ß√µes/logs usam o `server.server_ip` do `status-servico.json` de cada host (persistido como `server_ip` quando necess√°rio).
+- O coletor deve exibir vers√£o expl√≠cita no BAT e gravar `server.collector_version` no `status-servico.json`; o painel pode usar esse valor como fallback ao `collector-version.json`.
 
 ## Configura√ß√£o / vari√°veis de ambiente (importante)
 
@@ -48,12 +49,14 @@ Este reposit√≥rio √© um app **Flask** (Windows) para **monitorar e controlar ser
 - Bloco de informacoes do servidor no topo do ambiente deve permanecer compacto/minimalista; usar chips curtos e barra de disco por unidade (sem texto extenso de capacidade livre no corpo principal).
 
 - Regra adicional: exclusao de servico no formulario deve pedir confirmacao; incluir/alterar/excluir servico precisa gerar log em events_log.json.
+- Cadastro de ambientes: nas linhas de servico/infra, exibir apenas Nome do servico, Display Name e Prioridade; manter campos tecnicos ocultos/preservados para salvar.
 - Tela de serviÁos monitorados deve ter filtro por nome do serviÁo e por status (RUNNING/STOPPED/etc.).
 - Busca autom·tica deve registrar no log final se cada serviÁo est· rodando (SIM/N√O).
 - No cadastro/ediÁ„o de ambiente, o formul·rio deve ter filtro por nome de serviÁo e sugest„o em lista (datalist) com nomes j· conhecidos.
 - Gest„o de usu·rios: permitir ediÁ„o e exclus„o de usu·rio (com confirmaÁ„o e regras de seguranÁa, sem autoexclus„o).
 - Consulta de status deve tentar fallback por Display Name e aliases para serviÁos de license quando o Name n„o resolve.
 - Monitor por ambiente deve oferecer aÁıes em lote (Iniciar todos/Parar todos) com confirmaÁ„o prÈvia e ordem por prioridade.
+- Operacao em lote start/stop deve executar o BAT `gamb-bulk-services.bat` do gamb-coletor, agrupando servicos por host e registrando resultado na trilha tecnica.
 - AÁ„o de parada/reinÌcio deve tentar parada graciosa e, se exceder timeout, forÁar parada (taskkill) antes de retornar erro.
 - Em iniciar em lote: executar somente serviÁos de prioridade alta e mÈdia (n„o iniciar baixa).
 - Parada de serviÁo deve priorizar taskkill imediato para acelerar stop/restart em ambientes com lentid„o.
@@ -65,8 +68,8 @@ Este reposit√≥rio √© um app **Flask** (Windows) para **monitorar e controlar ser
 - Busca automatica (/discover-services) deve priorizar C:\gamb-coletor\status-servico.json de cada servidor; usar WinRM apenas como fallback.
 - Busca automatica deve usar exclusivamente o JSON do gamb-coletor (C:\gamb-coletor\status-servico.json), sem fallback por WinRM.
 - Antes de qualquer acao de servico (start/stop/restart/lote/console-log), hidratar servicos do ambiente com C:\gamb-coletor\status-servico.json (gamb-coletor).
-- Confirmacao de execucao das acoes start/stop/restart deve usar sempre status vindo do gamb-coletor (status-servico.json), sem consulta direta de status no Windows.
-- UX de acao de servico: ao clicar Start/Stop/Restart, botao deve indicar execucao (Executando...) e ao concluir exibir status atual retornado no painel.
+- Confirmacao de execucao das acoes start/stop/restart deve consultar status direto no Windows/SCM, nao o status do gamb-coletor, para evitar divergencia quando o JSON ainda nao sincronizou.
+- UX de acao de servico: ao clicar Start/Stop/Restart, botao deve indicar execucao (Executando...) ate o job ser confirmado; so liberar o botao apos atualizar/exibir o status confirmado retornado pelo Windows no painel.
 - Painel de status deve usar somente status do gamb-coletor (status-servico.json), sem fallback de status direto do Windows/SCM.
 - Em parada em lote (stop all), nunca parar servicos de license, independentemente de perfil ou ambiente.
 - Registrar em events_log.json transicoes de saude do coletor por host (COLLECTOR_HEALTH): PARADO quando sem sincronizacao recente e RODANDO quando retomar.
@@ -153,6 +156,8 @@ Este reposit√≥rio √© um app **Flask** (Windows) para **monitorar e controlar ser
 
 - Windows Updates por ambiente: somar apenas hosts validos/sincronizados por `server_ip`; hosts offline, sem JSON ou stale nao entram na soma e devem aparecer como N/D.
 - Webhook/Teams: manter segredo fora do git, enviar alertas separados por Adaptive Card, respeitar agenda/severidade e deduplicacao.
+- Webhook/Teams: suportar dois webhooks (producao e homologacao) com selecao mutuamente exclusiva; somente o canal ativo deve receber mensagens.
+- Alertas de servico critico/parado enviados ao Teams podem exibir botao "Iniciar servico" usando link seguro do monitor; exige APP_PUBLIC_BASE_URL acessivel e confirmacao autenticada no browser.
 - Coletor: toda alteracao nos arquivos do coletor deve gerar versao curta em `gamb-coletor/versions`.
 - Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.
 

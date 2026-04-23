@@ -1,11 +1,14 @@
 {
   "teams": {
-    "{\"environment_id\": \"apex-hml1\", \"host\": \"10.10.1.68\", \"kind\": \"windows_updates\", \"server_ip\": \"10.10.1.68\", \"severity\": \"warning\"}": 1776868723.416729,
-    "{\"environment_id\": \"apex-hml2\", \"host\": \"10.85.0.172\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.172\", \"severity\": \"warning\"}": 1776868723.416729,
-    "{\"environment_id\": \"apex-hml4\", \"host\": \"10.85.0.176\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.176\", \"severity\": \"warning\"}": 1776868723.416729,
-    "{\"environment_id\": \"apex-hml5\", \"host\": \"10.10.1.177\", \"kind\": \"windows_updates\", \"server_ip\": \"10.10.1.177\", \"severity\": \"warning\"}": 1776868723.416729,
-    "{\"environment_id\": \"apex-prd\", \"host\": \"10.85.0.198\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.198\", \"severity\": \"warning\"}": 1776868723.416729,
-    "{\"environment_id\": \"apex-prd\", \"host\": \"10.85.0.90\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.90\", \"severity\": \"warning\"}": 1776868723.416729,
-    "{\"environment_id\": \"apex-hml3\", \"host\": \"10.85.0.173\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.173\", \"severity\": \"warning\"}": 1776869752.7137525
+    "{\"environment_id\": \"apex-hml1\", \"host\": \"10.10.1.68\", \"kind\": \"windows_updates\", \"server_ip\": \"10.10.1.68\", \"severity\": \"warning\"}": 1776955868.2975552,
+    "{\"environment_id\": \"apex-hml2\", \"host\": \"10.85.0.172\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.172\", \"severity\": \"warning\"}": 1776955868.2975552,
+    "{\"environment_id\": \"apex-hml4\", \"host\": \"10.85.0.176\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.176\", \"severity\": \"warning\"}": 1776955868.2975552,
+    "{\"environment_id\": \"apex-hml3\", \"host\": \"10.85.0.173\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.173\", \"severity\": \"warning\"}": 1776955868.2975552,
+    "{\"environment_id\": \"apex-prd\", \"host\": \"10.85.0.197\", \"kind\": \"windows_updates\", \"server_ip\": \"10.85.0.197\", \"severity\": \"warning\"}": 1776873292.2564237,
+    "{\"drive\": null, \"environment_id\": \"apex-prd\", \"host\": \"10.10.1.198\", \"kind\": \"production_service_stopped\", \"message\": \".03 TOTVS | Microsiga Protheus 12 PRD - Slave 03 está parado no ambiente APEX-PRD.\", \"server_ip\": null, \"service_name\": \"TOTVS-Appserver12-PRD-SLV03\", \"severity\": \"critical\", \"windows_updates_pending\": null}": 1776881532.8096488,
+    "{\"drive\": null, \"environment_id\": \"apex-hml4\", \"host\": \"10.10.1.176\", \"kind\": \"collector_json_missing\", \"message\": \"APEX-HML4 não encontrou o arquivo status-servico.json no host 10.10.1.176.\", \"server_ip\": null, \"service_name\": null, \"severity\": \"critical\", \"windows_updates_pending\": null}": 1776888928.2355185,
+    "{\"drive\": null, \"environment_id\": \"apex-hml1\", \"host\": \"10.10.1.68\", \"kind\": \"collector_json_missing\", \"message\": \"APEX-HML1 não encontrou o arquivo status-servico.json no host 10.10.1.68.\", \"server_ip\": null, \"service_name\": null, \"severity\": \"critical\", \"windows_updates_pending\": null}": 1776896318.044972,
+    "{\"drive\": null, \"environment_id\": \"apex-hml1\", \"host\": \"10.85.0.68\", \"kind\": \"collector_json_missing\", \"message\": \"APEX-HML1 não encontrou o arquivo status-servico.json no host 10.85.0.68.\", \"server_ip\": null, \"service_name\": null, \"severity\": \"critical\", \"windows_updates_pending\": null}": 1776896318.044972,
+    "{\"drive\": null, \"environment_id\": \"apex-hml3\", \"host\": \"10.85.0.173\", \"kind\": \"high_priority_service\", \"message\": \".02 TOTVS | DBAccess 64 bits TSS está parado no ambiente APEX-HML3.\", \"server_ip\": null, \"service_name\": \"TOTVSDBAccess64TSS\", \"severity\": \"critical\", \"windows_updates_pending\": null}": 1776956434.3229475
   }
 }

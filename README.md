@@ -1,4 +1,4 @@
-# Protheus Monitor
+﻿# Protheus Monitor
 
 Aplicação Flask para monitoramento operacional de ambientes Protheus/TOTVS em Windows, com autenticação, painel web, descoberta automática de serviços, leitura de metadados via coletor e ações remotas de operação.
 
@@ -75,7 +75,7 @@ Cada serviço pode ter:
 - `tcp_port`
 - `webapp_port`
 - `rest_port`
-- `service_ip`
+- `server_ip`
 - `console_log_file`
 - `priority`
 
@@ -85,6 +85,7 @@ O monitor lê o `status-servico.json` por host via caminho local/UNC e hidrata o
 
 - status dos serviços
 - IP e nome do servidor
+- versão do coletor
 - timestamp da última sincronização
 - discos
 - atualizações pendentes do Windows
@@ -105,7 +106,7 @@ As ações disponíveis são:
 - `restart`
 - ações em lote por ambiente
 
-As execuções usam fila assíncrona para reduzir latência na UI. A confirmação de resultado usa o status refletido pelo coletor.
+As execuções usam fila assíncrona para reduzir latência na UI. A confirmação de resultado de `start`, `stop` e `restart` consulta o status direto no Windows/SCM para evitar divergência quando o coletor ainda não sincronizou.
 
 ### 4. Descoberta automática
 
@@ -149,12 +150,16 @@ Cada deploy grava um marcador local de versão no host do coletor.
 - fora de produção, start em lote deve iniciar apenas prioridades alta e média.
 - o serviço de license nunca participa de `Iniciar todos` ou `Parar todos` em nenhum ambiente; quando necessário, deve ser operado individualmente por administrador.
 - operações em lote resolvem cada serviço por `nome + IP` e tratam serviços já no estado desejado como sucesso operacional, reduzindo falhas desnecessárias.
+- start/stop em lote executam o BAT `gamb-bulk-services.bat` do `gamb-coletor`, agrupando os servicos por host e gravando resultado na trilha tecnica.
 - stop/restart devem priorizar `taskkill`.
+- na tela principal e no cadastro de ambientes, homologação/desenvolvimento exibem serviços por `display_name`; produção preserva a ordem cadastrada.
+- IP por serviço foi removido do fluxo operacional; status, ações e logs usam o `server.server_ip` de cada `status-servico.json`.
+- o coletor grava `server.collector_version` no `status-servico.json`; o BAT também exibe a versão explícita do pacote versionado.
 
 ### Coletor como fonte primária
 
 - status de serviços deve vir do coletor
-- confirmação de start/stop/restart deve usar o coletor
+- confirmação de start/stop/restart deve usar status direto do Windows/SCM
 - busca automática deve usar o coletor
 - quando o coletor estiver parado/desatualizado, os serviços devem ser exibidos como `COLETOR PARADO`
 
@@ -258,3 +263,5 @@ Observa??o: As novas vers?es do coletor usam nomes curtos no padr?o `vYYYYMMDD` 
 ### Regra de webhook - Windows Update
 
 - Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.
+- Webhook/Teams: o painel permite cadastrar canais de producao e homologacao; apenas o canal selecionado como ativo recebe mensagens.
+- Alertas de servico critico/parado no Teams podem incluir botao para iniciar o servico via link seguro do monitor; para isso, configure `APP_PUBLIC_BASE_URL` com a URL publica do sistema.

@@ -2,7 +2,8 @@ param(
     [string]$FilterTerm = "TOTVS",
     [string]$OutputFile,
     [string]$ServerName,
-    [string]$ServerIp
+    [string]$ServerIp,
+    [string]$CollectorVersion = "multilingual-2026-04-16"
 )
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -60,12 +61,8 @@ function Resolve-AppServerIniPath {
 }
 
 function Get-AppServerIniPayload {
-    param(
-        [string]$InstallFolder,
-        [string]$DefaultIp
-    )
+    param([string]$InstallFolder)
     $result = [ordered]@{
-        service_ip = $DefaultIp
         tcp_port = ""
         webapp_port = ""
         rest_port = ""
@@ -87,15 +84,6 @@ function Get-AppServerIniPayload {
     if ([string]::IsNullOrWhiteSpace($content)) {
         return $result
     }
-
-    $serviceIp = Get-IniSectionValue -Content $content -SectionName "TCP" -KeyName "Server"
-    if (-not $serviceIp) {
-        $serviceIp = Get-IniSectionValue -Content $content -SectionName "GENERAL" -KeyName "Server"
-    }
-    if (-not $serviceIp) {
-        $serviceIp = Get-IniAnyValue -Content $content -KeyNames @("server", "ip", "host")
-    }
-    if ($serviceIp) { $result.service_ip = $serviceIp }
 
     $result.tcp_port = Get-IniSectionValue -Content $content -SectionName "TCP" -KeyName "Port"
     $result.webapp_port = Get-IniSectionValue -Content $content -SectionName "WEBAPP" -KeyName "Port"
@@ -279,13 +267,12 @@ foreach ($svc in $services) {
         }
     }
 
-    $iniPayload = Get-AppServerIniPayload -InstallFolder $installFolder -DefaultIp $ServerIp
+    $iniPayload = Get-AppServerIniPayload -InstallFolder $installFolder
 
     $items += [ordered]@{
         service_name   = $svc.Name
         display_name   = $svc.DisplayName
         install_folder = $installFolder
-        service_ip     = $iniPayload.service_ip
         tcp_port       = [string]$iniPayload.tcp_port
         webapp_port    = [string]$iniPayload.webapp_port
         rest_port      = [string]$iniPayload.rest_port
@@ -303,6 +290,7 @@ $payload = [ordered]@{
     server = [ordered]@{
         server_name = $ServerName
         server_ip = $ServerIp
+        collector_version = $CollectorVersion
         os_version = $osVersion
         os_build = $osBuild
         disk_space = $diskSummary
