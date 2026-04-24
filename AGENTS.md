@@ -74,7 +74,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Em parada em lote (stop all), nunca parar servicos de license, independentemente de perfil ou ambiente.
 - Registrar em events_log.json transicoes de saude do coletor por host (COLLECTOR_HEALTH): PARADO quando sem sincronizacao recente e RODANDO quando retomar.
 - Quando o coletor estiver parado/desatualizado, status dos servicos deve ser exibido como COLETOR PARADO para evitar falsa impressao operacional.
-- Tempo de tolerancia para considerar coletor parado ajustado para janela confortavel (90s) no backend e UI.
+- Tempo de tolerancia para considerar coletor parado ajustado para janela confortavel (180s) no backend e UI, com releitura sem cache antes de marcar stale.
 
 - Preferencia visual: em resumo de disco, exibir percentual livre por unidade (ex.: C: 18,4% livre) e alertar "Pouco espaco em disco" quando alguma unidade estiver abaixo do limite configurado.
 
@@ -157,6 +157,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Windows Updates por ambiente: somar apenas hosts validos/sincronizados por `server_ip`; hosts offline, sem JSON ou stale nao entram na soma e devem aparecer como N/D.
 - Webhook/Teams: manter segredo fora do git, enviar alertas separados por Adaptive Card, respeitar agenda/severidade e deduplicacao.
 - Webhook/Teams: suportar dois webhooks (producao e homologacao) com selecao mutuamente exclusiva; somente o canal ativo deve receber mensagens.
+- UX/performance: badge de alertas na tela principal deve usar resumo leve; carregar lista completa de alertas somente ao abrir o modal.
 - Alertas de servico critico/parado enviados ao Teams podem exibir botao "Iniciar servico" usando link seguro do monitor; exige APP_PUBLIC_BASE_URL acessivel e confirmacao autenticada no browser.
 - Coletor: toda alteracao nos arquivos do coletor deve gerar versao curta em `gamb-coletor/versions`.
 - Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.
@@ -168,3 +169,6 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Painel admin deve ter botao para envio imediato de todos os alertas elegiveis ao webhook/Teams, sem alterar agenda/tempo configurado.
 
 - Ordenacao de servicos: tela principal e cadastro de ambientes devem exibir homologacao/desenvolvimento por display_name; producao preserva ordem original.
+
+
+- Sincronizacao do coletor: considerar stale apenas quando o JSON for lido e o timestamp exceder 180s; falha temporaria de leitura do status-servico.json deve aparecer como JSON inacessivel, sem marcar servicos como COLETOR PARADO nem gerar alerta de servico parado sem sincronismo confiavel.

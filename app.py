@@ -121,7 +121,7 @@ COLLECTOR_VERSION_HISTORY_LIMIT = 20
 COLLECTOR_DATA_CACHE = {}
 COLLECTOR_DATA_CACHE_LOCK = threading.Lock()
 COLLECTOR_DATA_CACHE_TTL_SECONDS = 15
-COLLECTOR_STALE_SECONDS = 90
+COLLECTOR_STALE_SECONDS = 180
 COLLECTOR_HEALTH_STATE = {}
 COLLECTOR_HEALTH_STATE_LOCK = threading.Lock()
 LOCAL_IP_CACHE = {"generated_at": 0.0, "values": {"127.0.0.1"}}
@@ -899,6 +899,17 @@ def collector_payload_missing(payload):
     return not server and not services_by_name
 
 
+def get_collector_sync_state(payload, host_online=None):
+    if host_online is False:
+        return "offline"
+    if collector_payload_missing(payload):
+        return "unreachable"
+    collector_server = (payload or {}).get("server") or {}
+    if is_collector_stale(collector_server):
+        return "stale"
+    return "healthy"
+
+
 def build_alert_signature(alert):
     return json.dumps(
             {
@@ -1134,7 +1145,8 @@ def build_monitor_alerts_payload(user=None, include_all=False):
         environment_name = str(environment_status.get("environment") or environment.get("name") or "").strip() or "Ambiente"
         host = str(environment_status.get("host") or environment.get("host") or "").strip() or "local"
         collector_server = environment_status.get("collector_server") or {}
-        collector_stale = is_collector_stale(collector_server)
+        collector_hosts_status = environment_status.get("collector_hosts") or []
+        collector_stale = any(str(item.get("sync_state") or "") == "stale" for item in collector_hosts_status if isinstance(item, dict))
 
         if settings.get("collector_json_missing"):
             checked_hosts = set()
@@ -1144,21 +1156,23 @@ def build_monitor_alerts_payload(user=None, include_all=False):
                 if normalized_host in checked_hosts:
                     continue
                 checked_hosts.add(normalized_host)
-                if not collector_payload_missing(load_collector_status_for_host(collector_host, use_cache=True)):
+                collector_payload = load_collector_status_for_host(collector_host, use_cache=True)
+                if not collector_payload_missing(collector_payload):
                     continue
                 host_online = is_host_online(collector_host, use_cache=True)
+                sync_state = get_collector_sync_state(collector_payload, host_online)
                 alerts.append(
                     {
-                        "kind": "collector_host_offline" if host_online is False else "collector_json_missing",
+                        "kind": "collector_host_offline" if sync_state == "offline" else "collector_json_missing",
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
                         "host": collector_host,
-                        "title": "Servidor possivelmente desligado" if host_online is False else "JSON do coletor ausente",
+                        "title": "Servidor possivelmente desligado" if sync_state == "offline" else "JSON do coletor inacessível",
                         "message": (
                             f"{environment_name} não conseguiu sincronizar com o host {collector_host}; o servidor pode estar desligado ou inacessível."
-                            if host_online is False
-                            else f"{environment_name} não encontrou o arquivo status-servico.json no host {collector_host}."
+                            if sync_state == "offline"
+                            else f"{environment_name} não conseguiu ler o status-servico.json no host {collector_host}."
                         ),
                     }
                 )
@@ -1197,6 +1211,8 @@ def build_monitor_alerts_payload(user=None, include_all=False):
 
         if settings.get("production_services_stopped") and is_production:
             for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
+                if str(service.get("collector_sync_state") or "") != "healthy":
+                    continue
                 if not service_status_is_stopped(service.get("status")):
                     continue
                 display_name = str(service.get("display_name") or service.get("name") or "Serviço").strip() or "Serviço"
@@ -1215,6 +1231,8 @@ def build_monitor_alerts_payload(user=None, include_all=False):
 
         if settings.get("high_priority_services_stopped") and not is_production:
             for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
+                if str(service.get("collector_sync_state") or "") != "healthy":
+                    continue
                 if normalize_service_priority(service.get("priority")) != "alta":
                     continue
                 if not service_status_is_stopped(service.get("status")):
@@ -1257,6 +1275,24 @@ def build_monitor_alerts_payload(user=None, include_all=False):
         "alerts": unique_alerts[:ALERTS_MAX_ITEMS],
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
+
+
+def get_alerts_signature(alerts):
+    normalized = []
+    for alert in alerts if isinstance(alerts, list) else []:
+        if not isinstance(alert, dict):
+            continue
+        normalized.append(
+            {
+                "kind": alert.get("kind"),
+                "severity": alert.get("severity"),
+                "environment_id": alert.get("environment_id"),
+                "service_name": alert.get("service_name"),
+                "drive": alert.get("drive"),
+                "message": alert.get("message"),
+            }
+        )
+    return json.dumps(normalized, ensure_ascii=False, sort_keys=True)
 
 
 def collect_server_inventory(hosts):
@@ -2154,7 +2190,7 @@ def is_collector_stale(collector_server):
     timestamp_text = str((collector_server or {}).get("timestamp") or "").strip()
     collector_dt = _parse_collector_timestamp(timestamp_text)
     if collector_dt is None:
-        return True
+        return False
     age_seconds = (datetime.now() - collector_dt).total_seconds()
     return age_seconds > COLLECTOR_STALE_SECONDS
 
@@ -2164,6 +2200,8 @@ def register_collector_health_event(environment, collector_server):
     server_ip = str((collector_server or {}).get("server_ip") or "").strip()
     timestamp_text = str((collector_server or {}).get("timestamp") or "").strip()
     is_stale = is_collector_stale(collector_server)
+    if not timestamp_text:
+        return
 
     current_state = "PARADO" if is_stale else "RODANDO"
     state_key = _normalize_service_lookup_key(server_ip or host) or host.lower()
@@ -2740,11 +2778,16 @@ def build_environment_status(environment):
         base["name"] = service["name"]
         collector_payload = collector_by_host.get((resolved_host or "").strip()) or {}
         collector_server = collector_payload.get("server") or {}
+        collector_sync_state = get_collector_sync_state(
+            collector_payload,
+            host_availability_by_host.get((resolved_host or "").strip()),
+        )
         collector_server_ip = str(collector_server.get("server_ip") or resolved_host or "").strip()
         if collector_server_ip:
             base["server_ip"] = collector_server_ip
         base.pop("service" + "_ip", None)
-        collector_is_stale = is_collector_stale(collector_server)
+        collector_is_stale = collector_sync_state == "stale"
+        base["collector_sync_state"] = collector_sync_state
         collector_service = (collector_payload.get("services_by_name") or {}).get(_normalize_service_lookup_key(service.get("name")))
         if collector_service:
             for field in (
@@ -2792,7 +2835,8 @@ def build_environment_status(environment):
         collector_hosts_seen.add(summary_key)
         host_online = host_availability_by_host.get(target_host)
         payload_missing = collector_payload_missing(collector_payload)
-        host_stale = is_collector_stale(collector_server)
+        collector_sync_state = get_collector_sync_state(collector_payload, host_online)
+        host_stale = collector_sync_state == "stale"
         try:
             pending_updates = int(collector_server.get("windows_updates_pending"))
         except Exception:
@@ -2810,8 +2854,9 @@ def build_environment_status(environment):
                 collector_server = refreshed_server
                 summary_server_ip = str(collector_server.get("server_ip") or target_host).strip() or target_host
                 payload_missing = collector_payload_missing(collector_payload)
-                host_stale = is_collector_stale(collector_server)
-        valid_updates_source = host_online is not False and not payload_missing and not host_stale
+                collector_sync_state = get_collector_sync_state(collector_payload, host_online)
+                host_stale = collector_sync_state == "stale"
+        valid_updates_source = collector_sync_state == "healthy"
         if pending_updates is not None and valid_updates_source:
             total_pending_updates += pending_updates
             has_pending_updates_value = True
@@ -2829,11 +2874,12 @@ def build_environment_status(environment):
                 "is_stale": host_stale,
                 "payload_missing": payload_missing,
                 "host_online": host_online,
+                "sync_state": collector_sync_state,
             }
         )
-        if host_online is False:
+        if collector_sync_state == "offline":
             offline_hosts.append(summary_server_ip)
-        elif payload_missing or host_stale:
+        elif collector_sync_state in {"unreachable", "stale"}:
             unsynced_hosts.append(summary_server_ip)
     if has_pending_updates_value:
         environment_collector["windows_updates_pending"] = total_pending_updates
@@ -4727,6 +4773,20 @@ def send_teams_alerts_now():
 def get_monitor_alerts():
     trigger_monitor_alert_dispatch_async()
     return jsonify(build_monitor_alerts_payload(current_user()))
+
+
+@app.route("/alerts/summary", methods=["GET"])
+@login_required
+def get_monitor_alerts_summary():
+    payload = build_monitor_alerts_payload(current_user())
+    alerts = payload.get("alerts") or []
+    return jsonify(
+        {
+            "success": True,
+            "count": len(alerts),
+            "signature": get_alerts_signature(alerts),
+        }
+    )
 
 
 @app.route("/documentation", methods=["GET"])

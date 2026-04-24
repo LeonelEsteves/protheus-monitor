@@ -370,8 +370,8 @@ document.documentElement.classList.add("dark");
     <div class="max-h-[80vh] w-full max-w-5xl rounded-3xl bg-white p-5 shadow-2xl">
         <div class="mb-4 flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold">Alertas do monitor</h2>
-                <p class="text-sm text-slate-500">Ocorrências críticas e avisos ativos.</p>
+                <h2 class="text-xl font-semibold">Alertas</h2>
+                <p class="text-sm text-slate-500">Itens ativos.</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="clearAlertsScreen()" class="button-highlight-secondary rounded-xl px-4 py-2 text-sm font-semibold">Limpar da tela</button>
@@ -417,6 +417,8 @@ let lastRead = localStorage.getItem("lastRead") || null;
 let lastAlertsReadSignature = localStorage.getItem("lastAlertsReadSignature") || "";
 let hiddenLogsUntil = localStorage.getItem("hiddenLogsUntil") || "";
 let hiddenAlertsSignature = localStorage.getItem("hiddenAlertsSignature") || "";
+let lastAlertsSummarySignature = "";
+let lastAlertsSummaryCount = 0;
 let allLogs = [];
 let allAlerts = [];
 let debugEntriesByContext = {};
@@ -936,11 +938,12 @@ function parseCollectorTimestamp(timestamp) {
 function getCollectorSyncMeta(environment) {
     const timestamp = getCollectorSyncTimestamp(environment);
     const parsed = parseCollectorTimestamp(timestamp);
-    const staleAfterMs = 90 * 1000;
+    const staleAfterMs = 180 * 1000;
     const isStale = !parsed || ((Date.now() - parsed.getTime()) > staleAfterMs);
     const collectorHosts = Array.isArray(environment?.collector_hosts) ? environment.collector_hosts : [];
-    const offlineHosts = collectorHosts.filter((item) => item && item.host_online === false);
-    const unsyncedHosts = collectorHosts.filter((item) => item && item.host_online !== false && (item.payload_missing || item.is_stale));
+    const offlineHosts = collectorHosts.filter((item) => item && item.sync_state === "offline");
+    const unreachableHosts = collectorHosts.filter((item) => item && item.sync_state === "unreachable");
+    const staleHosts = collectorHosts.filter((item) => item && item.sync_state === "stale");
     if (offlineHosts.length) {
         const offlineLabel = offlineHosts.length === 1
             ? `Servidor possivelmente desligado: ${offlineHosts[0].server_ip || offlineHosts[0].host || "-"}`
@@ -952,13 +955,24 @@ function getCollectorSyncMeta(environment) {
             iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
         };
     }
-    if (collectorHosts.length > 1 && unsyncedHosts.length) {
-        const unsyncedLabel = unsyncedHosts.length === 1
-            ? `Coletor sem sincronização em ${unsyncedHosts[0].server_ip || unsyncedHosts[0].host || "-"}`
-            : `Coletor sem sincronização em ${unsyncedHosts.length} hosts do ambiente`;
+    if (collectorHosts.length > 1 && unreachableHosts.length) {
+        const unreachableLabel = unreachableHosts.length === 1
+            ? `JSON do coletor inacessível em ${unreachableHosts[0].server_ip || unreachableHosts[0].host || "-"}`
+            : `JSON do coletor inacessível em ${unreachableHosts.length} hosts do ambiente`;
         return {
             isStale: true,
-            label: unsyncedLabel,
+            label: unreachableLabel,
+            badgeClass: "border-amber-500/60 bg-amber-500/15 text-amber-100",
+            iconPath: '<path d="M12 8v4"/><path d="M12 16h.01"/><path d="M10 3h4"/><path d="M12 3v2"/><path d="M6.2 6.2 4.8 4.8"/><path d="M17.8 6.2l1.4-1.4"/><path d="M3 12h2"/><path d="M19 12h2"/><path d="M6.2 17.8l-1.4 1.4"/><path d="M17.8 17.8l1.4 1.4"/><path d="M12 19v2"/><circle cx="12" cy="12" r="7"/>',
+        };
+    }
+    if (collectorHosts.length > 1 && staleHosts.length) {
+        const staleLabel = staleHosts.length === 1
+            ? `Coletor desatualizado em ${staleHosts[0].server_ip || staleHosts[0].host || "-"}`
+            : `Coletor desatualizado em ${staleHosts.length} hosts do ambiente`;
+        return {
+            isStale: true,
+            label: staleLabel,
             badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-200",
             iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
         };
@@ -966,15 +980,17 @@ function getCollectorSyncMeta(environment) {
     if (!timestamp) {
         return {
             isStale: true,
-            label: "Coletor parado: sem sincronização",
-            badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-200",
-            iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+            label: unreachableHosts.length ? "JSON do coletor inacessível" : "Sem timestamp do coletor",
+            badgeClass: unreachableHosts.length ? "border-amber-500/60 bg-amber-500/15 text-amber-100" : "border-slate-500/60 bg-slate-500/15 text-slate-200",
+            iconPath: unreachableHosts.length
+                ? '<path d="M12 8v4"/><path d="M12 16h.01"/><path d="M10 3h4"/><path d="M12 3v2"/><path d="M6.2 6.2 4.8 4.8"/><path d="M17.8 6.2l1.4-1.4"/><path d="M3 12h2"/><path d="M19 12h2"/><path d="M6.2 17.8l-1.4 1.4"/><path d="M17.8 17.8l1.4 1.4"/><path d="M12 19v2"/><circle cx="12" cy="12" r="7"/>'
+                : '<path d="M12 8v4"/><path d="M12 16h.01"/><circle cx="12" cy="12" r="9"/>',
         };
     }
     if (isStale) {
         return {
             isStale: true,
-            label: `Coletor parado: última sincronização ${formatCollectorTimestampBr(timestamp)}`,
+            label: `Coletor desatualizado: última sincronização ${formatCollectorTimestampBr(timestamp)}`,
             badgeClass: "border-rose-500/60 bg-rose-500/15 text-rose-200",
             iconPath: '<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
         };
@@ -1024,10 +1040,8 @@ function parseCollectorDiskUnits(diskSpaceRaw) {
 
 function buildCollectorHostMetric(hostSummary) {
     const serverIp = String(hostSummary?.server_ip || hostSummary?.host || "").trim() || "host";
-    const updatesValid = hostSummary?.windows_updates_valid !== false
-        && hostSummary?.payload_missing !== true
-        && hostSummary?.is_stale !== true
-        && hostSummary?.host_online !== false;
+    const syncState = String(hostSummary?.sync_state || "").trim();
+    const updatesValid = hostSummary?.windows_updates_valid !== false && syncState === "healthy";
     const rawPendingUpdates = hostSummary?.windows_updates_pending;
     const hasPendingUpdatesValue = rawPendingUpdates !== null && rawPendingUpdates !== undefined && String(rawPendingUpdates).trim() !== "";
     const pendingUpdates = hasPendingUpdatesValue ? Number(rawPendingUpdates) : NaN;
@@ -1046,6 +1060,7 @@ function buildCollectorHostMetric(hostSummary) {
         : (Number.isFinite(diskUsedPercent) ? `${formatNumberBr(Math.max(0, 100 - diskUsedPercent), 1)}% livre` : "indisponível");
     return {
         serverIp,
+        syncState,
         pendingUpdatesLabel,
         diskUnitsSummary,
         lowDiskWarning: lowDiskUnits.length ? "Pouco espaço em disco" : "",
@@ -1258,11 +1273,12 @@ function renderAlertsContent() {
 }
 
 async function refreshAlertsBadge() {
-    const alertsResult = await apiFetch("/alerts");
+    const alertsResult = await apiFetch("/alerts/summary");
     if (!alertsResult) {
         return;
     }
-    allAlerts = Array.isArray(alertsResult.data.alerts) ? alertsResult.data.alerts : [];
+    lastAlertsSummarySignature = String(alertsResult.data.signature || "");
+    lastAlertsSummaryCount = Number(alertsResult.data.count || 0);
     updateAlertsBadge();
 }
 
@@ -1320,7 +1336,6 @@ async function loadEnvironmentStatus(environmentId, { force = false } = {}) {
         renderTabs();
         renderContent();
         await refreshLogsBadge();
-        await refreshAlertsBadge();
     } finally {
         loadingEnvironmentIds.delete(environmentId);
         const currentEnvironment = getEnvironmentById(environmentId);
@@ -1379,15 +1394,14 @@ function clearLogsScreen() {
 
 function updateAlertsBadge() {
     const badge = document.getElementById("alertsBadge");
-    const safeAlerts = getVisibleAlerts();
-    if (!safeAlerts.length) {
+    const visibleCount = hiddenAlertsSignature && hiddenAlertsSignature === lastAlertsSummarySignature ? 0 : lastAlertsSummaryCount;
+    if (!visibleCount || !lastAlertsSummarySignature) {
         badge.classList.add("hidden");
         return;
     }
 
-    const currentSignature = getAlertsSignature(safeAlerts);
-    if (!lastAlertsReadSignature || lastAlertsReadSignature !== currentSignature) {
-        badge.textContent = safeAlerts.length;
+    if (!lastAlertsReadSignature || lastAlertsReadSignature !== lastAlertsSummarySignature) {
+        badge.textContent = visibleCount;
         badge.classList.remove("hidden");
         return;
     }
@@ -1396,7 +1410,7 @@ function updateAlertsBadge() {
 }
 
 function clearAlertsScreen() {
-    hiddenAlertsSignature = getAlertsSignature(allAlerts);
+    hiddenAlertsSignature = allAlerts.length ? getAlertsSignature(allAlerts) : lastAlertsSummarySignature;
     localStorage.setItem("hiddenAlertsSignature", hiddenAlertsSignature);
     renderAlertsContent();
     updateAlertsBadge();
@@ -1524,6 +1538,8 @@ function renderContent() {
                                 <span class="text-slate-500">|</span>
                                 <span>Discos ${escapeHtml(metric.diskUnitsSummary)}</span>
                                 ${metric.hostOnline === false ? `<span class="text-rose-200">| Servidor possivelmente desligado</span>` : ""}
+                                ${metric.syncState === "unreachable" ? `<span class="text-amber-200">| JSON inacessível</span>` : ""}
+                                ${metric.syncState === "stale" ? `<span class="text-rose-200">| Coletor desatualizado</span>` : ""}
                                 ${metric.lowDiskWarning ? `<span class="text-amber-200">| ${escapeHtml(metric.lowDiskWarning)}</span>` : ""}
                             </div>
                         `).join("")
@@ -1533,6 +1549,8 @@ function renderContent() {
                                 <span class="font-semibold text-white">Updates pendentes:</span>
                                 <span>${escapeHtml(singleCollectorMetric.pendingUpdatesLabel)}</span>
                                 ${singleCollectorMetric.updatesValid ? "" : `<span class="text-slate-400">| validar sincronismo</span>`}
+                                ${singleCollectorMetric.syncState === "unreachable" ? `<span class="text-amber-200">| JSON inacessível</span>` : ""}
+                                ${singleCollectorMetric.syncState === "stale" ? `<span class="text-rose-200">| Coletor desatualizado</span>` : ""}
                             </div>
                             <div class="inline-flex items-center gap-2 rounded-md border border-slate-700 bg-slate-950/60 px-2 py-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
@@ -1843,6 +1861,8 @@ async function toggleAlerts() {
     allAlerts = Array.isArray(result.data.alerts) ? result.data.alerts : [];
     renderAlertsContent();
     lastAlertsReadSignature = getAlertsSignature(allAlerts);
+    lastAlertsSummarySignature = lastAlertsReadSignature;
+    lastAlertsSummaryCount = allAlerts.length;
     localStorage.setItem("lastAlertsReadSignature", lastAlertsReadSignature);
     updateAlertsBadge();
 }
@@ -1968,9 +1988,8 @@ setInterval(() => {
     const activeEnvironment = getFilteredEnvironments()[activeTab];
     if (activeEnvironment) {
         loadEnvironmentStatus(activeEnvironment.id, { force: true });
-    } else {
-        refreshAlertsBadge();
     }
+    refreshAlertsBadge();
 }, 12000);
 syncEnvironmentFilter();
 renderTabs();
