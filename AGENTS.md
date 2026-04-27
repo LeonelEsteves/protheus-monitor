@@ -160,7 +160,8 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - UX/performance: badge de alertas na tela principal deve usar resumo leve; carregar lista completa de alertas somente ao abrir o modal.
 - Alertas de servico critico/parado enviados ao Teams podem exibir botao "Iniciar servico" usando link seguro do monitor; exige APP_PUBLIC_BASE_URL acessivel e confirmacao autenticada no browser.
 - Coletor: toda alteracao nos arquivos do coletor deve gerar versao curta em `gamb-coletor/versions`.
-- Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.
+- Windows Update no webhook: enviar no maximo uma vez por semana por ambiente/servidor, sempre na segunda-feira, mesmo que a quantidade de updates mude durante a semana.
+- Alertas de Windows Update devem ter severidade informativa (`info`) na aplicacao e no webhook.
 
 - Tela principal de servicos: exibir o valor bruto de windows_updates_pending vindo do JSON por host quando existir; soma/webhook continuam usando somente hosts validos/sincronizados.
 
@@ -172,3 +173,18 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 
 
 - Sincronizacao do coletor: considerar stale apenas quando o JSON for lido e o timestamp exceder 180s; falha temporaria de leitura do status-servico.json deve aparecer como JSON inacessivel, sem marcar servicos como COLETOR PARADO nem gerar alerta de servico parado sem sincronismo confiavel.
+
+- Alertas de servico parado devem ignorar janelas curtas de start/restart em andamento ou concluido recentemente, para evitar falso positivo durante reinicializacao operacional.
+
+- Teams: quando um servico critico/producao parar e depois voltar a funcionar, enviar alerta de retorno ao normal com severidade informativa (`info`), para complementar o alerta de parada.
+
+- Busca automatica de servicos deve considerar explicitamente servicos com TSS no Name/Display Name, alem de TOTVS.
+
+- Gamb-coletor: filtro padrao do coletor e da descoberta deve incluir TOTVS e TSS; novas versoes do coletor precisam preservar esse criterio.
+
+- Gamb-coletor BAT: manter cabecalho fixo no console, com limpeza/redesenho por ciclo para evitar que a janela cresca visualmente durante a coleta continua.
+
+
+
+
+

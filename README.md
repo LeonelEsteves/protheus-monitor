@@ -262,6 +262,9 @@ Observa??o: As novas vers?es do coletor usam nomes curtos no padr?o `vYYYYMMDD` 
 
 ### Regra de webhook - Windows Update
 
-- Windows Update no webhook: enviar no maximo uma vez por dia por ambiente/servidor, mesmo que a quantidade de updates mude durante o dia.
+- Windows Update no webhook: enviar no maximo uma vez por semana por ambiente/servidor, sempre na segunda-feira, mesmo que a quantidade de updates mude durante a semana.
 - Webhook/Teams: o painel permite cadastrar canais de producao e homologacao; apenas o canal selecionado como ativo recebe mensagens.
 - Alertas de servico critico/parado no Teams podem incluir botao para iniciar o servico via link seguro do monitor; para isso, configure `APP_PUBLIC_BASE_URL` com a URL publica do sistema.
+- Servicos criticos/em producao tambem enviam aviso de retorno ao normal no Teams com severidade informativa (`info`), para confirmar que o servico voltou a funcionar.
+
+

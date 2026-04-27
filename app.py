@@ -152,8 +152,10 @@ TEAMS_ALERT_SEVERITY_OPTIONS = {"critical", "warning", "info"}
 
 ALERTS_MAX_ITEMS = 100
 ALERT_TEAMS_DEDUP_SECONDS = 1800
-ALERT_TEAMS_WINDOWS_UPDATES_DEDUP_SECONDS = 86400
+ALERT_TEAMS_WINDOWS_UPDATES_DEDUP_SECONDS = 7 * 24 * 60 * 60
+ALERT_TEAMS_WINDOWS_UPDATES_WEEKDAY = 0  # segunda-feira
 ALERT_DISPATCH_INTERVAL_SECONDS = 60
+SERVICE_ALERT_SUPPRESSION_SECONDS = 180
 README_FILE = "README.md"
 
 _FORCE_HTTPS_ENV = os.getenv("GAMB_FORCE_HTTPS")
@@ -950,6 +952,68 @@ def get_teams_alert_dedup_seconds(alert):
     return ALERT_TEAMS_DEDUP_SECONDS
 
 
+def is_teams_windows_updates_delivery_day(when=None):
+    when = when or datetime.now()
+    return when.weekday() == ALERT_TEAMS_WINDOWS_UPDATES_WEEKDAY
+
+
+def build_service_alert_state_key(kind, environment_id, host, service_name):
+    return json.dumps(
+        {
+            "kind": str(kind or "").strip(),
+            "environment_id": str(environment_id or "").strip(),
+            "host": str(host or "").strip(),
+            "service_name": str(service_name or "").strip(),
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+    )
+
+
+def build_service_recovery_alert(service_state):
+    display_name = str(
+        service_state.get("display_name")
+        or service_state.get("service_name")
+        or "Serviço"
+    ).strip() or "Serviço"
+    environment_name = str(service_state.get("environment_name") or "Ambiente").strip() or "Ambiente"
+    host = str(service_state.get("host") or "-").strip() or "-"
+    return {
+        "kind": "service_recovered",
+        "severity": "info",
+        "environment_id": service_state.get("environment_id"),
+        "environment_name": environment_name,
+        "host": host,
+        "server_ip": service_state.get("server_ip") or host,
+        "service_name": str(service_state.get("service_name") or "").strip(),
+        "title": "Serviço voltou a funcionar",
+        "message": f"{display_name} voltou a funcionar no ambiente {environment_name}.",
+    }
+
+
+def build_service_stopped_alert_from_state(service_state):
+    kind = str(service_state.get("kind") or "").strip()
+    display_name = str(
+        service_state.get("display_name")
+        or service_state.get("service_name")
+        or "Serviço"
+    ).strip() or "Serviço"
+    environment_name = str(service_state.get("environment_name") or "Ambiente").strip() or "Ambiente"
+    host = str(service_state.get("host") or "-").strip() or "-"
+    title = "Serviço parado em produção" if kind == "production_service_stopped" else "Serviço crítico parado"
+    return {
+        "kind": kind,
+        "severity": "critical",
+        "environment_id": service_state.get("environment_id"),
+        "environment_name": environment_name,
+        "host": host,
+        "server_ip": service_state.get("server_ip") or host,
+        "service_name": str(service_state.get("service_name") or "").strip(),
+        "title": title,
+        "message": f"{display_name} está parado no ambiente {environment_name}.",
+    }
+
+
 def load_alert_delivery_state():
     os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(ALERT_DELIVERY_STATE_FILE):
@@ -1114,7 +1178,7 @@ def build_windows_update_alerts_for_environment(environment, environment_status,
         alerts.append(
             {
                 "kind": "windows_updates",
-                "severity": "warning",
+                "severity": "info",
                 "environment_id": (environment_status or {}).get("id") or (environment or {}).get("id"),
                 "environment_name": environment_name,
                 "host": server_ip,
@@ -1131,6 +1195,7 @@ def build_windows_update_alerts_for_environment(environment, environment_status,
 def build_monitor_alerts_payload(user=None, include_all=False):
     settings = load_alert_settings()
     alerts = []
+    service_alert_states = {}
     environments = load_environments()
     accessible_environments = [
         environment
@@ -1213,16 +1278,36 @@ def build_monitor_alerts_payload(user=None, include_all=False):
             for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
                 if str(service.get("collector_sync_state") or "") != "healthy":
                     continue
-                if not service_status_is_stopped(service.get("status")):
+                if should_suppress_stopped_service_alert(environment, environment_status, service):
                     continue
                 display_name = str(service.get("display_name") or service.get("name") or "Serviço").strip() or "Serviço"
+                server_ip = get_service_server_ip(service, host)
+                is_stopped = service_status_is_stopped(service.get("status"))
+                state_key = build_service_alert_state_key(
+                    "production_service_stopped",
+                    environment_status.get("id"),
+                    server_ip,
+                    service.get("name"),
+                )
+                service_alert_states[state_key] = {
+                    "kind": "production_service_stopped",
+                    "environment_id": environment_status.get("id"),
+                    "environment_name": environment_name,
+                    "host": server_ip,
+                    "server_ip": server_ip,
+                    "service_name": str(service.get("name") or "").strip(),
+                    "display_name": display_name,
+                    "is_active": is_stopped,
+                }
+                if not is_stopped:
+                    continue
                 alerts.append(
                     {
                         "kind": "production_service_stopped",
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
-                        "host": get_service_server_ip(service, host),
+                        "host": server_ip,
                         "service_name": str(service.get("name") or "").strip(),
                         "title": "Serviço parado em produção",
                         "message": f"{display_name} está parado no ambiente {environment_name}.",
@@ -1233,18 +1318,38 @@ def build_monitor_alerts_payload(user=None, include_all=False):
             for service in (environment_status.get("services") or []) + (environment_status.get("infra_services") or []):
                 if str(service.get("collector_sync_state") or "") != "healthy":
                     continue
+                if should_suppress_stopped_service_alert(environment, environment_status, service):
+                    continue
                 if normalize_service_priority(service.get("priority")) != "alta":
                     continue
-                if not service_status_is_stopped(service.get("status")):
-                    continue
                 display_name = str(service.get("display_name") or service.get("name") or "Serviço").strip() or "Serviço"
+                server_ip = get_service_server_ip(service, host)
+                is_stopped = service_status_is_stopped(service.get("status"))
+                state_key = build_service_alert_state_key(
+                    "high_priority_service",
+                    environment_status.get("id"),
+                    server_ip,
+                    service.get("name"),
+                )
+                service_alert_states[state_key] = {
+                    "kind": "high_priority_service",
+                    "environment_id": environment_status.get("id"),
+                    "environment_name": environment_name,
+                    "host": server_ip,
+                    "server_ip": server_ip,
+                    "service_name": str(service.get("name") or "").strip(),
+                    "display_name": display_name,
+                    "is_active": is_stopped,
+                }
+                if not is_stopped:
+                    continue
                 alerts.append(
                     {
                         "kind": "high_priority_service",
                         "severity": "critical",
                         "environment_id": environment_status.get("id"),
                         "environment_name": environment_name,
-                        "host": get_service_server_ip(service, host),
+                        "host": server_ip,
                         "service_name": str(service.get("name") or "").strip(),
                         "title": "Serviço crítico parado",
                         "message": f"{display_name} está parado no ambiente {environment_name}.",
@@ -1273,6 +1378,7 @@ def build_monitor_alerts_payload(user=None, include_all=False):
         "success": True,
         "settings": settings,
         "alerts": unique_alerts[:ALERTS_MAX_ITEMS],
+        "service_alert_states": service_alert_states,
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
@@ -1762,7 +1868,7 @@ def discover_services_on_hosts(hosts, credential=None):
     if discovered:
         step_logs.append("Busca automática concluída usando exclusivamente dados do gamb-coletor.")
     else:
-        step_logs.append("Nenhum serviço TOTVS elegível foi encontrado no gamb-coletor dos hosts informados.")
+        step_logs.append("Nenhum serviço TOTVS/TSS elegível foi encontrado no gamb-coletor dos hosts informados.")
 
     payload = {
         "steps": step_logs,
@@ -1820,11 +1926,16 @@ foreach ($t in $targets) {{
         $invokeParams = @{{
             ComputerName = $connectHost
             ScriptBlock  = {{
-            # Serviços TOTVS por DisplayName OU Name (contains), excluindo desabilitados.
+            # Serviços TOTVS/TSS por DisplayName OU Name (contains), excluindo desabilitados.
             $cimServices = Get-CimInstance Win32_Service | Where-Object {{
                 $nameText = ([string]$_.Name).ToLowerInvariant()
                 $displayText = ([string]$_.DisplayName).ToLowerInvariant()
-                (([string]$_.StartMode) -notmatch '(?i)^disabled$') -and ($nameText.Contains('totvs') -or $displayText.Contains('totvs'))
+                (([string]$_.StartMode) -notmatch '(?i)^disabled$') -and (
+                    $nameText.Contains('totvs') -or
+                    $displayText.Contains('totvs') -or
+                    $nameText.Contains('tss') -or
+                    $displayText.Contains('tss')
+                )
             }}
 
             function Find-AppserverIniPath($exeDir) {{
@@ -2069,7 +2180,7 @@ if ($results.Count -eq 0) {{
         discovered.append(row_data)
 
     if not discovered and not errors:
-        step_logs.append("Nenhum serviço TOTVS elegível foi encontrado nos hosts informados.")
+        step_logs.append("Nenhum serviço TOTVS/TSS elegível foi encontrado nos hosts informados.")
     elif discovered:
         step_logs.append("Resumo final de execução (serviço está rodando?):")
         for item in discovered:
@@ -3588,6 +3699,77 @@ def _normalize_service_key(value):
     return (value or "").strip().lower()
 
 
+def _parse_trace_datetime(value):
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return None
+
+
+def should_suppress_stopped_service_alert(environment, environment_status, service):
+    service_name = _normalize_service_key(service.get("name"))
+    if not service_name:
+        return False
+
+    environment_name = _normalize_service_key(
+        (environment_status or {}).get("environment") or (environment or {}).get("name")
+    )
+    resolved_host = _normalize_service_key(
+        get_service_server_ip(service, (environment_status or {}).get("host") or (environment or {}).get("host"))
+    )
+    now_dt = datetime.now()
+
+    with ACTION_JOBS_LOCK:
+        active_jobs = list((ACTION_JOBS or {}).values())
+
+    for job in active_jobs:
+        if not isinstance(job, dict):
+            continue
+        if _normalize_service_key(job.get("environment")) != environment_name:
+            continue
+        if _normalize_service_key(job.get("service")) != service_name:
+            continue
+        if _normalize_service_key(job.get("server_ip")) != resolved_host:
+            continue
+        if _normalize_service_key(job.get("action")) not in {"start", "restart"}:
+            continue
+        if _normalize_service_key(job.get("status")) in {"queued", "running"}:
+            return True
+
+    try:
+        with open(EXECUTION_TRACE_FILE, "r", encoding="utf-8-sig") as file:
+            entries = json.load(file)
+        if not isinstance(entries, list):
+            entries = []
+    except Exception:
+        entries = []
+
+    for entry in entries[:250]:
+        if not isinstance(entry, dict):
+            continue
+        if _normalize_service_key(entry.get("environment")) != environment_name:
+            continue
+        if _normalize_service_key(entry.get("service")) != service_name:
+            continue
+        if _normalize_service_key(entry.get("host")) != resolved_host:
+            continue
+        if _normalize_service_key(entry.get("action")) not in {"start", "restart"}:
+            continue
+        if not _normalize_service_key(entry.get("result")).startswith("success"):
+            continue
+        when = _parse_trace_datetime(entry.get("datetime"))
+        if not when:
+            continue
+        if (now_dt - when).total_seconds() <= SERVICE_ALERT_SUPPRESSION_SECONDS:
+            return True
+        break
+
+    return False
+
+
 def _build_service_registry_target(environment_name, section, service):
     section_label = "Infra" if section == "infra_services" else "Aplicacao"
     service_name = (service.get("display_name") or service.get("name") or "servico-sem-nome").strip()
@@ -3932,6 +4114,8 @@ def get_teams_alert_icon(alert):
         return "🖥️"
     if kind in {"production_service_stopped", "high_priority_service"}:
         return "⚙️"
+    if kind == "service_recovered":
+        return "✅"
     if severity == "critical":
         return "🚨"
     if severity == "warning":
@@ -3984,7 +4168,7 @@ def build_teams_alert_card(alert):
         facts.append({"title": "Unidade", "value": str(alert.get("drive") or "-")})
         if alert.get("free_percent") is not None:
             facts.append({"title": "Livre", "value": f"{alert.get('free_percent')}%"})
-    elif kind in {"production_service_stopped", "high_priority_service"}:
+    elif kind in {"production_service_stopped", "high_priority_service", "service_recovered"}:
         facts.append({"title": "Serviço", "value": str(alert.get("service_name") or "-")})
     elif kind in {"collector_json_missing", "collector_host_offline"}:
         facts.append({"title": "Coletor", "value": "Sem sincronização válida"})
@@ -4202,11 +4386,13 @@ def dispatch_monitor_alerts():
     global ALERT_LAST_DISPATCH_TS
 
     now = time.time()
+    dispatch_time = datetime.now()
     if now - ALERT_LAST_DISPATCH_TS < ALERT_DISPATCH_INTERVAL_SECONDS:
         return
 
     with ALERT_DISPATCH_LOCK:
         now = time.time()
+        dispatch_time = datetime.now()
         if now - ALERT_LAST_DISPATCH_TS < ALERT_DISPATCH_INTERVAL_SECONDS:
             return
         ALERT_LAST_DISPATCH_TS = now
@@ -4223,13 +4409,50 @@ def dispatch_monitor_alerts():
 
         payload = build_monitor_alerts_payload(include_all=True)
         alerts = filter_alerts_for_teams(payload.get("alerts") or [], settings)
-        if not alerts:
-            return
+        service_alert_states = payload.get("service_alert_states") if isinstance(payload, dict) else {}
+        if not isinstance(service_alert_states, dict):
+            service_alert_states = {}
 
         state = load_alert_delivery_state()
         teams_state = state.get("teams") if isinstance(state, dict) else {}
         if not isinstance(teams_state, dict):
             teams_state = {}
+        service_state = state.get("service_alerts") if isinstance(state, dict) else {}
+        if not isinstance(service_state, dict):
+            service_state = {}
+
+        recovery_alerts = []
+        for state_key, current_state in service_alert_states.items():
+            if not isinstance(current_state, dict):
+                continue
+            previous_state = service_state.get(state_key) if isinstance(service_state.get(state_key), dict) else {}
+            is_active = bool(current_state.get("is_active"))
+            was_active = bool(previous_state.get("is_active"))
+            if not previous_state:
+                prior_stopped_alert = build_service_stopped_alert_from_state(current_state)
+                prior_signature = build_teams_alert_signature(prior_stopped_alert)
+                was_active = prior_signature in teams_state
+            if was_active and not is_active:
+                recovery_alerts.append(build_service_recovery_alert(current_state))
+            service_state[state_key] = {
+                "is_active": is_active,
+                "updated_at": now,
+                "kind": current_state.get("kind"),
+                "environment_id": current_state.get("environment_id"),
+                "host": current_state.get("host"),
+                "server_ip": current_state.get("server_ip"),
+                "service_name": current_state.get("service_name"),
+                "display_name": current_state.get("display_name"),
+                "environment_name": current_state.get("environment_name"),
+            }
+
+        recovery_alerts = filter_alerts_for_teams(recovery_alerts, settings)
+        alerts = list(alerts) + list(recovery_alerts)
+        if not alerts:
+            state["teams"] = teams_state
+            state["service_alerts"] = service_state
+            save_alert_delivery_state(state)
+            return
 
         max_cutoff = now - max(ALERT_TEAMS_DEDUP_SECONDS, ALERT_TEAMS_WINDOWS_UPDATES_DEDUP_SECONDS)
         teams_state = {
@@ -4240,6 +4463,11 @@ def dispatch_monitor_alerts():
 
         new_alerts = []
         for alert in alerts:
+            if (
+                str((alert or {}).get("kind") or "").strip() == "windows_updates"
+                and not is_teams_windows_updates_delivery_day(dispatch_time)
+            ):
+                continue
             dedup_seconds = get_teams_alert_dedup_seconds(alert)
             cutoff = now - dedup_seconds
             signature = build_teams_alert_signature(alert)
@@ -4251,6 +4479,7 @@ def dispatch_monitor_alerts():
 
         if not new_alerts:
             state["teams"] = teams_state
+            state["service_alerts"] = service_state
             save_alert_delivery_state(state)
             return
 
@@ -4268,6 +4497,7 @@ def dispatch_monitor_alerts():
 
         if sent_count:
             state["teams"] = teams_state
+            state["service_alerts"] = service_state
             save_alert_delivery_state(state)
             save_log("ALERTAS", "TEAMS", "SUCCESS", "system", count=sent_count)
         if errors:

@@ -367,7 +367,7 @@ document.documentElement.classList.add("dark");
 </div>
 
 <div id="alertsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-    <div class="max-h-[80vh] w-full max-w-5xl rounded-3xl bg-white p-5 shadow-2xl">
+    <div class="max-h-[80vh] w-full max-w-3xl rounded-3xl bg-white p-5 shadow-2xl">
         <div class="mb-4 flex items-center justify-between">
             <div>
                 <h2 class="text-xl font-semibold">Alertas</h2>
@@ -1182,7 +1182,8 @@ function getVisibleAlerts() {
         return safeAlerts;
     }
     const currentSignature = getAlertsSignature(safeAlerts);
-    return currentSignature === hiddenAlertsSignature ? [] : safeAlerts;
+    const summarySignature = lastAlertsSummarySignature || "";
+    return (currentSignature === hiddenAlertsSignature || summarySignature === hiddenAlertsSignature) ? [] : safeAlerts;
 }
 
 function renderLogsContent() {
@@ -1218,56 +1219,34 @@ function renderAlertsContent() {
         return;
     }
 
-    const groupedAlerts = visibleAlerts.reduce((groups, alert) => {
+    visibleAlerts.forEach((alert) => {
+        const severity = String(alert.severity || "").trim().toLowerCase();
         const environmentName = String(alert.environment_name || "Ambiente não identificado").trim() || "Ambiente não identificado";
-        if (!groups[environmentName]) {
-            groups[environmentName] = [];
-        }
-        groups[environmentName].push(alert);
-        return groups;
-    }, {});
-
-    Object.entries(groupedAlerts).forEach(([environmentName, alerts]) => {
+        const hostLabel = String(alert.host || "").trim();
+        const title = String(alert.title || "Alerta").trim() || "Alerta";
+        const message = String(alert.message || "").trim();
+        const toneClasses = severity === "critical"
+            ? "border-rose-200 bg-rose-50"
+            : severity === "warning"
+                ? "border-amber-200 bg-amber-50"
+                : "border-slate-200 bg-white";
+        const badgeClasses = severity === "critical"
+            ? "bg-rose-100 text-rose-700"
+            : severity === "warning"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-slate-100 text-slate-700";
         container.innerHTML += `
-            <section class="rounded-3xl border border-slate-700/70 bg-slate-950/45 p-4 shadow-[0_18px_45px_rgba(2,6,23,0.22)]">
-                <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-700/80 pb-3">
-                    <div class="flex items-center gap-2">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900/80 text-slate-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
-                        </span>
-                        <div>
-                            <div class="text-base font-semibold text-slate-100">${escapeHtml(environmentName)}</div>
-                            <div class="text-xs text-slate-400">${alerts.length} alerta(s) neste ambiente</div>
-                        </div>
+            <div class="rounded-2xl border p-4 text-sm ${toneClasses}">
+                <div class="mb-2 flex items-start justify-between gap-3">
+                    <div>
+                        <div class="font-semibold text-slate-900">${escapeHtml(title)}</div>
+                        <div class="mt-1 text-xs text-slate-500">Ambiente: ${escapeHtml(environmentName)}</div>
+                        ${hostLabel ? `<div class="text-xs text-slate-500">Host: ${escapeHtml(hostLabel)}</div>` : ""}
                     </div>
+                    <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${badgeClasses}">${escapeHtml(alert.severity || "info")}</span>
                 </div>
-                <div class="grid gap-3 lg:grid-cols-2">
-                    ${alerts.map((alert) => {
-                        const severity = String(alert.severity || "").trim().toLowerCase();
-                        const toneClasses = getAlertToneClasses(severity);
-                        const badgeClasses = getAlertSeverityBadgeClasses(severity);
-                        const hostLabel = String(alert.host || "").trim();
-                        const iconMarkup = getAlertIconMarkup(alert);
-                        return `
-                            <article class="rounded-2xl border p-4 text-sm shadow-[0_10px_30px_rgba(2,6,23,0.18)] ${toneClasses}">
-                                <div class="mb-3 flex items-start justify-between gap-3">
-                                    <div class="flex items-start gap-3">
-                                        <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-950/40">
-                                            ${iconMarkup}
-                                        </span>
-                                        <div class="space-y-1">
-                                            <div class="font-semibold">${escapeHtml(alert.title || "Alerta")}</div>
-                                            ${hostLabel ? `<div class="text-xs opacity-80">Host: ${escapeHtml(hostLabel)}</div>` : ""}
-                                        </div>
-                                    </div>
-                                    <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${badgeClasses}">${escapeHtml(alert.severity || "info")}</span>
-                                </div>
-                                <div class="leading-6">${escapeHtml(alert.message || "")}</div>
-                            </article>
-                        `;
-                    }).join("")}
-                </div>
-            </section>
+                <div><span class="text-slate-500">Mensagem:</span> ${escapeHtml(message || "-")}</div>
+            </div>
         `;
     });
 }
@@ -1394,7 +1373,12 @@ function clearLogsScreen() {
 
 function updateAlertsBadge() {
     const badge = document.getElementById("alertsBadge");
-    const visibleCount = hiddenAlertsSignature && hiddenAlertsSignature === lastAlertsSummarySignature ? 0 : lastAlertsSummaryCount;
+    const currentAlertsSignature = Array.isArray(allAlerts) && allAlerts.length ? getAlertsSignature(allAlerts) : "";
+    const alertsHidden = !!hiddenAlertsSignature && (
+        hiddenAlertsSignature === lastAlertsSummarySignature
+        || hiddenAlertsSignature === currentAlertsSignature
+    );
+    const visibleCount = alertsHidden ? 0 : lastAlertsSummaryCount;
     if (!visibleCount || !lastAlertsSummarySignature) {
         badge.classList.add("hidden");
         return;
@@ -1410,7 +1394,7 @@ function updateAlertsBadge() {
 }
 
 function clearAlertsScreen() {
-    hiddenAlertsSignature = allAlerts.length ? getAlertsSignature(allAlerts) : lastAlertsSummarySignature;
+    hiddenAlertsSignature = lastAlertsSummarySignature || (allAlerts.length ? getAlertsSignature(allAlerts) : "");
     localStorage.setItem("hiddenAlertsSignature", hiddenAlertsSignature);
     renderAlertsContent();
     updateAlertsBadge();
@@ -1859,6 +1843,11 @@ async function toggleAlerts() {
     if (!result) return;
 
     allAlerts = Array.isArray(result.data.alerts) ? result.data.alerts : [];
+    const currentAlertsSignature = allAlerts.length ? getAlertsSignature(allAlerts) : "";
+    if (hiddenAlertsSignature && currentAlertsSignature && hiddenAlertsSignature !== currentAlertsSignature && hiddenAlertsSignature !== lastAlertsSummarySignature) {
+        hiddenAlertsSignature = "";
+        localStorage.removeItem("hiddenAlertsSignature");
+    }
     renderAlertsContent();
     lastAlertsReadSignature = getAlertsSignature(allAlerts);
     lastAlertsSummarySignature = lastAlertsReadSignature;
