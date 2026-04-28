@@ -6,13 +6,19 @@ REM GAMB Coletor de Servico (Windows Server friendly)
 REM Uso:
 REM   gamb-colector-service.bat [FILTRO_NOME] [OUTPUT_DIR] [INTERVAL_SECONDS]
 REM Exemplo:
-REM   gamb-colector-service.bat TOTVS C:\gamb-coletor 5
+REM   gamb-colector-service.bat TOTVS,TSS C:\gamb-coletor 5
 REM ============================================================
 
-set "COLLECTOR_VERSION=multilingual-2026-04-16"
-set "FILTER_TERM=TOTVS"
+set "COLLECTOR_VERSION=v20260427-093454"
+set "FILTER_TERM=TOTVS,TSS"
 set "OUTPUT_DIR=C:\gamb-coletor"
 set "INTERVAL=5"
+title GAMB Coletor - %COLLECTOR_VERSION%
+mode con cols=100 lines=30 >nul 2>&1
+set /a LOOP_COUNT=0
+set "LAST_RESULT=Aguardando primeira coleta"
+set "LAST_TOTAL_SERVICOS=0"
+set "LAST_RUN_AT=-"
 
 if not "%~1"=="" set "FILTER_TERM=%~1"
 if not "%~2"=="" set "OUTPUT_DIR=%~2"
@@ -33,7 +39,7 @@ if not exist "%OUTPUT_DIR%" (
 )
 
 set "SERVER_NAME=%COMPUTERNAME%"
-call :GetServerIP
+call :ResolveServerIp
 if not defined SERVER_IP set "SERVER_IP="
 
 call :Log "--------------------------------------------------"
@@ -46,21 +52,30 @@ call :Log "JSON: %OUTPUT_FILE%"
 call :Log "Intervalo: %INTERVAL%s"
 
 :Loop
-if not defined SERVER_IP call :GetServerIP
+set /a LOOP_COUNT+=1
+if not defined SERVER_IP call :ResolveServerIp
 if not defined SERVER_IP set "SERVER_IP=127.0.0.1"
 
+call :RedrawScreen
 call :WriteJsonTotvs
 
 timeout /t %INTERVAL% /nobreak >nul
 goto :Loop
 
 :Usage
-echo Versao: %COLLECTOR_VERSION%
-echo Uso: %~nx0 [FILTRO_NOME] [OUTPUT_DIR] [INTERVAL_SECONDS]
-echo Exemplo: %~nx0 TOTVS C:\gamb-coletor 5
+cls
+call :PrintHeader
+echo.
+echo  Versao: %COLLECTOR_VERSION%
+echo.
+echo  Uso: %~nx0 [FILTRO_NOME] [OUTPUT_DIR] [INTERVAL_SECONDS]
+echo.
+echo  Exemplo: %~nx0 TOTVS,TSS C:\gamb-coletor 5
+echo.
+echo  ----------------------------------------------------------------
 exit /b 0
 
-:GetServerIP
+:ResolveServerIp
 set "SERVER_IP="
 
 REM Estrategia unificada: tenta NetTCPIP, DNS e WMI/CIM (compatibilidade ampla)
@@ -95,6 +110,7 @@ exit /b 0
 set "TOTAL_SERVICOS=0"
 
 if not exist "%COLLECTOR_PS1%" (
+    set "LAST_RESULT=ERRO - script PowerShell nao encontrado"
     call :Log "ERRO: script PowerShell nao encontrado em %COLLECTOR_PS1%"
     exit /b 1
 )
@@ -104,10 +120,59 @@ for /f "usebackq delims=" %%A in (`powershell -NoProfile -NonInteractive -Execut
 )
 
 if errorlevel 1 (
+    set "LAST_RESULT=ERRO - falha ao atualizar o JSON"
     call :Log "ERRO ao atualizar JSON"
 ) else (
+    set "LAST_RESULT=SUCESSO - JSON atualizado"
+    set "LAST_TOTAL_SERVICOS=%TOTAL_SERVICOS%"
     call :Log "JSON atualizado - Servicos filtrados: %TOTAL_SERVICOS%"
 )
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "(Get-Date).ToString('yyyy-MM-dd HH:mm:ss')"`) do (
+    set "LAST_RUN_AT=%%A"
+)
+exit /b 0
+
+:PrintHeader
+echo.
+echo  ======================================================================
+echo                           GAMB COLETOR
+echo.
+echo                    Coleta operacional de servicos TOTVS/TSS
+echo                    Atualizacao continua do status-servico.json
+echo  ======================================================================
+exit /b 0
+
+:RedrawScreen
+cls
+call :PrintHeader
+echo.
+echo  STATUS ATUAL
+echo  ----------------------------------------------------------------------
+echo  Versao em execucao: %COLLECTOR_VERSION%
+echo.
+echo  Servidor monitorado: %SERVER_NAME%
+echo.
+echo  IP do servidor....: %SERVER_IP%
+echo.
+echo  Ciclo atual ......: !LOOP_COUNT!
+echo.
+echo  Ultima execucao ..: !LAST_RUN_AT!
+echo  ----------------------------------------------------------------------
+echo.
+echo  Ultimo resultado .: !LAST_RESULT!
+echo.
+echo  Servicos lidos ...: !LAST_TOTAL_SERVICOS!
+echo.
+echo  Filtro ...........: %FILTER_TERM%
+echo.
+echo  Destino JSON .....: %OUTPUT_FILE%
+echo.
+echo  Intervalo ........: %INTERVAL%s
+echo.
+echo  Atualizando coleta...
+echo.
+echo  ----------------------------------------------------------------------
+echo.
 exit /b 0
 
 :Log

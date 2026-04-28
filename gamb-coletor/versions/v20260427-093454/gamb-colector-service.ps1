@@ -1,9 +1,9 @@
 param(
-    [string]$FilterTerm = "TOTVS",
+    [string]$FilterTerm = "TOTVS,TSS",
     [string]$OutputFile,
     [string]$ServerName,
     [string]$ServerIp,
-    [string]$CollectorVersion = "v20260423"
+    [string]$CollectorVersion = "v20260427-093454"
 )
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -224,10 +224,25 @@ if ($outDir -and -not (Test-Path $outDir)) {
     New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 }
 
+$filterTerms = @($FilterTerm -split "," | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+if (-not $filterTerms.Count) {
+    $filterTerms = @("TOTVS", "TSS")
+}
+
 $services = Get-Service |
     Where-Object {
-        $_.StartType -ne "Disabled" -and
-        ( $_.Name -like "*$FilterTerm*" -or $_.DisplayName -like "*$FilterTerm*" )
+        if ($_.StartType -eq "Disabled") {
+            return $false
+        }
+
+        $serviceName = [string]$_.Name
+        $displayName = [string]$_.DisplayName
+        foreach ($term in $filterTerms) {
+            if ($serviceName -like "*$term*" -or $displayName -like "*$term*") {
+                return $true
+            }
+        }
+        return $false
     } |
     Sort-Object DisplayName, Name
 
