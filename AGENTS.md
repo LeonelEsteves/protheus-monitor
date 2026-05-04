@@ -156,6 +156,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 
 - Windows Updates por ambiente: somar apenas hosts validos/sincronizados por `server_ip`; hosts offline, sem JSON ou stale nao entram na soma e devem aparecer como N/D.
 - Webhook/Teams: manter segredo fora do git, enviar alertas separados por Adaptive Card, respeitar agenda/severidade e deduplicacao.
+- Webhook/Teams: para alertas gerais, nao reenviar a mesma mensagem no mesmo dia civil; permitir novo envio apenas em outro dia, mantendo a deduplicacao especial ja existente para Windows Update.
 - Webhook/Teams: suportar dois webhooks (producao e homologacao) com selecao mutuamente exclusiva; somente o canal ativo deve receber mensagens.
 - UX/performance: badge de alertas na tela principal deve usar resumo leve; carregar lista completa de alertas somente ao abrir o modal.
 - Alertas de servico critico/parado enviados ao Teams podem exibir botao "Iniciar servico" usando link seguro do monitor; exige APP_PUBLIC_BASE_URL acessivel e confirmacao autenticada no browser.
@@ -183,6 +184,7 @@ Este repositório é um app **Flask** (Windows) para **monitorar e controlar ser
 - Gamb-coletor: filtro padrao do coletor e da descoberta deve incluir TOTVS e TSS; novas versoes do coletor precisam preservar esse criterio.
 
 - Gamb-coletor BAT: manter cabecalho fixo no console, com limpeza/redesenho por ciclo para evitar que a janela cresca visualmente durante a coleta continua.
+
 
 
 

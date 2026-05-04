@@ -946,6 +946,29 @@ def build_teams_alert_signature(alert):
     return build_alert_signature(alert)
 
 
+def build_teams_alert_delivery_key(alert, when=None):
+    signature = build_teams_alert_signature(alert)
+    if str((alert or {}).get("kind") or "").strip() == "windows_updates":
+        return signature
+    when = when or datetime.now()
+    return f"{when.strftime('%Y-%m-%d')}|{signature}"
+
+
+def was_teams_alert_already_sent(alert, teams_state, when=None):
+    if not isinstance(teams_state, dict):
+        return False
+    delivery_key = build_teams_alert_delivery_key(alert, when=when)
+    if delivery_key in teams_state:
+        return True
+
+    signature = build_teams_alert_signature(alert)
+    if str((alert or {}).get("kind") or "").strip() == "windows_updates":
+        return signature in teams_state
+
+    suffix = f"|{signature}"
+    return any(str(key).endswith(suffix) for key in teams_state.keys())
+
+
 def get_teams_alert_dedup_seconds(alert):
     if str((alert or {}).get("kind") or "").strip() == "windows_updates":
         return ALERT_TEAMS_WINDOWS_UPDATES_DEDUP_SECONDS
@@ -4430,8 +4453,11 @@ def dispatch_monitor_alerts():
             was_active = bool(previous_state.get("is_active"))
             if not previous_state:
                 prior_stopped_alert = build_service_stopped_alert_from_state(current_state)
-                prior_signature = build_teams_alert_signature(prior_stopped_alert)
-                was_active = prior_signature in teams_state
+                was_active = was_teams_alert_already_sent(
+                    prior_stopped_alert,
+                    teams_state,
+                    when=dispatch_time,
+                )
             if was_active and not is_active:
                 recovery_alerts.append(build_service_recovery_alert(current_state))
             service_state[state_key] = {
@@ -4470,12 +4496,12 @@ def dispatch_monitor_alerts():
                 continue
             dedup_seconds = get_teams_alert_dedup_seconds(alert)
             cutoff = now - dedup_seconds
-            signature = build_teams_alert_signature(alert)
-            sent_at = teams_state.get(signature, 0)
+            delivery_key = build_teams_alert_delivery_key(alert, when=dispatch_time)
+            sent_at = teams_state.get(delivery_key, 0)
             if isinstance(sent_at, (int, float)) and sent_at >= cutoff:
                 continue
             new_alerts.append(alert)
-            teams_state[signature] = now
+            teams_state[delivery_key] = now
 
         if not new_alerts:
             state["teams"] = teams_state
@@ -4552,7 +4578,7 @@ def send_all_teams_alerts_now(actor="system"):
         teams_state = {}
     now = time.time()
     for alert in alerts:
-        teams_state[build_teams_alert_signature(alert)] = now
+        teams_state[build_teams_alert_delivery_key(alert)] = now
     state["teams"] = teams_state
     save_alert_delivery_state(state)
 
