@@ -267,4 +267,23 @@ Observa??o: As novas vers?es do coletor usam nomes curtos no padr?o `vYYYYMMDD` 
 - Alertas de servico critico/parado no Teams podem incluir botao para iniciar o servico via link seguro do monitor; para isso, configure `APP_PUBLIC_BASE_URL` com a URL publica do sistema.
 - Servicos criticos/em producao tambem enviam aviso de retorno ao normal no Teams com severidade informativa (`info`), para confirmar que o servico voltou a funcionar.
 
+### Regra geral de envio para o Teams
+
+- O envio para o Teams so acontece quando a rotina de alertas estiver habilitada (`teams_enabled=true`).
+- O canal de envio e mutuamente exclusivo: apenas um webhook fica ativo por vez (`producao` ou `homologacao`).
+- A agenda de envio respeita:
+  - dias da semana configurados em `teams_schedule_days`
+  - modo `full time` ou janela por horario (`teams_schedule_start` / `teams_schedule_end`)
+- O filtro de envio respeita as severidades configuradas em `teams_alert_severities` (`critical`, `warning`, `info`).
+- O monitor envia um Adaptive Card separado por alerta novo.
+- Para alertas gerais, o mesmo alerta nao deve ser reenviado mais de uma vez no mesmo dia civil.
+- Se o problema persistir em outro dia, o alerta pode ser reenviado normalmente.
+- `Windows Update` segue regra propria:
+  - severidade `info`
+  - envio no maximo uma vez por semana
+  - envio automatico somente na segunda-feira
+- Alertas de servico critico/parado usam severidade `critical`.
+- Quando um servico critico ou de producao voltar a funcionar, o monitor envia um alerta de retorno ao normal com severidade `info`.
+- Durante operacoes de `start` e `restart`, existe uma janela curta de supressao para evitar falso positivo de servico parado.
+
 
